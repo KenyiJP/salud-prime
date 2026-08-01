@@ -14,7 +14,146 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      citas: {
+        Row: {
+          created_at: string
+          duracion_min: number
+          estado: string
+          id: string
+          inicio: string
+          medico_id: string
+          motivo: string | null
+          notas: string | null
+          paciente_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duracion_min?: number
+          estado?: string
+          id?: string
+          inicio: string
+          medico_id: string
+          motivo?: string | null
+          notas?: string | null
+          paciente_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duracion_min?: number
+          estado?: string
+          id?: string
+          inicio?: string
+          medico_id?: string
+          motivo?: string | null
+          notas?: string | null
+          paciente_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citas_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medicos: {
+        Row: {
+          apellidos: string
+          cmp: string | null
+          created_at: string
+          email: string | null
+          especialidad: string
+          id: string
+          nombres: string
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          apellidos: string
+          cmp?: string | null
+          created_at?: string
+          email?: string | null
+          especialidad: string
+          id?: string
+          nombres: string
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          apellidos?: string
+          cmp?: string | null
+          created_at?: string
+          email?: string | null
+          especialidad?: string
+          id?: string
+          nombres?: string
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pacientes: {
+        Row: {
+          apellidos: string
+          created_at: string
+          dni: string | null
+          email: string | null
+          fecha_nacimiento: string | null
+          id: string
+          medico_id: string | null
+          nombres: string
+          sexo: string | null
+          telefono: string | null
+          updated_at: string
+        }
+        Insert: {
+          apellidos: string
+          created_at?: string
+          dni?: string | null
+          email?: string | null
+          fecha_nacimiento?: string | null
+          id?: string
+          medico_id?: string | null
+          nombres: string
+          sexo?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Update: {
+          apellidos?: string
+          created_at?: string
+          dni?: string | null
+          email?: string | null
+          fecha_nacimiento?: string | null
+          id?: string
+          medico_id?: string | null
+          nombres?: string
+          sexo?: string | null
+          telefono?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pacientes_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
