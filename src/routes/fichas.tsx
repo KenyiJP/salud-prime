@@ -1,23 +1,58 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { FileHeart, Search, UserPlus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { edad, nombreCompleto, pacientesQuery } from "@/lib/clinica-queries";
 
 export const Route = createFileRoute("/fichas")({
-  head: () => ({ meta: [{ title: "Fichas Clínicas (EHR) — MediSuite" }] }),
+  head: () => ({
+    meta: [
+      { title: "Fichas Clínicas (EHR) — MediSuite" },
+      {
+        name: "description",
+        content:
+          "Listado de pacientes con DNI, edad, sexo y profesional responsable conectado a tu base de datos clínica.",
+      },
+      { property: "og:title", content: "Fichas Clínicas (EHR) — MediSuite" },
+      {
+        property: "og:description",
+        content: "Historia clínica electrónica para consultorios independientes en Perú.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(pacientesQuery());
+  },
   component: FichasPage,
+  errorComponent: ({ error }) => (
+    <DashboardShell>
+      <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
+        No se pudieron cargar los pacientes: {error.message}
+      </div>
+    </DashboardShell>
+  ),
+  notFoundComponent: () => (
+    <DashboardShell>
+      <p className="text-sm text-muted-foreground">Sin pacientes disponibles.</p>
+    </DashboardShell>
+  ),
 });
 
 function FichasPage() {
+  const { data: pacientes } = useSuspenseQuery(pacientesQuery());
+
   return (
     <DashboardShell>
       <div className="space-y-8">
         <PageHeader
           eyebrow="Historia clínica"
           title="Fichas Clínicas (EHR)"
-          description="Registra antecedentes, evoluciones, exámenes y adjuntos siguiendo la norma técnica del MINSA."
+          description="Pacientes leídos de la tabla pacientes, con su médico responsable relacionado."
           actions={
             <Button className="gap-2">
               <UserPlus className="h-4 w-4" /> Nuevo paciente
@@ -30,11 +65,53 @@ function FichasPage() {
           <Input placeholder="Buscar por DNI, nombre o historia…" className="h-10 pl-9" />
         </div>
 
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-background/50 text-xs uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Paciente</th>
+                <th className="px-4 py-3 text-left font-medium">DNI</th>
+                <th className="px-4 py-3 text-left font-medium">Edad</th>
+                <th className="hidden px-4 py-3 text-left font-medium sm:table-cell">Sexo</th>
+                <th className="hidden px-4 py-3 text-left font-medium md:table-cell">
+                  Responsable
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {pacientes.map((p) => (
+                <tr key={p.id} className="border-t border-border/50">
+                  <td className="px-4 py-3 font-medium">{nombreCompleto(p)}</td>
+                  <td className="px-4 py-3 font-mono text-xs">{p.dni ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {edad(p.fecha_nacimiento)}
+                  </td>
+                  <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
+                    {p.sexo ?? "—"}
+                  </td>
+                  <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
+                    {p.medicos
+                      ? `${nombreCompleto(p.medicos)} · ${p.medicos.especialidad}`
+                      : "Sin asignar"}
+                  </td>
+                </tr>
+              ))}
+              {pacientes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                    No hay pacientes registrados.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <PlaceholderCard
             icon={<FileHeart className="h-5 w-5" />}
-            title="Listado de pacientes"
-            description="La tabla de pacientes con filtros por edad, patología y última visita aparecerá aquí."
+            title="Evoluciones y adjuntos"
+            description="Cada ficha guardará antecedentes, evoluciones y exámenes vinculados al paciente."
           />
           <PlaceholderCard
             icon={<FileHeart className="h-5 w-5" />}
