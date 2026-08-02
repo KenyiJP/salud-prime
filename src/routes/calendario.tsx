@@ -3,22 +3,28 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { CalendarDays, Clock, Plus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
-import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { NuevaCitaDialog } from "@/components/nueva-cita-dialog";
+import { pacientesQuery } from "@/lib/pacientes.queries";
 import {
   citasQuery,
   fechaCorta,
   horaCorta,
-  nombreCompleto,
-} from "@/lib/clinica-queries";
+  useCambiarEstadoCita,
+  type CitaRow,
+  type EstadoCita,
+} from "@/lib/citas.queries";
 
 export const Route = createFileRoute("/calendario")({
+  // Client-only: the data below requires an authenticated Supabase session,
+  // which does not exist during SSR/prerender.
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Calendario de Citas — MediSuite" },
       {
         name: "description",
-        content:
-          "Agenda médica con citas programadas, duración, motivo y profesional asignado desde tu base de datos clínica.",
+        content: "Agenda médica con citas programadas, motivo, monto y estado desde tu base de datos clínica.",
       },
       { property: "og:title", content: "Calendario de Citas — MediSuite" },
       {
@@ -31,6 +37,7 @@ export const Route = createFileRoute("/calendario")({
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(citasQuery());
+    context.queryClient.ensureQueryData(pacientesQuery());
   },
   component: CalendarioPage,
   errorComponent: ({ error }) => (
@@ -56,12 +63,8 @@ function CalendarioPage() {
         <PageHeader
           eyebrow="Agenda"
           title="Calendario de Citas"
-          description="Citas leídas de la tabla citas, con paciente y profesional relacionados."
-          actions={
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" /> Nueva cita
-            </Button>
-          }
+          description="Citas leídas de la tabla citas, vinculadas a tus pacientes."
+          actions={<NuevaCitaDialog />}
         />
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -89,33 +92,23 @@ function CalendarioPage() {
                 <th className="px-4 py-3 text-left font-medium">Fecha</th>
                 <th className="px-4 py-3 text-left font-medium">Hora</th>
                 <th className="px-4 py-3 text-left font-medium">Paciente</th>
-                <th className="hidden px-4 py-3 text-left font-medium sm:table-cell">
-                  Profesional
-                </th>
-                <th className="hidden px-4 py-3 text-left font-medium md:table-cell">
-                  Motivo
-                </th>
+                <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Motivo</th>
+                <th className="px-4 py-3 text-left font-medium">Monto</th>
                 <th className="px-4 py-3 text-left font-medium">Estado</th>
               </tr>
             </thead>
             <tbody>
               {citas.map((c) => (
                 <tr key={c.id} className="border-t border-border/50">
-                  <td className="px-4 py-3 whitespace-nowrap">{fechaCorta(c.inicio)}</td>
-                  <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">
-                    {horaCorta(c.inicio)} · {c.duracion_min}′
-                  </td>
-                  <td className="px-4 py-3">{nombreCompleto(c.pacientes)}</td>
-                  <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                    {nombreCompleto(c.medicos)}
-                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">{fechaCorta(c.fecha_hora)}</td>
+                  <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">{horaCorta(c.fecha_hora)}</td>
+                  <td className="px-4 py-3">{c.pacientes?.nombre_completo ?? "—"}</td>
                   <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                    {c.motivo ?? "—"}
+                    {c.motivo_consulta ?? "—"}
                   </td>
+                  <td className="px-4 py-3">S/ {Number(c.monto_pago ?? 0).toFixed(2)}</td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                      {c.estado}
-                    </span>
+                    <EstadoCitaCell cita={c} />
                   </td>
                 </tr>
               ))}
@@ -131,5 +124,25 @@ function CalendarioPage() {
         </div>
       </div>
     </DashboardShell>
+  );
+}
+
+function EstadoCitaCell({ cita }: { cita: CitaRow }) {
+  const cambiarEstado = useCambiarEstadoCita();
+  return (
+    <Select
+      value={cita.estado ?? "pendiente"}
+      onValueChange={(estado) => cambiarEstado.mutate({ id: cita.id, estado: estado as EstadoCita })}
+    >
+      <SelectTrigger className="h-7 w-[140px] text-xs">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="pendiente">Pendiente</SelectItem>
+        <SelectItem value="confirmada">Confirmada</SelectItem>
+        <SelectItem value="atendida">Atendida</SelectItem>
+        <SelectItem value="cancelada">Cancelada</SelectItem>
+      </SelectContent>
+    </Select>
   );
 }
