@@ -16,40 +16,37 @@ export type Database = {
     Tables: {
       citas: {
         Row: {
-          created_at: string
-          duracion_min: number
-          estado: string
+          created_at: string | null
+          estado: string | null
+          fecha_hora: string
           id: string
-          inicio: string
           medico_id: string
-          motivo: string | null
-          notas: string | null
+          monto_pago: number | null
+          motivo_consulta: string | null
           paciente_id: string
-          updated_at: string
+          pago_confirmado: boolean | null
         }
         Insert: {
-          created_at?: string
-          duracion_min?: number
-          estado?: string
+          created_at?: string | null
+          estado?: string | null
+          fecha_hora: string
           id?: string
-          inicio: string
           medico_id: string
-          motivo?: string | null
-          notas?: string | null
+          monto_pago?: number | null
+          motivo_consulta?: string | null
           paciente_id: string
-          updated_at?: string
+          pago_confirmado?: boolean | null
         }
         Update: {
-          created_at?: string
-          duracion_min?: number
-          estado?: string
+          created_at?: string | null
+          estado?: string | null
+          fecha_hora?: string
           id?: string
-          inicio?: string
           medico_id?: string
-          motivo?: string | null
-          notas?: string | null
+          monto_pago?: number | null
+          motivo_consulta?: string | null
           paciente_id?: string
-          updated_at?: string
+          pago_confirmado?: boolean | null
         }
         Relationships: [
           {
@@ -70,79 +67,67 @@ export type Database = {
       }
       medicos: {
         Row: {
-          apellidos: string
-          cmp: string | null
-          created_at: string
+          cmp_colegiatura: string | null
+          created_at: string | null
           email: string | null
-          especialidad: string
+          especialidad: string | null
           id: string
-          nombres: string
-          telefono: string | null
-          updated_at: string
+          nombre_completo: string
+          telefono_contacto: string | null
+          user_id: string | null
         }
         Insert: {
-          apellidos: string
-          cmp?: string | null
-          created_at?: string
+          cmp_colegiatura?: string | null
+          created_at?: string | null
           email?: string | null
-          especialidad: string
+          especialidad?: string | null
           id?: string
-          nombres: string
-          telefono?: string | null
-          updated_at?: string
+          nombre_completo: string
+          telefono_contacto?: string | null
+          user_id?: string | null
         }
         Update: {
-          apellidos?: string
-          cmp?: string | null
-          created_at?: string
+          cmp_colegiatura?: string | null
+          created_at?: string | null
           email?: string | null
-          especialidad?: string
+          especialidad?: string | null
           id?: string
-          nombres?: string
-          telefono?: string | null
-          updated_at?: string
+          nombre_completo?: string
+          telefono_contacto?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
       pacientes: {
         Row: {
-          apellidos: string
-          created_at: string
+          antecedentes_alergias: string | null
+          created_at: string | null
           dni: string | null
           email: string | null
-          fecha_nacimiento: string | null
           id: string
-          medico_id: string | null
-          nombres: string
-          sexo: string | null
-          telefono: string | null
-          updated_at: string
+          medico_id: string
+          nombre_completo: string
+          telefono_whatsapp: string
         }
         Insert: {
-          apellidos: string
-          created_at?: string
+          antecedentes_alergias?: string | null
+          created_at?: string | null
           dni?: string | null
           email?: string | null
-          fecha_nacimiento?: string | null
           id?: string
-          medico_id?: string | null
-          nombres: string
-          sexo?: string | null
-          telefono?: string | null
-          updated_at?: string
+          medico_id: string
+          nombre_completo: string
+          telefono_whatsapp: string
         }
         Update: {
-          apellidos?: string
-          created_at?: string
+          antecedentes_alergias?: string | null
+          created_at?: string | null
           dni?: string | null
           email?: string | null
-          fecha_nacimiento?: string | null
           id?: string
-          medico_id?: string | null
-          nombres?: string
-          sexo?: string | null
-          telefono?: string | null
-          updated_at?: string
+          medico_id?: string
+          nombre_completo?: string
+          telefono_whatsapp?: string
         }
         Relationships: [
           {
