@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { FileHeart, Search, UserPlus } from "lucide-react";
+import { FileHeart, Search } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { edad, nombreCompleto, pacientesQuery } from "@/lib/clinica-queries";
+import { NuevoPacienteDialog } from "@/components/nuevo-paciente-dialog";
+import { pacientesQuery } from "@/lib/pacientes.queries";
 
 export const Route = createFileRoute("/fichas")({
+  // Client-only: the data below requires an authenticated Supabase session,
+  // which does not exist during SSR/prerender.
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Fichas Clínicas (EHR) — MediSuite" },
       {
         name: "description",
-        content:
-          "Listado de pacientes con DNI, edad, sexo y profesional responsable conectado a tu base de datos clínica.",
+        content: "Listado de pacientes con DNI, teléfono y antecedentes conectado a tu base de datos clínica.",
       },
       { property: "og:title", content: "Fichas Clínicas (EHR) — MediSuite" },
       {
@@ -52,12 +54,8 @@ function FichasPage() {
         <PageHeader
           eyebrow="Historia clínica"
           title="Fichas Clínicas (EHR)"
-          description="Pacientes leídos de la tabla pacientes, con su médico responsable relacionado."
-          actions={
-            <Button className="gap-2">
-              <UserPlus className="h-4 w-4" /> Nuevo paciente
-            </Button>
-          }
+          description="Pacientes registrados en tu consultorio, leídos de la tabla pacientes."
+          actions={<NuevoPacienteDialog />}
         />
 
         <div className="relative max-w-md">
@@ -71,34 +69,24 @@ function FichasPage() {
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Paciente</th>
                 <th className="px-4 py-3 text-left font-medium">DNI</th>
-                <th className="px-4 py-3 text-left font-medium">Edad</th>
-                <th className="hidden px-4 py-3 text-left font-medium sm:table-cell">Sexo</th>
-                <th className="hidden px-4 py-3 text-left font-medium md:table-cell">
-                  Responsable
-                </th>
+                <th className="px-4 py-3 text-left font-medium">WhatsApp</th>
+                <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Antecedentes / alergias</th>
               </tr>
             </thead>
             <tbody>
               {pacientes.map((p) => (
                 <tr key={p.id} className="border-t border-border/50">
-                  <td className="px-4 py-3 font-medium">{nombreCompleto(p)}</td>
+                  <td className="px-4 py-3 font-medium">{p.nombre_completo}</td>
                   <td className="px-4 py-3 font-mono text-xs">{p.dni ?? "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {edad(p.fecha_nacimiento)}
-                  </td>
-                  <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                    {p.sexo ?? "—"}
-                  </td>
+                  <td className="px-4 py-3 font-mono text-xs">{p.telefono_whatsapp}</td>
                   <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                    {p.medicos
-                      ? `${nombreCompleto(p.medicos)} · ${p.medicos.especialidad}`
-                      : "Sin asignar"}
+                    {p.antecedentes_alergias ?? "—"}
                   </td>
                 </tr>
               ))}
               {pacientes.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
                     No hay pacientes registrados.
                   </td>
                 </tr>

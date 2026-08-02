@@ -36,7 +36,7 @@ export const getMedicos = createServerFn({ method: "GET" }).handler(async () => 
     .select("id, nombres, apellidos, especialidad, cmp")
     .order("apellidos");
   if (error) throw new Error(error.message);
-  return (data ?? []) as Medico[];
+  return (data ?? []) as unknown as Medico[];
 });
 
 export const getPacientes = createServerFn({ method: "GET" }).handler(async () => {
