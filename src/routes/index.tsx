@@ -1,40 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  Activity,
-  CalendarClock,
-  FileHeart,
-  Pill,
-  Stethoscope,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { Activity, CalendarClock, FileHeart, Pill, TrendingUp, Users } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
-import {
-  citasQuery,
-  esHoy,
-  fechaCorta,
-  horaCorta,
-  medicosQuery,
-  nombreCompleto,
-  pacientesQuery,
-} from "@/lib/clinica-queries";
+import { pacientesQuery } from "@/lib/pacientes.queries";
+import { citasQuery, fechaCorta, horaCorta } from "@/lib/citas.queries";
 
 export const Route = createFileRoute("/")({
+  // Client-only: the data below requires an authenticated Supabase session,
+  // which does not exist during SSR/prerender.
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Panel Clínico — MediSuite Perú" },
       {
         name: "description",
-        content:
-          "Panel operativo para médicos independientes en Perú: citas del día, pacientes activos y agenda conectada a tu base de datos clínica.",
+        content: "Panel operativo para médicos independientes en Perú: citas del día, pacientes activos y agenda conectada a tu base de datos clínica.",
       },
       { property: "og:title", content: "Panel Clínico — MediSuite Perú" },
       {
         property: "og:description",
-        content:
-          "Resumen de citas, pacientes y agenda clínica en un solo panel para consultorios independientes.",
+        content: "Resumen de citas, pacientes y agenda clínica en un solo panel para consultorios independientes.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -43,7 +29,6 @@ export const Route = createFileRoute("/")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(citasQuery());
     context.queryClient.ensureQueryData(pacientesQuery());
-    context.queryClient.ensureQueryData(medicosQuery());
   },
   component: DashboardHome,
   errorComponent: ({ error }) => (
@@ -60,16 +45,19 @@ export const Route = createFileRoute("/")({
   ),
 });
 
+function esHoy(iso: string) {
+  const a = new Date(iso);
+  const b = new Date();
+  return a.toDateString() === b.toDateString();
+}
+
 function DashboardHome() {
   const { data: citas } = useSuspenseQuery(citasQuery());
   const { data: pacientes } = useSuspenseQuery(pacientesQuery());
-  const { data: medicos } = useSuspenseQuery(medicosQuery());
 
-  const citasHoy = citas.filter((c) => esHoy(c.inicio));
-  const proximas = citas
-    .filter((c) => new Date(c.inicio).getTime() >= Date.now())
-    .slice(0, 5);
-  const completadas = citas.filter((c) => c.estado === "completada").length;
+  const citasHoy = citas.filter((c) => esHoy(c.fecha_hora));
+  const proximas = citas.filter((c) => new Date(c.fecha_hora).getTime() >= Date.now()).slice(0, 5);
+  const atendidas = citas.filter((c) => c.estado === "atendida").length;
 
   const kpis = [
     {
@@ -85,14 +73,8 @@ function DashboardHome() {
       icon: Users,
     },
     {
-      label: "Profesionales",
-      value: String(medicos.length),
-      delta: "Tabla medicos",
-      icon: Stethoscope,
-    },
-    {
       label: "Citas atendidas",
-      value: String(completadas),
+      value: String(atendidas),
       delta: `${citas.length} en total`,
       icon: TrendingUp,
     },
@@ -104,24 +86,19 @@ function DashboardHome() {
         <PageHeader
           eyebrow="Panel principal"
           title="Resumen clínico"
-          description="Indicadores calculados en vivo desde tus tablas medicos, pacientes y citas."
+          description="Indicadores calculados en vivo desde tus tablas pacientes y citas."
         />
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {kpis.map((k) => (
-            <div
-              key={k.label}
-              className="rounded-xl border border-border/60 bg-card p-5 shadow-[0_1px_0_0_oklch(1_0_0/6%)]"
-            >
+            <div key={k.label} className="rounded-xl border border-border/60 bg-card p-5 shadow-[0_1px_0_0_oklch(1_0_0/6%)]">
               <div className="flex items-start justify-between">
                 <p className="text-sm text-muted-foreground">{k.label}</p>
                 <div className="grid h-8 w-8 place-items-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/25">
                   <k.icon className="h-4 w-4" />
                 </div>
               </div>
-              <p className="mt-3 font-display text-2xl font-semibold tracking-tight">
-                {k.value}
-              </p>
+              <p className="mt-3 font-display text-2xl font-semibold tracking-tight">{k.value}</p>
               <p className="mt-1 text-xs text-muted-foreground">{k.delta}</p>
             </div>
           ))}
@@ -131,43 +108,21 @@ function DashboardHome() {
           <div className="lg:col-span-2 rounded-xl border border-border/60 bg-card p-6">
             <div className="mb-4 flex items-center gap-2">
               <Activity className="h-4 w-4 text-primary" />
-              <h2 className="font-display text-lg font-semibold">
-                Pacientes por profesional
-              </h2>
+              <h2 className="font-display text-lg font-semibold">Pacientes recientes</h2>
             </div>
             <ul className="space-y-3 text-sm">
-              {medicos.map((m) => {
-                const total = pacientes.filter(
-                  (p) =>
-                    p.medicos &&
-                    `${p.medicos.nombres} ${p.medicos.apellidos}` ===
-                      `${m.nombres} ${m.apellidos}`,
-                ).length;
-                const pct = pacientes.length
-                  ? Math.round((total / pacientes.length) * 100)
-                  : 0;
-                return (
-                  <li key={m.id} className="rounded-lg border border-border/50 p-3">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="truncate font-medium">
-                        Dr(a). {nombreCompleto(m)}
-                      </p>
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {total} pacientes
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {m.especialidad} · {m.cmp ?? "sin CMP"}
-                    </p>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
-                    </div>
-                  </li>
-                );
-              })}
-              {medicos.length === 0 ? (
-                <li className="text-muted-foreground">Aún no hay médicos registrados.</li>
-              ) : null}
+              {pacientes.slice(0, 6).map((p) => (
+                <li key={p.id} className="rounded-lg border border-border/50 p-3">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="truncate font-medium">{p.nombre_completo}</p>
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {p.dni ? `DNI ${p.dni}` : "Sin DNI"}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{p.telefono_whatsapp}</p>
+                </li>
+              ))}
+              {pacientes.length === 0 ? <li className="text-muted-foreground">Aún no hay pacientes registrados.</li> : null}
             </ul>
           </div>
 
@@ -178,24 +133,19 @@ function DashboardHome() {
             </div>
             <ul className="space-y-3 text-sm">
               {proximas.map((c) => (
-                <li
-                  key={c.id}
-                  className="flex items-start gap-3 rounded-lg border border-border/50 bg-background/40 p-3"
-                >
+                <li key={c.id} className="flex items-start gap-3 rounded-lg border border-border/50 bg-background/40 p-3">
                   <span className="mt-0.5 shrink-0 rounded-md bg-primary/15 px-2 py-1 font-mono text-xs text-primary">
-                    {horaCorta(c.inicio)}
+                    {horaCorta(c.fecha_hora)}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{nombreCompleto(c.pacientes)}</p>
+                    <p className="truncate font-medium">{c.pacientes?.nombre_completo ?? "—"}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {fechaCorta(c.inicio)} · {c.motivo ?? "Consulta"}
+                      {fechaCorta(c.fecha_hora)} · {c.motivo_consulta ?? "Consulta"}
                     </p>
                   </div>
                 </li>
               ))}
-              {proximas.length === 0 ? (
-                <li className="text-muted-foreground">No hay citas programadas.</li>
-              ) : null}
+              {proximas.length === 0 ? <li className="text-muted-foreground">No hay citas programadas.</li> : null}
             </ul>
           </div>
         </section>
