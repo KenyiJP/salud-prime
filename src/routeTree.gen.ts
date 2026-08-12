@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RecetarioRouteImport } from './routes/recetario'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
 import { Route as CalendarioRouteImport } from './routes/calendario'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const RecetarioRoute = RecetarioRouteImport.update({
   id: '/recetario',
   path: '/recetario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FichasRoute = FichasRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/login': typeof LoginRoute
   '/recetario': typeof RecetarioRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/login': typeof LoginRoute
   '/recetario': typeof RecetarioRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,27 @@ export interface FileRoutesById {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/login': typeof LoginRoute
   '/recetario': typeof RecetarioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendario' | '/facturacion' | '/fichas' | '/recetario'
+  fullPaths:
+    | '/'
+    | '/calendario'
+    | '/facturacion'
+    | '/fichas'
+    | '/login'
+    | '/recetario'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendario' | '/facturacion' | '/fichas' | '/recetario'
+  to: '/' | '/calendario' | '/facturacion' | '/fichas' | '/login' | '/recetario'
   id:
     | '__root__'
     | '/'
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/login'
     | '/recetario'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +98,7 @@ export interface RootRouteChildren {
   CalendarioRoute: typeof CalendarioRoute
   FacturacionRoute: typeof FacturacionRoute
   FichasRoute: typeof FichasRoute
+  LoginRoute: typeof LoginRoute
   RecetarioRoute: typeof RecetarioRoute
 }
 
@@ -92,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/recetario'
       fullPath: '/recetario'
       preLoaderRoute: typeof RecetarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fichas': {
@@ -130,18 +154,9 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarioRoute: CalendarioRoute,
   FacturacionRoute: FacturacionRoute,
   FichasRoute: FichasRoute,
+  LoginRoute: LoginRoute,
   RecetarioRoute: RecetarioRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
