@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecetarioRouteImport } from './routes/recetario'
+import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultorio'
 import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FichasRouteImport } from './routes/fichas'
@@ -26,6 +27,11 @@ const RegistroRoute = RegistroRouteImport.update({
 const RecetarioRoute = RecetarioRouteImport.update({
   id: '/recetario',
   path: '/recetario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilConsultorioRoute = PerfilConsultorioRouteImport.update({
+  id: '/perfil-consultorio',
+  path: '/perfil-consultorio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PendienteActivacionRoute = PendienteActivacionRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
+  '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
+  '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
+  '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/fichas'
     | '/login'
     | '/pendiente-activacion'
+    | '/perfil-consultorio'
     | '/recetario'
     | '/registro'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/fichas'
     | '/login'
     | '/pendiente-activacion'
+    | '/perfil-consultorio'
     | '/recetario'
     | '/registro'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/fichas'
     | '/login'
     | '/pendiente-activacion'
+    | '/perfil-consultorio'
     | '/recetario'
     | '/registro'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   FichasRoute: typeof FichasRoute
   LoginRoute: typeof LoginRoute
   PendienteActivacionRoute: typeof PendienteActivacionRoute
+  PerfilConsultorioRoute: typeof PerfilConsultorioRoute
   RecetarioRoute: typeof RecetarioRoute
   RegistroRoute: typeof RegistroRoute
 }
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/recetario'
       fullPath: '/recetario'
       preLoaderRoute: typeof RecetarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil-consultorio': {
+      id: '/perfil-consultorio'
+      path: '/perfil-consultorio'
+      fullPath: '/perfil-consultorio'
+      preLoaderRoute: typeof PerfilConsultorioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pendiente-activacion': {
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   FichasRoute: FichasRoute,
   LoginRoute: LoginRoute,
   PendienteActivacionRoute: PendienteActivacionRoute,
+  PerfilConsultorioRoute: PerfilConsultorioRoute,
   RecetarioRoute: RecetarioRoute,
   RegistroRoute: RegistroRoute,
 }
