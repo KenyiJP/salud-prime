@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecetarioRouteImport } from './routes/recetario'
+import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
@@ -25,6 +26,11 @@ const RegistroRoute = RegistroRouteImport.update({
 const RecetarioRoute = RecetarioRouteImport.update({
   id: '/recetario',
   path: '/recetario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PendienteActivacionRoute = PendienteActivacionRouteImport.update({
+  id: '/pendiente-activacion',
+  path: '/pendiente-activacion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
+  '/pendiente-activacion': typeof PendienteActivacionRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
+  '/pendiente-activacion': typeof PendienteActivacionRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
+  '/pendiente-activacion': typeof PendienteActivacionRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/facturacion'
     | '/fichas'
     | '/login'
+    | '/pendiente-activacion'
     | '/recetario'
     | '/registro'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/facturacion'
     | '/fichas'
     | '/login'
+    | '/pendiente-activacion'
     | '/recetario'
     | '/registro'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/facturacion'
     | '/fichas'
     | '/login'
+    | '/pendiente-activacion'
     | '/recetario'
     | '/registro'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   FacturacionRoute: typeof FacturacionRoute
   FichasRoute: typeof FichasRoute
   LoginRoute: typeof LoginRoute
+  PendienteActivacionRoute: typeof PendienteActivacionRoute
   RecetarioRoute: typeof RecetarioRoute
   RegistroRoute: typeof RegistroRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/recetario'
       fullPath: '/recetario'
       preLoaderRoute: typeof RecetarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pendiente-activacion': {
+      id: '/pendiente-activacion'
+      path: '/pendiente-activacion'
+      fullPath: '/pendiente-activacion'
+      preLoaderRoute: typeof PendienteActivacionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   FacturacionRoute: FacturacionRoute,
   FichasRoute: FichasRoute,
   LoginRoute: LoginRoute,
+  PendienteActivacionRoute: PendienteActivacionRoute,
   RecetarioRoute: RecetarioRoute,
   RegistroRoute: RegistroRoute,
 }
