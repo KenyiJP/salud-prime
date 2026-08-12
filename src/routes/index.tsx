@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Activity, CalendarClock, FileHeart, Pill, TrendingUp, Users } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
-import { pacientesQuery } from "@/lib/pacientes.queries";
+import { nombrePaciente, pacientesQuery } from "@/lib/pacientes.queries";
 import { citasQuery, fechaCorta, horaCorta } from "@/lib/citas.queries";
 
 export const Route = createFileRoute("/")({
@@ -116,12 +116,12 @@ function DashboardHome() {
               {pacientes.slice(0, 6).map((p) => (
                 <li key={p.id} className="rounded-lg border border-border/50 p-3">
                   <div className="flex items-baseline justify-between gap-3">
-                    <p className="truncate font-medium">{p.nombre_completo}</p>
+                    <p className="truncate font-medium">{nombrePaciente(p)}</p>
                     <span className="shrink-0 text-xs text-muted-foreground">
-                      {p.dni ? `DNI ${p.dni}` : "Sin DNI"}
+                      {p.documento_identidad ? `Doc. ${p.documento_identidad}` : "Sin documento"}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{p.telefono_whatsapp}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{p.telefono ?? "Sin teléfono"}</p>
                 </li>
               ))}
               {pacientes.length === 0 ? <li className="text-muted-foreground">Aún no hay pacientes registrados.</li> : null}
@@ -140,9 +140,9 @@ function DashboardHome() {
                     {horaCorta(c.fecha_hora)}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate font-medium">{c.pacientes?.nombre_completo ?? "—"}</p>
+                    <p className="truncate font-medium">{nombrePaciente(c.pacientes)}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {fechaCorta(c.fecha_hora)} · {c.motivo_consulta ?? "Consulta"}
+                      {fechaCorta(c.fecha_hora)} · {c.motivo ?? "Consulta"}
                     </p>
                   </div>
                 </li>
