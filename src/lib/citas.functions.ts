@@ -55,8 +55,6 @@ export const crearCita = createServerFn({ method: "POST" })
         paciente_id: data.paciente_id,
         fecha_hora: new Date(data.fecha_hora).toISOString(),
         motivo: data.motivo || null,
-        // DB default is "programada", which is not one of the app's states.
-        estado: "pendiente",
       })
       .select(SELECT_CITA)
       .single();
