@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireSession } from "@/lib/auth-guard";
 import { Receipt, FileText, Landmark } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/facturacion")({
+  ssr: false,
+  beforeLoad: () => requireSession(),
   head: () => ({ meta: [{ title: "Facturación — MediSuite" }] }),
   component: FacturacionPage,
 });

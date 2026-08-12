@@ -3,11 +3,11 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { RequireDemoSession } from "@/components/dev-session-gate";
+import { RequireClinicalAccess } from "@/components/require-clinical-access";
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   return (
-    <RequireDemoSession>
+    <RequireClinicalAccess>
       <SidebarProvider>
         <div className="dark flex min-h-screen w-full bg-background text-foreground">
           <AppSidebar />
@@ -36,6 +36,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </SidebarProvider>
-    </RequireDemoSession>
+    </RequireClinicalAccess>
   );
 }

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireSession } from "@/lib/auth-guard";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Activity, CalendarClock, FileHeart, Pill, TrendingUp, Users } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -7,6 +8,7 @@ import { pacientesQuery } from "@/lib/pacientes.queries";
 import { citasQuery, fechaCorta, horaCorta } from "@/lib/citas.queries";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => requireSession(),
   // Client-only: the data below requires an authenticated Supabase session,
   // which does not exist during SSR/prerender.
   ssr: false,
