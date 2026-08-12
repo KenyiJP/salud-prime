@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecetarioRouteImport } from './routes/recetario'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FichasRouteImport } from './routes/fichas'
@@ -16,6 +17,11 @@ import { Route as FacturacionRouteImport } from './routes/facturacion'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecetarioRoute = RecetarioRouteImport.update({
   id: '/recetario',
   path: '/recetario',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
   '/recetario': typeof RecetarioRoute
+  '/registro': typeof RegistroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
   '/recetario': typeof RecetarioRoute
+  '/registro': typeof RegistroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/fichas': typeof FichasRoute
   '/login': typeof LoginRoute
   '/recetario': typeof RecetarioRoute
+  '/registro': typeof RegistroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +90,16 @@ export interface FileRouteTypes {
     | '/fichas'
     | '/login'
     | '/recetario'
+    | '/registro'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendario' | '/facturacion' | '/fichas' | '/login' | '/recetario'
+  to:
+    | '/'
+    | '/calendario'
+    | '/facturacion'
+    | '/fichas'
+    | '/login'
+    | '/recetario'
+    | '/registro'
   id:
     | '__root__'
     | '/'
@@ -91,6 +108,7 @@ export interface FileRouteTypes {
     | '/fichas'
     | '/login'
     | '/recetario'
+    | '/registro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -100,10 +118,18 @@ export interface RootRouteChildren {
   FichasRoute: typeof FichasRoute
   LoginRoute: typeof LoginRoute
   RecetarioRoute: typeof RecetarioRoute
+  RegistroRoute: typeof RegistroRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recetario': {
       id: '/recetario'
       path: '/recetario'
@@ -156,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   FichasRoute: FichasRoute,
   LoginRoute: LoginRoute,
   RecetarioRoute: RecetarioRoute,
+  RegistroRoute: RegistroRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
