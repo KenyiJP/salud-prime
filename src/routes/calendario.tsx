@@ -1,17 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { requireSession } from "@/lib/auth-guard";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CalendarDays, Clock, Plus } from "lucide-react";
+import { CalendarDays, Clock, Pencil, Plus, Trash2 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { NuevaCitaDialog } from "@/components/nueva-cita-dialog";
+import { CitaDialog } from "@/components/cita-dialog";
+import { ConfirmarEliminar } from "@/components/confirmar-eliminar";
+import { nombrePaciente } from "@/lib/clinica-schemas";
 import { pacientesQuery } from "@/lib/pacientes.queries";
 import {
   citasQuery,
   fechaCorta,
   horaCorta,
   useCambiarEstadoCita,
+  useEliminarCita,
   type CitaRow,
   type EstadoCita,
 } from "@/lib/citas.queries";
@@ -26,7 +30,7 @@ export const Route = createFileRoute("/calendario")({
       { title: "Calendario de Citas — MediSuite" },
       {
         name: "description",
-        content: "Agenda médica con citas programadas, motivo, monto y estado desde tu base de datos clínica.",
+        content: "Agenda médica con citas programadas, motivo y estado desde tu base de datos clínica.",
       },
       { property: "og:title", content: "Calendario de Citas — MediSuite" },
       {
@@ -58,6 +62,7 @@ export const Route = createFileRoute("/calendario")({
 
 function CalendarioPage() {
   const { data: citas } = useSuspenseQuery(citasQuery());
+  const eliminar = useEliminarCita();
 
   return (
     <DashboardShell>
@@ -66,7 +71,15 @@ function CalendarioPage() {
           eyebrow="Agenda"
           title="Calendario de Citas"
           description="Citas leídas de la tabla citas, vinculadas a tus pacientes."
-          actions={<NuevaCitaDialog />}
+          actions={
+            <CitaDialog
+              trigger={
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" /> Nueva cita
+                </Button>
+              }
+            />
+          }
         />
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -95,8 +108,8 @@ function CalendarioPage() {
                 <th className="px-4 py-3 text-left font-medium">Hora</th>
                 <th className="px-4 py-3 text-left font-medium">Paciente</th>
                 <th className="hidden px-4 py-3 text-left font-medium md:table-cell">Motivo</th>
-                <th className="px-4 py-3 text-left font-medium">Monto</th>
                 <th className="px-4 py-3 text-left font-medium">Estado</th>
+                <th className="px-4 py-3 text-right font-medium">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -104,13 +117,40 @@ function CalendarioPage() {
                 <tr key={c.id} className="border-t border-border/50">
                   <td className="px-4 py-3 whitespace-nowrap">{fechaCorta(c.fecha_hora)}</td>
                   <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">{horaCorta(c.fecha_hora)}</td>
-                  <td className="px-4 py-3">{c.pacientes?.nombre_completo ?? "—"}</td>
+                  <td className="px-4 py-3">{nombrePaciente(c.pacientes)}</td>
                   <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                    {c.motivo_consulta ?? "—"}
+                    {c.motivo ?? "—"}
                   </td>
-                  <td className="px-4 py-3">S/ {Number(c.monto_pago ?? 0).toFixed(2)}</td>
                   <td className="px-4 py-3">
                     <EstadoCitaCell cita={c} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2">
+                      <CitaDialog
+                        cita={c}
+                        trigger={
+                          <Button variant="ghost" size="icon" aria-label="Editar cita">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                      <ConfirmarEliminar
+                        title="¿Eliminar cita?"
+                        description={`Se eliminará la cita de ${nombrePaciente(c.pacientes)} del ${fechaCorta(c.fecha_hora)} a las ${horaCorta(c.fecha_hora)}.`}
+                        onConfirm={() => eliminar.mutate({ id: c.id })}
+                        disabled={eliminar.isPending}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Eliminar cita"
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
