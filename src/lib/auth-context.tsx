@@ -23,15 +23,23 @@ export function rutaInicialPorRol(rol: RolUsuario | null): string {
   return "/";
 }
 
+// A founder can read other members of their own tenant, so we must scope the
+// role lookup to the authenticated user (never to tenant_id by hand).
+const PRIORIDAD_ROL: RolUsuario[] = ["founder", "medico", "asistente", "community_manager"];
+
 export async function fetchRolActual(): Promise<RolUsuario | null> {
-  // RLS scopes rows to the current user / tenant — never filter tenant_id by hand.
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return null;
+
   const { data, error } = await db
     .from("roles_usuario")
     .select("rol")
-    .limit(1)
-    .maybeSingle();
+    .eq("user_id", userId);
   if (error) throw new Error(error.message);
-  return (data?.rol as RolUsuario | undefined) ?? null;
+
+  const roles = (data ?? []).map((r: { rol: RolUsuario }) => r.rol);
+  return PRIORIDAD_ROL.find((rol) => roles.includes(rol)) ?? null;
 }
 
 type AuthState = {
