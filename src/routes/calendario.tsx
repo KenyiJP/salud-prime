@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireSession } from "@/lib/auth-guard";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CalendarDays, Clock, Plus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -16,6 +17,7 @@ import {
 } from "@/lib/citas.queries";
 
 export const Route = createFileRoute("/calendario")({
+  beforeLoad: () => requireSession(),
   // Client-only: the data below requires an authenticated Supabase session,
   // which does not exist during SSR/prerender.
   ssr: false,

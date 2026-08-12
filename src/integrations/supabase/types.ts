@@ -14,7 +14,230 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      citas: {
+        Row: {
+          created_at: string
+          estado: string
+          fecha_hora: string
+          id: string
+          medico_id: string
+          motivo: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estado?: string
+          fecha_hora: string
+          id?: string
+          medico_id: string
+          motivo?: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estado?: string
+          fecha_hora?: string
+          id?: string
+          medico_id?: string
+          motivo?: string | null
+          paciente_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citas_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medicos: {
+        Row: {
+          apellidos: string
+          cmp: string | null
+          created_at: string
+          especialidad: string | null
+          id: string
+          nombres: string
+          rne: string | null
+          telefono: string | null
+          tenant_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          apellidos: string
+          cmp?: string | null
+          created_at?: string
+          especialidad?: string | null
+          id?: string
+          nombres: string
+          rne?: string | null
+          telefono?: string | null
+          tenant_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          apellidos?: string
+          cmp?: string | null
+          created_at?: string
+          especialidad?: string | null
+          id?: string
+          nombres?: string
+          rne?: string | null
+          telefono?: string | null
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medicos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pacientes: {
+        Row: {
+          apellidos: string
+          created_at: string
+          documento_identidad: string | null
+          email: string | null
+          fecha_nacimiento: string | null
+          id: string
+          medico_id: string | null
+          nombres: string
+          telefono: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          apellidos: string
+          created_at?: string
+          documento_identidad?: string | null
+          email?: string | null
+          fecha_nacimiento?: string | null
+          id?: string
+          medico_id?: string | null
+          nombres: string
+          telefono?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          apellidos?: string
+          created_at?: string
+          documento_identidad?: string | null
+          email?: string | null
+          fecha_nacimiento?: string | null
+          id?: string
+          medico_id?: string | null
+          nombres?: string
+          telefono?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pacientes_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pacientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles_usuario: {
+        Row: {
+          created_at: string
+          id: string
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rol: Database["public"]["Enums"]["rol_usuario"]
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roles_usuario_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          dominio_personalizado: string | null
+          estado_pago: string
+          fecha_alta: string
+          id: string
+          nombre_comercial: string
+          plan_suscripcion: string
+        }
+        Insert: {
+          dominio_personalizado?: string | null
+          estado_pago?: string
+          fecha_alta?: string
+          id?: string
+          nombre_comercial: string
+          plan_suscripcion?: string
+        }
+        Update: {
+          dominio_personalizado?: string | null
+          estado_pago?: string
+          fecha_alta?: string
+          id?: string
+          nombre_comercial?: string
+          plan_suscripcion?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +246,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      rol_usuario: "founder" | "medico" | "community_manager" | "asistente"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +373,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      rol_usuario: ["founder", "medico", "community_manager", "asistente"],
+    },
   },
 } as const

@@ -9,15 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecetarioRouteImport } from './routes/recetario'
+import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultorio'
+import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecetarioRoute = RecetarioRouteImport.update({
   id: '/recetario',
   path: '/recetario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilConsultorioRoute = PerfilConsultorioRouteImport.update({
+  id: '/perfil-consultorio',
+  path: '/perfil-consultorio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PendienteActivacionRoute = PendienteActivacionRouteImport.update({
+  id: '/pendiente-activacion',
+  path: '/pendiente-activacion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FichasRoute = FichasRouteImport.update({
@@ -46,14 +70,22 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/login': typeof LoginRoute
+  '/pendiente-activacion': typeof PendienteActivacionRoute
+  '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
+  '/registro': typeof RegistroRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/login': typeof LoginRoute
+  '/pendiente-activacion': typeof PendienteActivacionRoute
+  '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
+  '/registro': typeof RegistroRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,20 +93,46 @@ export interface FileRoutesById {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/login': typeof LoginRoute
+  '/pendiente-activacion': typeof PendienteActivacionRoute
+  '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
+  '/registro': typeof RegistroRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendario' | '/facturacion' | '/fichas' | '/recetario'
+  fullPaths:
+    | '/'
+    | '/calendario'
+    | '/facturacion'
+    | '/fichas'
+    | '/login'
+    | '/pendiente-activacion'
+    | '/perfil-consultorio'
+    | '/recetario'
+    | '/registro'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendario' | '/facturacion' | '/fichas' | '/recetario'
+  to:
+    | '/'
+    | '/calendario'
+    | '/facturacion'
+    | '/fichas'
+    | '/login'
+    | '/pendiente-activacion'
+    | '/perfil-consultorio'
+    | '/recetario'
+    | '/registro'
   id:
     | '__root__'
     | '/'
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/login'
+    | '/pendiente-activacion'
+    | '/perfil-consultorio'
     | '/recetario'
+    | '/registro'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -82,16 +140,48 @@ export interface RootRouteChildren {
   CalendarioRoute: typeof CalendarioRoute
   FacturacionRoute: typeof FacturacionRoute
   FichasRoute: typeof FichasRoute
+  LoginRoute: typeof LoginRoute
+  PendienteActivacionRoute: typeof PendienteActivacionRoute
+  PerfilConsultorioRoute: typeof PerfilConsultorioRoute
   RecetarioRoute: typeof RecetarioRoute
+  RegistroRoute: typeof RegistroRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recetario': {
       id: '/recetario'
       path: '/recetario'
       fullPath: '/recetario'
       preLoaderRoute: typeof RecetarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil-consultorio': {
+      id: '/perfil-consultorio'
+      path: '/perfil-consultorio'
+      fullPath: '/perfil-consultorio'
+      preLoaderRoute: typeof PerfilConsultorioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pendiente-activacion': {
+      id: '/pendiente-activacion'
+      path: '/pendiente-activacion'
+      fullPath: '/pendiente-activacion'
+      preLoaderRoute: typeof PendienteActivacionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fichas': {
@@ -130,7 +220,11 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarioRoute: CalendarioRoute,
   FacturacionRoute: FacturacionRoute,
   FichasRoute: FichasRoute,
+  LoginRoute: LoginRoute,
+  PendienteActivacionRoute: PendienteActivacionRoute,
+  PerfilConsultorioRoute: PerfilConsultorioRoute,
   RecetarioRoute: RecetarioRoute,
+  RegistroRoute: RegistroRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

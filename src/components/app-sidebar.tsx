@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -6,6 +6,7 @@ import {
   Pill,
   Receipt,
   Stethoscope,
+  LogOut,
 } from "lucide-react";
 
 import {
@@ -20,6 +21,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
 
 const items = [
   { title: "Dashboard Principal", url: "/", icon: LayoutDashboard },
@@ -31,6 +34,13 @@ const items = [
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { user, rol, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleSignOut() {
+    await signOut();
+    navigate({ to: "/login", replace: true });
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -82,16 +92,25 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border">
         <div className="flex items-center gap-3 px-2 py-2">
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground text-xs font-semibold">
-            DR
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground text-xs font-semibold uppercase">
+            {(user?.email ?? "?").slice(0, 2)}
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-sm font-medium">Dra. Rojas</p>
-            <p className="truncate text-xs text-sidebar-foreground/60">
-              Medicina Interna
+            <p className="truncate text-sm font-medium">{user?.email ?? "Sin sesión"}</p>
+            <p className="truncate text-xs capitalize text-sidebar-foreground/60">
+              {rol ?? "Sin rol"}
             </p>
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start gap-2"
+          onClick={handleSignOut}
+        >
+          <LogOut className="h-4 w-4" />
+          <span className="group-data-[collapsible=icon]:hidden">Cerrar sesión</span>
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
