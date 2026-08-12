@@ -3,15 +3,19 @@ import { toast } from "sonner";
 import {
   actualizarPaciente,
   crearPaciente,
+  eliminarPaciente,
   getPacientes,
 } from "./pacientes.functions";
-import type {
-  ActualizarPacienteInput,
-  NuevoPacienteInput,
-  PacienteRow,
+import {
+  nombrePaciente,
+  type ActualizarPacienteInput,
+  type EliminarPacienteInput,
+  type NuevoPacienteInput,
+  type PacienteRow,
 } from "./clinica-schemas";
 
 export type { PacienteRow };
+export { nombrePaciente };
 
 export const pacientesQueryKey = ["pacientes-propios"] as const;
 
@@ -28,7 +32,7 @@ export function useCrearPaciente() {
     mutationFn: (input: NuevoPacienteInput) => crearPaciente({ data: input }),
     onSuccess: (paciente) => {
       queryClient.invalidateQueries({ queryKey: pacientesQueryKey });
-      toast.success(`Paciente ${paciente.nombre_completo} registrado correctamente.`);
+      toast.success(`Paciente ${nombrePaciente(paciente)} registrado correctamente.`);
     },
     onError: (error: Error) => {
       toast.error(error.message || "No se pudo registrar el paciente.");
@@ -42,10 +46,25 @@ export function useActualizarPaciente() {
     mutationFn: (input: ActualizarPacienteInput) => actualizarPaciente({ data: input }),
     onSuccess: (paciente) => {
       queryClient.invalidateQueries({ queryKey: pacientesQueryKey });
-      toast.success(`Datos de ${paciente.nombre_completo} actualizados.`);
+      toast.success(`Datos de ${nombrePaciente(paciente)} actualizados.`);
     },
     onError: (error: Error) => {
       toast.error(error.message || "No se pudo actualizar el paciente.");
+    },
+  });
+}
+
+export function useEliminarPaciente() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: EliminarPacienteInput) => eliminarPaciente({ data: input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: pacientesQueryKey });
+      queryClient.invalidateQueries({ queryKey: ["citas-propias"] });
+      toast.success("Paciente eliminado junto con sus citas.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "No se pudo eliminar el paciente.");
     },
   });
 }
