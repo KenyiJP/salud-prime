@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Plus } from "lucide-react";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,48 +16,70 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { nuevaCitaSchema } from "@/lib/clinica-schemas";
+import { nombrePaciente, nuevaCitaSchema, type CitaRow } from "@/lib/clinica-schemas";
 import { usePacientes } from "@/lib/pacientes.queries";
-import { useCrearCita } from "@/lib/citas.queries";
+import { isoAInputLocal, useActualizarCita, useCrearCita } from "@/lib/citas.queries";
 
 type FormValues = z.infer<typeof nuevaCitaSchema>;
 
-export function NuevaCitaDialog() {
+const VACIO: FormValues = { paciente_id: "", fecha_hora: "", motivo: "" };
+
+export function CitaDialog({ cita, trigger }: { cita?: CitaRow; trigger: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { data: pacientes } = usePacientes();
-  const crearCita = useCrearCita();
+  const crear = useCrearCita();
+  const actualizar = useActualizarCita();
+  const editando = !!cita;
+
+  const valoresIniciales: FormValues = cita
+    ? {
+        paciente_id: cita.paciente_id,
+        fecha_hora: isoAInputLocal(cita.fecha_hora),
+        motivo: cita.motivo ?? "",
+      }
+    : VACIO;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(nuevaCitaSchema),
-    defaultValues: { paciente_id: "", fecha_hora: "", motivo_consulta: "", monto_pago: 0 },
+    defaultValues: valoresIniciales,
   });
 
+  useEffect(() => {
+    if (open) {
+      form.reset(
+        cita
+          ? {
+              paciente_id: cita.paciente_id,
+              fecha_hora: isoAInputLocal(cita.fecha_hora),
+              motivo: cita.motivo ?? "",
+            }
+          : VACIO,
+      );
+    }
+  }, [open, cita, form]);
+
   function onSubmit(values: FormValues) {
-    crearCita.mutate(values, {
+    const opciones = {
       onSuccess: () => {
         setOpen(false);
-        form.reset();
+        form.reset(VACIO);
       },
-    });
+    };
+    if (cita) actualizar.mutate({ ...values, id: cita.id }, opciones);
+    else crear.mutate(values, opciones);
   }
 
+  const pendiente = crear.isPending || actualizar.isPending;
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (!next) form.reset();
-      }}
-    >
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" /> Nueva cita
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Agendar nueva cita</DialogTitle>
-          <DialogDescription>Selecciona un paciente ya registrado en tu consultorio.</DialogDescription>
+          <DialogTitle>{editando ? "Editar cita" : "Agendar nueva cita"}</DialogTitle>
+          <DialogDescription>
+            Selecciona un paciente ya registrado en tu consultorio.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -77,8 +98,8 @@ export function NuevaCitaDialog() {
                     <SelectContent>
                       {pacientes.map((p) => (
                         <SelectItem key={p.id} value={p.id}>
-                          {p.nombre_completo}
-                          {p.dni ? ` · DNI ${p.dni}` : ""}
+                          {nombrePaciente(p)}
+                          {p.documento_identidad ? ` · ${p.documento_identidad}` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -105,10 +126,10 @@ export function NuevaCitaDialog() {
             />
             <FormField
               control={form.control}
-              name="motivo_consulta"
+              name="motivo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Motivo de consulta (opcional)</FormLabel>
+                  <FormLabel>Motivo (opcional)</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Ej. Control de presión arterial" {...field} />
                   </FormControl>
@@ -116,22 +137,9 @@ export function NuevaCitaDialog() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="monto_pago"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Monto a cobrar (S/.)</FormLabel>
-                  <FormControl>
-                    <Input type="number" step="0.01" min="0" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <DialogFooter>
-              <Button type="submit" disabled={crearCita.isPending}>
-                {crearCita.isPending ? "Agendando…" : "Agendar cita"}
+              <Button type="submit" disabled={pendiente}>
+                {pendiente ? "Guardando…" : editando ? "Guardar cambios" : "Agendar cita"}
               </Button>
             </DialogFooter>
           </form>
