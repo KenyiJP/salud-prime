@@ -159,6 +159,63 @@ export type Database = {
           },
         ]
       }
+      estudios_imagen: {
+        Row: {
+          activo: boolean
+          codigo: string
+          created_at: string
+          id: string
+          instrucciones_preparacion: string | null
+          lateralidad: string | null
+          modalidad: string
+          nombre_display: string
+          nota_auditoria: string | null
+          posicion: string | null
+          rank_uso: number
+          region: string | null
+          requiere_contraste: boolean
+          requiere_preparacion: boolean
+          sinonimos: string | null
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          codigo: string
+          created_at?: string
+          id?: string
+          instrucciones_preparacion?: string | null
+          lateralidad?: string | null
+          modalidad: string
+          nombre_display: string
+          nota_auditoria?: string | null
+          posicion?: string | null
+          rank_uso?: number
+          region?: string | null
+          requiere_contraste?: boolean
+          requiere_preparacion?: boolean
+          sinonimos?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          codigo?: string
+          created_at?: string
+          id?: string
+          instrucciones_preparacion?: string | null
+          lateralidad?: string | null
+          modalidad?: string
+          nombre_display?: string
+          nota_auditoria?: string | null
+          posicion?: string | null
+          rank_uso?: number
+          region?: string | null
+          requiere_contraste?: boolean
+          requiere_preparacion?: boolean
+          sinonimos?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       examenes_laboratorio: {
         Row: {
           activo: boolean
@@ -338,7 +395,9 @@ export type Database = {
           apellidos: string
           cmp: string | null
           created_at: string
+          email: string | null
           especialidad: string | null
+          firma_url: string | null
           id: string
           nombres: string
           rne: string | null
@@ -351,7 +410,9 @@ export type Database = {
           apellidos: string
           cmp?: string | null
           created_at?: string
+          email?: string | null
           especialidad?: string | null
+          firma_url?: string | null
           id?: string
           nombres: string
           rne?: string | null
@@ -364,7 +425,9 @@ export type Database = {
           apellidos?: string
           cmp?: string | null
           created_at?: string
+          email?: string | null
           especialidad?: string | null
+          firma_url?: string | null
           id?: string
           nombres?: string
           rne?: string | null
@@ -376,6 +439,58 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "medicos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orden_imagen_estudios: {
+        Row: {
+          created_at: string
+          estudio_id: string
+          id: string
+          nota: string | null
+          orden: number
+          orden_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          estudio_id: string
+          id?: string
+          nota?: string | null
+          orden?: number
+          orden_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          estudio_id?: string
+          id?: string
+          nota?: string | null
+          orden?: number
+          orden_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orden_imagen_estudios_estudio_id_fkey"
+            columns: ["estudio_id"]
+            isOneToOne: false
+            referencedRelation: "estudios_imagen"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orden_imagen_estudios_orden_id_fkey"
+            columns: ["orden_id"]
+            isOneToOne: false
+            referencedRelation: "ordenes_imagen"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orden_imagen_estudios_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -425,6 +540,80 @@ export type Database = {
           },
           {
             foreignKeyName: "orden_laboratorio_examenes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ordenes_imagen: {
+        Row: {
+          cita_id: string | null
+          created_at: string
+          diagnostico_presuntivo: string | null
+          estado: string
+          fecha_orden: string
+          id: string
+          indicacion_clinica: string | null
+          medico_id: string
+          observaciones: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          cita_id?: string | null
+          created_at?: string
+          diagnostico_presuntivo?: string | null
+          estado?: string
+          fecha_orden?: string
+          id?: string
+          indicacion_clinica?: string | null
+          medico_id: string
+          observaciones?: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          cita_id?: string | null
+          created_at?: string
+          diagnostico_presuntivo?: string | null
+          estado?: string
+          fecha_orden?: string
+          id?: string
+          indicacion_clinica?: string | null
+          medico_id?: string
+          observaciones?: string | null
+          paciente_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ordenes_imagen_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordenes_imagen_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordenes_imagen_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordenes_imagen_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
