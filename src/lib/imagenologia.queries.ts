@@ -66,12 +66,25 @@ export function useOrdenImagenImpresion(ordenId: string, token?: string) {
   return useQuery({
     queryKey: ["orden-imagen-imprimir", ordenId, token ?? "sesion"],
     retry: false,
-    queryFn: () =>
-      token
-        ? getOrdenImagenPorToken({ data: { id: ordenId, token } })
-        : getOrdenImagenParaImprimir({ data: { id: ordenId } }),
+    // El fallo esperado (sin sesión o con token vencido/manipulado) se convierte
+    // en un mensaje mostrable, para que la página nunca quede en blanco.
+    queryFn: async () => {
+      try {
+        return token
+          ? await getOrdenImagenPorToken({ data: { id: ordenId, token } })
+          : await getOrdenImagenParaImprimir({ data: { id: ordenId } });
+      } catch (error) {
+        const mensaje = (error as Error)?.message ?? "";
+        return {
+          errorAcceso: /authorization|unauthorized|401/i.test(mensaje)
+            ? "Para ver esta orden necesitas abrir el enlace del código QR o ingresar con tu cuenta."
+            : mensaje || "No se pudo cargar la orden.",
+        } as const;
+      }
+    },
   });
 }
+
 
 
 export function useMedicoImpresion() {
