@@ -6,9 +6,12 @@ import {
   FlaskConical,
   Pill,
   Receipt,
+  Scan,
   Stethoscope,
+  UserCog,
   LogOut,
 } from "lucide-react";
+
 
 import {
   Sidebar,
@@ -30,13 +33,22 @@ const items = [
   { title: "Calendario de Citas", url: "/calendario", icon: CalendarDays },
   { title: "Fichas Clínicas (EHR)", url: "/fichas", icon: FileHeart },
   { title: "Laboratorios", url: "/laboratorios", icon: FlaskConical },
+  { title: "Imagenología", url: "/imagenologia", icon: Scan },
   { title: "Recetario Inteligente", url: "/recetario", icon: Pill },
   { title: "Facturación", url: "/facturacion", icon: Receipt },
+  { title: "Mi perfil médico", url: "/perfil-medico", icon: UserCog },
 ] as const;
 
 // community_manager has no RLS access to clinical data, so these entries are
 // hidden for that role instead of showing a broken page.
-const SOLO_CLINICO: readonly string[] = ["/laboratorios", "/fichas", "/calendario"];
+const SOLO_CLINICO: readonly string[] = [
+  "/laboratorios",
+  "/imagenologia",
+  "/fichas",
+  "/calendario",
+  "/perfil-medico",
+];
+
 
 
 export function AppSidebar() {

@@ -11,15 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as RecetarioRouteImport } from './routes/recetario'
+import { Route as PerfilMedicoRouteImport } from './routes/perfil-medico'
 import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultorio'
 import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LaboratoriosRouteImport } from './routes/laboratorios'
+import { Route as ImagenologiaRouteImport } from './routes/imagenologia'
 import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrdenLaboratorioOrdenIdRouteImport } from './routes/orden-laboratorio.$ordenId'
+import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
 
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
@@ -29,6 +32,11 @@ const RegistroRoute = RegistroRouteImport.update({
 const RecetarioRoute = RecetarioRouteImport.update({
   id: '/recetario',
   path: '/recetario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilMedicoRoute = PerfilMedicoRouteImport.update({
+  id: '/perfil-medico',
+  path: '/perfil-medico',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilConsultorioRoute = PerfilConsultorioRouteImport.update({
@@ -49,6 +57,11 @@ const LoginRoute = LoginRouteImport.update({
 const LaboratoriosRoute = LaboratoriosRouteImport.update({
   id: '/laboratorios',
   path: '/laboratorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImagenologiaRoute = ImagenologiaRouteImport.update({
+  id: '/imagenologia',
+  path: '/imagenologia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FichasRoute = FichasRouteImport.update({
@@ -76,18 +89,26 @@ const OrdenLaboratorioOrdenIdRoute = OrdenLaboratorioOrdenIdRouteImport.update({
   path: '/orden-laboratorio/$ordenId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdenImagenOrdenIdRoute = OrdenImagenOrdenIdRouteImport.update({
+  id: '/orden-imagen/$ordenId',
+  path: '/orden-imagen/$ordenId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
+  '/perfil-medico': typeof PerfilMedicoRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
+  '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
 export interface FileRoutesByTo {
@@ -95,12 +116,15 @@ export interface FileRoutesByTo {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
+  '/perfil-medico': typeof PerfilMedicoRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
+  '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
 export interface FileRoutesById {
@@ -109,12 +133,15 @@ export interface FileRoutesById {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
+  '/perfil-medico': typeof PerfilMedicoRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
+  '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
 export interface FileRouteTypes {
@@ -124,12 +151,15 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/imagenologia'
     | '/laboratorios'
     | '/login'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
+    | '/perfil-medico'
     | '/recetario'
     | '/registro'
+    | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -137,12 +167,15 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/imagenologia'
     | '/laboratorios'
     | '/login'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
+    | '/perfil-medico'
     | '/recetario'
     | '/registro'
+    | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
   id:
     | '__root__'
@@ -150,12 +183,15 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/imagenologia'
     | '/laboratorios'
     | '/login'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
+    | '/perfil-medico'
     | '/recetario'
     | '/registro'
+    | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
   fileRoutesById: FileRoutesById
 }
@@ -164,12 +200,15 @@ export interface RootRouteChildren {
   CalendarioRoute: typeof CalendarioRoute
   FacturacionRoute: typeof FacturacionRoute
   FichasRoute: typeof FichasRoute
+  ImagenologiaRoute: typeof ImagenologiaRoute
   LaboratoriosRoute: typeof LaboratoriosRoute
   LoginRoute: typeof LoginRoute
   PendienteActivacionRoute: typeof PendienteActivacionRoute
   PerfilConsultorioRoute: typeof PerfilConsultorioRoute
+  PerfilMedicoRoute: typeof PerfilMedicoRoute
   RecetarioRoute: typeof RecetarioRoute
   RegistroRoute: typeof RegistroRoute
+  OrdenImagenOrdenIdRoute: typeof OrdenImagenOrdenIdRoute
   OrdenLaboratorioOrdenIdRoute: typeof OrdenLaboratorioOrdenIdRoute
 }
 
@@ -187,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: '/recetario'
       fullPath: '/recetario'
       preLoaderRoute: typeof RecetarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil-medico': {
+      id: '/perfil-medico'
+      path: '/perfil-medico'
+      fullPath: '/perfil-medico'
+      preLoaderRoute: typeof PerfilMedicoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil-consultorio': {
@@ -215,6 +261,13 @@ declare module '@tanstack/react-router' {
       path: '/laboratorios'
       fullPath: '/laboratorios'
       preLoaderRoute: typeof LaboratoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imagenologia': {
+      id: '/imagenologia'
+      path: '/imagenologia'
+      fullPath: '/imagenologia'
+      preLoaderRoute: typeof ImagenologiaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fichas': {
@@ -252,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdenLaboratorioOrdenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orden-imagen/$ordenId': {
+      id: '/orden-imagen/$ordenId'
+      path: '/orden-imagen/$ordenId'
+      fullPath: '/orden-imagen/$ordenId'
+      preLoaderRoute: typeof OrdenImagenOrdenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -260,12 +320,15 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarioRoute: CalendarioRoute,
   FacturacionRoute: FacturacionRoute,
   FichasRoute: FichasRoute,
+  ImagenologiaRoute: ImagenologiaRoute,
   LaboratoriosRoute: LaboratoriosRoute,
   LoginRoute: LoginRoute,
   PendienteActivacionRoute: PendienteActivacionRoute,
   PerfilConsultorioRoute: PerfilConsultorioRoute,
+  PerfilMedicoRoute: PerfilMedicoRoute,
   RecetarioRoute: RecetarioRoute,
   RegistroRoute: RegistroRoute,
+  OrdenImagenOrdenIdRoute: OrdenImagenOrdenIdRoute,
   OrdenLaboratorioOrdenIdRoute: OrdenLaboratorioOrdenIdRoute,
 }
 export const routeTree = rootRouteImport
