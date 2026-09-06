@@ -19,6 +19,7 @@ import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
 import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrdenLaboratorioOrdenIdRouteImport } from './routes/orden-laboratorio.$ordenId'
 
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
@@ -70,6 +71,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdenLaboratorioOrdenIdRoute = OrdenLaboratorioOrdenIdRouteImport.update({
+  id: '/orden-laboratorio/$ordenId',
+  path: '/orden-laboratorio/$ordenId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
+  '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
+  '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
+  '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/perfil-consultorio'
     | '/recetario'
     | '/registro'
+    | '/orden-laboratorio/$ordenId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/perfil-consultorio'
     | '/recetario'
     | '/registro'
+    | '/orden-laboratorio/$ordenId'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/perfil-consultorio'
     | '/recetario'
     | '/registro'
+    | '/orden-laboratorio/$ordenId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +170,7 @@ export interface RootRouteChildren {
   PerfilConsultorioRoute: typeof PerfilConsultorioRoute
   RecetarioRoute: typeof RecetarioRoute
   RegistroRoute: typeof RegistroRoute
+  OrdenLaboratorioOrdenIdRoute: typeof OrdenLaboratorioOrdenIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orden-laboratorio/$ordenId': {
+      id: '/orden-laboratorio/$ordenId'
+      path: '/orden-laboratorio/$ordenId'
+      fullPath: '/orden-laboratorio/$ordenId'
+      preLoaderRoute: typeof OrdenLaboratorioOrdenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +266,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilConsultorioRoute: PerfilConsultorioRoute,
   RecetarioRoute: RecetarioRoute,
   RegistroRoute: RegistroRoute,
+  OrdenLaboratorioOrdenIdRoute: OrdenLaboratorioOrdenIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
