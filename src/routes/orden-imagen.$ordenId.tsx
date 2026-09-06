@@ -218,8 +218,9 @@ function ImprimirOrdenImagenPage() {
             <p className="text-[9pt] text-neutral-500">Firma y sello</p>
           </div>
 
-          <div className="text-center">
+          <div className="text-center" data-orden-url={urlOrden}>
             {urlOrden ? <QRCodeSVG value={urlOrden} size={96} /> : null}
+
             <p className="mt-1 max-w-[96px] text-[8pt] leading-tight text-neutral-600">
               Escanea para ver esta orden
             </p>
