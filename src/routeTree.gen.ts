@@ -14,6 +14,7 @@ import { Route as RecetarioRouteImport } from './routes/recetario'
 import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultorio'
 import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LaboratoriosRouteImport } from './routes/laboratorios'
 import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
 import { Route as CalendarioRouteImport } from './routes/calendario'
@@ -44,6 +45,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LaboratoriosRoute = LaboratoriosRouteImport.update({
+  id: '/laboratorios',
+  path: '/laboratorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FichasRoute = FichasRouteImport.update({
   id: '/fichas',
   path: '/fichas',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/calendario': typeof CalendarioRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
+  '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/laboratorios'
     | '/login'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/laboratorios'
     | '/login'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/facturacion'
     | '/fichas'
+    | '/laboratorios'
     | '/login'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   CalendarioRoute: typeof CalendarioRoute
   FacturacionRoute: typeof FacturacionRoute
   FichasRoute: typeof FichasRoute
+  LaboratoriosRoute: typeof LaboratoriosRoute
   LoginRoute: typeof LoginRoute
   PendienteActivacionRoute: typeof PendienteActivacionRoute
   PerfilConsultorioRoute: typeof PerfilConsultorioRoute
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/laboratorios': {
+      id: '/laboratorios'
+      path: '/laboratorios'
+      fullPath: '/laboratorios'
+      preLoaderRoute: typeof LaboratoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fichas': {
       id: '/fichas'
       path: '/fichas'
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarioRoute: CalendarioRoute,
   FacturacionRoute: FacturacionRoute,
   FichasRoute: FichasRoute,
+  LaboratoriosRoute: LaboratoriosRoute,
   LoginRoute: LoginRoute,
   PendienteActivacionRoute: PendienteActivacionRoute,
   PerfilConsultorioRoute: PerfilConsultorioRoute,
