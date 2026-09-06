@@ -28,9 +28,15 @@ const items = [
   { title: "Dashboard Principal", url: "/", icon: LayoutDashboard },
   { title: "Calendario de Citas", url: "/calendario", icon: CalendarDays },
   { title: "Fichas Clínicas (EHR)", url: "/fichas", icon: FileHeart },
+  { title: "Laboratorios", url: "/laboratorios", icon: FlaskConical },
   { title: "Recetario Inteligente", url: "/recetario", icon: Pill },
   { title: "Facturación", url: "/facturacion", icon: Receipt },
 ] as const;
+
+// community_manager has no RLS access to clinical data, so these entries are
+// hidden for that role instead of showing a broken page.
+const SOLO_CLINICO: readonly string[] = ["/laboratorios", "/fichas", "/calendario"];
+
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
