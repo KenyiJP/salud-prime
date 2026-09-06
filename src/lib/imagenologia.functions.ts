@@ -214,7 +214,15 @@ export const getOrdenImagenPorToken = createServerFn({ method: "POST" })
       .select(SELECT_ORDEN)
       .eq("id", data.id)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (/permission denied/i.test(error.message)) {
+        throw new Error(
+          "El acceso por QR todavía no está habilitado en la base de datos (falta el permiso de lectura del rol de servicio sobre las órdenes de imágenes).",
+        );
+      }
+      throw new Error(error.message);
+    }
+
     if (!row) throw new Error("La orden no existe.");
 
     const orden = normalizarOrden(row);
