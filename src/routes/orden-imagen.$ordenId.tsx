@@ -49,15 +49,18 @@ function ImprimirOrdenImagenPage() {
   if (isLoading) {
     return <p className="p-8 text-sm text-muted-foreground">Cargando orden…</p>;
   }
-  if (error || !data) {
+  if (error || !data || "errorAcceso" in data) {
     return (
       <p role="alert" className="p-8 text-sm text-destructive">
-        {(error as Error)?.message ?? "No se pudo cargar la orden."}
+        {(data && "errorAcceso" in data ? data.errorAcceso : null) ??
+          (error as Error)?.message ??
+          "No se pudo cargar la orden."}
       </p>
     );
   }
 
   const { orden, paciente, medico, token } = data;
+
   const urlOrden =
     typeof window !== "undefined"
       ? `${window.location.origin}/orden-imagen/${orden.id}?acceso=${token}`
