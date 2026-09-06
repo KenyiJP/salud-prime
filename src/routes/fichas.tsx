@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { requireSession } from "@/lib/auth-guard";
 import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { FileHeart, Pencil, Search, Trash2, UserPlus } from "lucide-react";
+import { FileHeart, FlaskConical, Pencil, Search, Trash2, UserPlus } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
 import { Button } from "@/components/ui/button";
@@ -120,6 +120,16 @@ function FichasPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Laboratorios de ${nombrePaciente(p)}`}
+                      >
+                        <Link to="/laboratorios" search={{ paciente: p.id }}>
+                          <FlaskConical className="h-4 w-4" />
+                        </Link>
+                      </Button>
                       <PacienteDialog
                         paciente={p}
                         trigger={

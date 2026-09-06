@@ -10,10 +10,97 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
+      biologicos_categorias: {
+        Row: {
+          codigo_origen: string
+          id: number
+          nombre: string
+          requiere_cadena_frio: boolean
+          tipo_origen: string | null
+        }
+        Insert: {
+          codigo_origen: string
+          id?: never
+          nombre: string
+          requiere_cadena_frio: boolean
+          tipo_origen?: string | null
+        }
+        Update: {
+          codigo_origen?: string
+          id?: never
+          nombre?: string
+          requiere_cadena_frio?: boolean
+          tipo_origen?: string | null
+        }
+        Relationships: []
+      }
+      biologicos_productos: {
+        Row: {
+          categoria_id: number
+          codigo_origen: string
+          condicion_almacenamiento: string | null
+          created_at: string
+          estado: string
+          id: string
+          nombre_comercial: string
+          nombre_comercial_crudo: string | null
+          origen: string
+          principio_activo_id: string | null
+          registros_sanitarios: number
+          updated_at: string
+          via_sugerida: string | null
+        }
+        Insert: {
+          categoria_id: number
+          codigo_origen: string
+          condicion_almacenamiento?: string | null
+          created_at?: string
+          estado?: string
+          id?: string
+          nombre_comercial: string
+          nombre_comercial_crudo?: string | null
+          origen?: string
+          principio_activo_id?: string | null
+          registros_sanitarios?: number
+          updated_at?: string
+          via_sugerida?: string | null
+        }
+        Update: {
+          categoria_id?: number
+          codigo_origen?: string
+          condicion_almacenamiento?: string | null
+          created_at?: string
+          estado?: string
+          id?: string
+          nombre_comercial?: string
+          nombre_comercial_crudo?: string | null
+          origen?: string
+          principio_activo_id?: string | null
+          registros_sanitarios?: number
+          updated_at?: string
+          via_sugerida?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "biologicos_productos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "biologicos_categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "biologicos_productos_principio_activo_id_fkey"
+            columns: ["principio_activo_id"]
+            isOneToOne: false
+            referencedRelation: "principios_activos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       citas: {
         Row: {
           created_at: string
@@ -72,6 +159,180 @@ export type Database = {
           },
         ]
       }
+      examenes_laboratorio: {
+        Row: {
+          activo: boolean
+          clase: string | null
+          componente: string | null
+          created_at: string
+          estado_loinc: string | null
+          fecha_alta: string | null
+          fuente: string
+          id: string
+          loinc_num: string
+          muestra: string | null
+          nombre_display: string
+          nombre_en: string | null
+          nombre_es: string | null
+          nota_auditoria: string | null
+          rank_loinc: number | null
+          sinonimos: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          clase?: string | null
+          componente?: string | null
+          created_at?: string
+          estado_loinc?: string | null
+          fecha_alta?: string | null
+          fuente?: string
+          id?: string
+          loinc_num: string
+          muestra?: string | null
+          nombre_display: string
+          nombre_en?: string | null
+          nombre_es?: string | null
+          nota_auditoria?: string | null
+          rank_loinc?: number | null
+          sinonimos?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          clase?: string | null
+          componente?: string | null
+          created_at?: string
+          estado_loinc?: string | null
+          fecha_alta?: string | null
+          fuente?: string
+          id?: string
+          loinc_num?: string
+          muestra?: string | null
+          nombre_display?: string
+          nombre_en?: string | null
+          nombre_es?: string | null
+          nota_auditoria?: string | null
+          rank_loinc?: number | null
+          sinonimos?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      formas_farmaceuticas: {
+        Row: {
+          codigo: string
+          id: number
+          nombre: string
+        }
+        Insert: {
+          codigo: string
+          id?: never
+          nombre: string
+        }
+        Update: {
+          codigo?: string
+          id?: never
+          nombre?: string
+        }
+        Relationships: []
+      }
+      medicamento_principios_activos: {
+        Row: {
+          concentracion: string | null
+          forma_sal: string | null
+          medicamento_id: string
+          orden: number
+          principio_activo_id: string
+        }
+        Insert: {
+          concentracion?: string | null
+          forma_sal?: string | null
+          medicamento_id: string
+          orden: number
+          principio_activo_id: string
+        }
+        Update: {
+          concentracion?: string | null
+          forma_sal?: string | null
+          medicamento_id?: string
+          orden?: number
+          principio_activo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medicamento_principios_activos_medicamento_id_fkey"
+            columns: ["medicamento_id"]
+            isOneToOne: false
+            referencedRelation: "medicamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medicamento_principios_activos_principio_activo_id_fkey"
+            columns: ["principio_activo_id"]
+            isOneToOne: false
+            referencedRelation: "principios_activos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medicamentos: {
+        Row: {
+          codigo_sismed: string
+          created_at: string
+          estado: string
+          forma_farmaceutica_id: number
+          id: string
+          nombre: string
+          origen: string
+          presentacion: string | null
+          updated_at: string
+          via_administracion_id: number | null
+        }
+        Insert: {
+          codigo_sismed: string
+          created_at?: string
+          estado?: string
+          forma_farmaceutica_id: number
+          id?: string
+          nombre: string
+          origen?: string
+          presentacion?: string | null
+          updated_at?: string
+          via_administracion_id?: number | null
+        }
+        Update: {
+          codigo_sismed?: string
+          created_at?: string
+          estado?: string
+          forma_farmaceutica_id?: number
+          id?: string
+          nombre?: string
+          origen?: string
+          presentacion?: string | null
+          updated_at?: string
+          via_administracion_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medicamentos_forma_farmaceutica_id_fkey"
+            columns: ["forma_farmaceutica_id"]
+            isOneToOne: false
+            referencedRelation: "formas_farmaceuticas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medicamentos_via_administracion_id_fkey"
+            columns: ["via_administracion_id"]
+            isOneToOne: false
+            referencedRelation: "vias_administracion"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medicos: {
         Row: {
           apellidos: string
@@ -115,6 +376,126 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "medicos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orden_laboratorio_examenes: {
+        Row: {
+          created_at: string
+          examen_id: string
+          id: string
+          orden: number
+          orden_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          examen_id: string
+          id?: string
+          orden?: number
+          orden_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          examen_id?: string
+          id?: string
+          orden?: number
+          orden_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orden_laboratorio_examenes_examen_id_fkey"
+            columns: ["examen_id"]
+            isOneToOne: false
+            referencedRelation: "examenes_laboratorio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orden_laboratorio_examenes_orden_id_fkey"
+            columns: ["orden_id"]
+            isOneToOne: false
+            referencedRelation: "ordenes_laboratorio"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orden_laboratorio_examenes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ordenes_laboratorio: {
+        Row: {
+          cita_id: string | null
+          created_at: string
+          diagnostico_presuntivo: string | null
+          estado: string
+          fecha_orden: string
+          id: string
+          medico_id: string
+          observaciones: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          cita_id?: string | null
+          created_at?: string
+          diagnostico_presuntivo?: string | null
+          estado?: string
+          fecha_orden?: string
+          id?: string
+          medico_id: string
+          observaciones?: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          cita_id?: string | null
+          created_at?: string
+          diagnostico_presuntivo?: string | null
+          estado?: string
+          fecha_orden?: string
+          id?: string
+          medico_id?: string
+          observaciones?: string | null
+          paciente_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ordenes_laboratorio_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordenes_laboratorio_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordenes_laboratorio_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ordenes_laboratorio_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -179,6 +560,21 @@ export type Database = {
           },
         ]
       }
+      principios_activos: {
+        Row: {
+          id: string
+          nombre: string
+        }
+        Insert: {
+          id?: string
+          nombre: string
+        }
+        Update: {
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
       roles_usuario: {
         Row: {
           created_at: string
@@ -238,12 +634,40 @@ export type Database = {
         }
         Relationships: []
       }
+      vias_administracion: {
+        Row: {
+          id: number
+          nombre: string
+        }
+        Insert: {
+          id?: never
+          nombre: string
+        }
+        Update: {
+          id?: never
+          nombre?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      catalogo_busqueda_medicamentos: {
+        Row: {
+          categoria: string | null
+          estado: string | null
+          fuente: string | null
+          id: string | null
+          nombre: string | null
+          presentacion: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      f_unaccent: { Args: { "": string }; Returns: string }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       rol_usuario: "founder" | "medico" | "community_manager" | "asistente"
@@ -262,12 +686,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -291,11 +715,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -316,11 +740,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -341,11 +765,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -358,11 +782,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
