@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   CalendarDays,
   FileHeart,
+  FlaskConical,
   Pill,
   Receipt,
   Stethoscope,
@@ -42,6 +43,9 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, rol, signOut } = useAuth();
   const navigate = useNavigate();
+  const visibles = items.filter(
+    (item) => rol !== "community_manager" || !SOLO_CLINICO.includes(item.url),
+  );
 
   async function handleSignOut() {
     await signOut();
@@ -71,7 +75,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Clínica</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => {
+              {visibles.map((item) => {
                 const active =
                   item.url === "/"
                     ? pathname === "/"
