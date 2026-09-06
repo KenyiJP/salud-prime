@@ -65,12 +65,14 @@ export function useOrdenesImagenPaciente(pacienteId: string | null) {
 export function useOrdenImagenImpresion(ordenId: string, token?: string) {
   return useQuery({
     queryKey: ["orden-imagen-imprimir", ordenId, token ?? "sesion"],
+    retry: false,
     queryFn: () =>
       token
         ? getOrdenImagenPorToken({ data: { id: ordenId, token } })
         : getOrdenImagenParaImprimir({ data: { id: ordenId } }),
   });
 }
+
 
 export function useMedicoImpresion() {
   return useQuery({ queryKey: ["medico-impresion"], queryFn: () => getMedicoImpresion() });
