@@ -186,7 +186,7 @@ function ImprimirOrdenImagenPage() {
         ) : null}
 
         <footer className="mt-16 flex items-end justify-between gap-8">
-          <div className="w-72">
+          <div className="w-72 text-center">
             {medico.firma_url ? (
               <img
                 src={medico.firma_url}
