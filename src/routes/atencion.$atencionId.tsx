@@ -2,7 +2,8 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Printer } from "lucide-react";
 import { requireSession } from "@/lib/auth-guard";
 import { Button } from "@/components/ui/button";
-import { useAtencion } from "@/lib/ehr.queries";
+import { useQuery } from "@tanstack/react-query";
+import { plantillasQuery, useAtencion } from "@/lib/ehr.queries";
 import {
   FUNCIONES_BIOLOGICAS,
   REGIONES_EXAMEN,
@@ -327,7 +328,7 @@ function CamposEspecialidadImpresos({
   campos: Record<string, unknown>;
   plantillaId: string | null;
 }) {
-  const { data: plantillas } = usePlantillasParaImpresion();
+  const { data: plantillas } = useQuery(plantillasQuery());
   const plantilla = plantillas?.find((p) => p.id === plantillaId) ?? null;
   const etiquetas = new Map<string, CampoPlantilla>();
   for (const seccion of seccionesDe(plantilla)) {
@@ -352,9 +353,3 @@ function CamposEspecialidadImpresos({
   );
 }
 
-function usePlantillasParaImpresion() {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useQuery } = require("@tanstack/react-query") as typeof import("@tanstack/react-query");
-  const { plantillasQuery } = require("@/lib/ehr.queries") as typeof import("@/lib/ehr.queries");
-  return useQuery(plantillasQuery());
-}
