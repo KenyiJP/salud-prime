@@ -44,7 +44,7 @@ export const crearPaciente = createServerFn({ method: "POST" })
         telefono: data.telefono || null,
         email: data.email || null,
         fecha_nacimiento: data.fecha_nacimiento || null,
-      })
+      } as never)
       .select()
       .single();
     if (error) throw new Error(error.message);
