@@ -153,7 +153,7 @@ function ImprimirOrdenPage() {
         ) : null}
 
         <footer className="mt-20 flex items-end justify-between gap-8">
-          <div className="w-72">
+          <div className="w-72 text-center">
             <div className="h-16 border-b border-dashed border-neutral-500" />
             <p className="mt-2 text-[11pt] font-semibold">
               Dr(a). {medico.nombres} {medico.apellidos}
