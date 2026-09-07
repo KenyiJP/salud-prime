@@ -73,9 +73,19 @@ export function useOrdenParaImprimir(ordenId: string, token?: string) {
     // mensaje mostrable, para que la página nunca quede en blanco.
     queryFn: async () => {
       try {
-        return token
-          ? await getOrdenLaboratorioPorToken({ data: { id: ordenId, token } })
-          : await getOrdenParaImprimir({ data: { id: ordenId } });
+        if (token) {
+          return await getOrdenLaboratorioPorToken({ data: { id: ordenId, token } });
+        }
+        // Sin token, la lectura exige sesión: si no hay ninguna, no llamamos al
+        // server function autenticado (evita el error 401 y la pantalla blanca).
+        const { data: sesion } = await supabase.auth.getSession();
+        if (!sesion.session) {
+          return {
+            errorAcceso:
+              "Para ver esta orden necesitas abrir el enlace del código QR o ingresar con tu cuenta.",
+          } as const;
+        }
+        return await getOrdenParaImprimir({ data: { id: ordenId } });
       } catch (error) {
         const mensaje = (error as Error)?.message ?? "";
         return {
