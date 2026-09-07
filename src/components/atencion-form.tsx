@@ -836,7 +836,7 @@ export function AtencionForm({
                 <SelectContent>
                   {TIPOS_ADENDA.map(({ valor: t, label: tLabel }) => (
                     <SelectItem key={t} value={t}>
-                      {t}
+                      {tLabel}
                     </SelectItem>
                   ))}
                 </SelectContent>
