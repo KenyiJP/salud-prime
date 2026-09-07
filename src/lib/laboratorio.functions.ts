@@ -4,6 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   cambiarEstadoOrdenSchema,
   nuevaOrdenSchema,
+  ordenLabPublicaSchema,
   ordenPorIdSchema,
   ordenesPacienteSchema,
   type MedicoActual,
@@ -183,9 +184,67 @@ export const getOrdenParaImprimir = createServerFn({ method: "POST" })
       .single();
     if (medicoError) throw new Error(medicoError.message);
 
+    const { crearTokenOrden } = await import("./orden-token.server");
+
     return {
       orden,
       paciente: paciente as PacienteRow,
       medico: medico as MedicoActual,
+      token: await crearTokenOrden(orden.id),
+    };
+  });
+
+/**
+ * Lectura pública SOLO con token firmado: es la puerta por la que el laboratorio
+ * abre la orden desde el QR sin tener cuenta. Solo expone los datos que ya están
+ * impresos en el papel.
+ */
+export const getOrdenLaboratorioPorToken = createServerFn({ method: "POST" })
+  .inputValidator(ordenLabPublicaSchema.parse)
+  .handler(async ({ data }) => {
+    const { verificarTokenOrden } = await import("./orden-token.server");
+    if (!(await verificarTokenOrden(data.id, data.token))) {
+      throw new Error("El enlace de la orden no es válido o ya venció.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = untyped(supabaseAdmin);
+
+    const { data: row, error } = await db
+      .from("ordenes_laboratorio")
+      .select(SELECT_ORDEN)
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) {
+      if (/permission denied/i.test(error.message)) {
+        throw new Error(
+          "El acceso por QR todavía no está habilitado en la base de datos (falta el permiso de lectura del rol de servicio sobre las órdenes de laboratorio).",
+        );
+      }
+      throw new Error(error.message);
+    }
+    if (!row) throw new Error("La orden no existe.");
+
+    const orden = normalizarOrden(row);
+
+    const { data: paciente, error: pacienteError } = await db
+      .from("pacientes")
+      .select("*")
+      .eq("id", orden.paciente_id)
+      .single();
+    if (pacienteError) throw new Error(pacienteError.message);
+
+    const { data: medico, error: medicoError } = await db
+      .from("medicos")
+      .select("id, nombres, apellidos, cmp, rne, especialidad")
+      .eq("id", orden.medico_id)
+      .single();
+    if (medicoError) throw new Error(medicoError.message);
+
+    return {
+      orden,
+      paciente: paciente as PacienteRow,
+      medico: medico as MedicoActual,
+      token: data.token,
     };
   });
