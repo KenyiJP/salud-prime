@@ -10,6 +10,7 @@ import {
   diagnosticosDe,
   edadEnAnios,
   etiqueta,
+  etiquetaAdenda,
   seccionesDe,
   type CampoPlantilla,
 } from "@/lib/ehr-schemas";
@@ -272,7 +273,7 @@ function InformeAtencionPage() {
             {adendas.map((a) => (
               <div key={a.id} className="border-l-2 border-neutral-400 pl-3 text-[11pt]">
                 <p className="text-neutral-600">
-                  {a.tipo_adenda} · {new Date(a.created_at).toLocaleString("es-PE")}
+                  {etiquetaAdenda(a.tipo_adenda)} · {new Date(a.created_at).toLocaleString("es-PE")}
                 </p>
                 <p className="whitespace-pre-wrap">{a.contenido}</p>
               </div>

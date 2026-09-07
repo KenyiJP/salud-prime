@@ -55,6 +55,7 @@ import {
   FUNCIONES_BIOLOGICAS,
   REGIONES_EXAMEN,
   TIPOS_ADENDA,
+  etiquetaAdenda,
   TIPOS_ATENCION,
   TIPOS_DIAGNOSTICO,
   UNIDADES_TIEMPO,
@@ -118,7 +119,7 @@ export function AtencionForm({
   );
   const [confirmarFirma, setConfirmarFirma] = useState(false);
   const [adendaAbierta, setAdendaAbierta] = useState(false);
-  const [adendaTipo, setAdendaTipo] = useState<string>(TIPOS_ADENDA[0]);
+  const [adendaTipo, setAdendaTipo] = useState<string>(TIPOS_ADENDA[0].valor);
   const [adendaTexto, setAdendaTexto] = useState("");
 
   const guardar = useGuardarBorrador();
@@ -740,7 +741,7 @@ export function AtencionForm({
             {adendas.map((a) => (
               <li key={a.id} className="rounded-lg border border-border/60 p-3 text-sm">
                 <div className="flex items-center justify-between gap-3">
-                  <Badge variant="secondary">{a.tipo_adenda}</Badge>
+                  <Badge variant="secondary">{etiquetaAdenda(a.tipo_adenda)}</Badge>
                   <span className="text-xs text-muted-foreground">
                     {new Date(a.created_at).toLocaleString("es-PE")}
                   </span>
@@ -833,7 +834,7 @@ export function AtencionForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {TIPOS_ADENDA.map((t) => (
+                  {TIPOS_ADENDA.map(({ valor: t, label: tLabel }) => (
                     <SelectItem key={t} value={t}>
                       {t}
                     </SelectItem>

@@ -96,12 +96,18 @@ export const TIPOS_DIAGNOSTICO = [
   { valor: "R", label: "Repetido" },
 ] as const;
 
+// Valores validados por CHECK en la base; la etiqueta legible va aparte.
 export const TIPOS_ADENDA = [
-  "Nota aclaratoria",
-  "Evolución",
-  "Resultado de exámenes",
-  "Corrección de transcripción",
+  { valor: "aclaracion", label: "Nota aclaratoria" },
+  { valor: "evolucion_adicional", label: "Evolución adicional" },
+  { valor: "resultado_laboratorio_recibido", label: "Resultado de laboratorio recibido" },
+  { valor: "resultado_imagen_recibido", label: "Resultado de imagen recibido" },
+  { valor: "correccion_error_material", label: "Corrección de error material" },
 ] as const;
+
+export function etiquetaAdenda(valor: string): string {
+  return TIPOS_ADENDA.find((t) => t.valor === valor)?.label ?? etiqueta(valor);
+}
 
 export type Diagnostico = {
   codigo_cie10: string;
