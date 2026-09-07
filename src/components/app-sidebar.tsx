@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   CalendarDays,
   FileHeart,
+  ClipboardPlus,
   FlaskConical,
   Pill,
   Receipt,
@@ -32,6 +33,7 @@ const items = [
   { title: "Dashboard Principal", url: "/", icon: LayoutDashboard },
   { title: "Calendario de Citas", url: "/calendario", icon: CalendarDays },
   { title: "Fichas Clínicas (EHR)", url: "/fichas", icon: FileHeart },
+  { title: "Consulta / Historias", url: "/historias", icon: ClipboardPlus },
   { title: "Laboratorios", url: "/laboratorios", icon: FlaskConical },
   { title: "Imagenología", url: "/imagenologia", icon: Scan },
   { title: "Recetario Inteligente", url: "/recetario", icon: Pill },
@@ -43,6 +45,7 @@ const items = [
 // hidden for that role instead of showing a broken page.
 const SOLO_CLINICO: readonly string[] = [
   "/laboratorios",
+  "/historias",
   "/imagenologia",
   "/fichas",
   "/calendario",
