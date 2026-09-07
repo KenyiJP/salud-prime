@@ -425,7 +425,8 @@ export function AtencionForm({
             </div>
             <div className="space-y-2">
               <Label>Forma de inicio</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+
                 {FORMAS_INICIO.map((f) => (
                   <Button
                     key={f}
