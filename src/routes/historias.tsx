@@ -20,6 +20,7 @@ import {
   ETIQUETA_ESTADO_ATENCION,
   diagnosticosDe,
   edadEnAnios,
+  etiqueta,
   type AtencionRow,
   type EstadoAtencion,
 } from "@/lib/ehr-schemas";
@@ -275,7 +276,7 @@ function Historial({
                     </Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {a.tipo_atencion} · {a.motivo_consulta ?? "Sin motivo registrado"}
+                    {etiqueta(a.tipo_atencion)} · {a.motivo_consulta ?? "Sin motivo registrado"}
                   </p>
                   {principal ? (
                     <p className="mt-1 text-sm">

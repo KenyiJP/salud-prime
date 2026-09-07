@@ -32,13 +32,24 @@ export function seccionesDe(plantilla?: PlantillaRow | null): SeccionPlantilla[]
 
 // ------------------------------------------------------------------- catálogo
 
+// Los valores viajan en minúscula porque la base los valida con un CHECK;
+// la interfaz muestra la etiqueta capitalizada.
 export const TIPOS_ATENCION = [
-  "Ambulatoria",
-  "Control",
-  "Urgencia",
-  "Teleconsulta",
-  "Procedimiento",
+  "ambulatoria",
+  "control",
+  "urgencia",
+  "teleconsulta",
+  "interconsulta",
+  "procedimiento",
 ] as const;
+
+export const FORMAS_INICIO = ["brusco", "insidioso", "desconocido"] as const;
+export const CURSOS = ["progresivo", "estacionario", "intermitente"] as const;
+
+export function etiqueta(valor?: string | null): string {
+  if (!valor) return "";
+  return valor.charAt(0).toUpperCase() + valor.slice(1);
+}
 
 export const ESTADOS_ATENCION = ["borrador", "firmada", "anulada"] as const;
 export type EstadoAtencion = (typeof ESTADOS_ATENCION)[number];
@@ -49,8 +60,6 @@ export const ETIQUETA_ESTADO_ATENCION: Record<EstadoAtencion, string> = {
   anulada: "Anulada",
 };
 
-export const FORMAS_INICIO = ["Brusco", "Insidioso"] as const;
-export const CURSOS = ["Progresivo", "Estacionario", "Intermitente"] as const;
 export const UNIDADES_TIEMPO = ["horas", "días", "semanas", "meses", "años"] as const;
 
 export const FUNCIONES_BIOLOGICAS = [
@@ -207,7 +216,7 @@ export type NuevaAdendaInput = z.infer<typeof nuevaAdendaSchema>;
 export function atencionVacia(pacienteId = ""): AtencionInput {
   return {
     paciente_id: pacienteId,
-    tipo_atencion: "Ambulatoria",
+    tipo_atencion: "ambulatoria",
     funciones_biologicas: {},
     examen_regional: {},
     diagnosticos: [],
@@ -221,7 +230,7 @@ export function atencionAFormulario(row: AtencionRow): AtencionInput {
     id: row.id,
     paciente_id: row.paciente_id,
     cita_id: row.cita_id,
-    tipo_atencion: row.tipo_atencion ?? "Ambulatoria",
+    tipo_atencion: row.tipo_atencion ?? "ambulatoria",
     plantilla_id: row.plantilla_id,
     plantilla_version: row.plantilla_version,
     presion_arterial_sistolica: row.presion_arterial_sistolica,

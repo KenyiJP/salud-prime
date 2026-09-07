@@ -62,6 +62,7 @@ import {
   atencionVacia,
   clasificarImc,
   edadEnAnios,
+  etiqueta,
   type AdendaRow,
   type AtencionInput,
   type AtencionRow,
@@ -216,7 +217,7 @@ export function AtencionForm({
                 variant={form.tipo_atencion === tipo ? "default" : "outline"}
                 onClick={() => set("tipo_atencion", tipo)}
               >
-                {tipo}
+                {etiqueta(tipo)}
               </Button>
             ))}
           </div>
@@ -433,7 +434,7 @@ export function AtencionForm({
                     variant={form.forma_inicio === f ? "default" : "outline"}
                     onClick={() => set("forma_inicio", f)}
                   >
-                    {f}
+                    {etiqueta(f)}
                   </Button>
                 ))}
               </div>
@@ -450,7 +451,7 @@ export function AtencionForm({
                     variant={form.curso_enfermedad === c ? "default" : "outline"}
                     onClick={() => set("curso_enfermedad", c)}
                   >
-                    {c}
+                    {etiqueta(c)}
                   </Button>
                 ))}
               </div>

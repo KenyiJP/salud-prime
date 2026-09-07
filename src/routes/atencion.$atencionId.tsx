@@ -9,6 +9,7 @@ import {
   REGIONES_EXAMEN,
   diagnosticosDe,
   edadEnAnios,
+  etiqueta,
   seccionesDe,
   type CampoPlantilla,
 } from "@/lib/ehr-schemas";
@@ -166,7 +167,7 @@ function InformeAtencionPage() {
           </p>
           <p>
             <span className="text-neutral-600">Tipo de atención: </span>
-            {atencion.tipo_atencion}
+            {etiqueta(atencion.tipo_atencion)}
           </p>
           <p>
             <span className="text-neutral-600">Estado: </span>
@@ -201,8 +202,8 @@ function InformeAtencionPage() {
           </h3>
           <Campo label="Motivo de consulta" valor={atencion.motivo_consulta} />
           <Campo label="Tiempo de enfermedad" valor={atencion.tiempo_enfermedad} />
-          <Campo label="Forma de inicio" valor={atencion.forma_inicio} />
-          <Campo label="Curso" valor={atencion.curso_enfermedad} />
+          <Campo label="Forma de inicio" valor={etiqueta(atencion.forma_inicio)} />
+          <Campo label="Curso" valor={etiqueta(atencion.curso_enfermedad)} />
           <Campo label="Relato cronológico" valor={atencion.relato_cronologico} />
           <Campo label="Antecedentes patológicos" valor={atencion.antecedentes_patologicos} />
           <Campo label="Antecedentes quirúrgicos" valor={atencion.antecedentes_quirurgicos} />
