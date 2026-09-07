@@ -876,8 +876,8 @@ export function AtencionForm({
               {adenda.isPending ? "Guardando…" : "Guardar adenda"}
             </Button>
           </DialogFooter>
-        </DialogFooter>
         </DialogContent>
+
       </Dialog>
     </div>
   );
