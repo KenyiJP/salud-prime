@@ -70,20 +70,9 @@ export function useOrdenImagenImpresion(ordenId: string, token?: string) {
     // en un mensaje mostrable, para que la página nunca quede en blanco.
     queryFn: async () => {
       try {
-        if (token) {
-          return await getOrdenImagenPorToken({ data: { id: ordenId, token } });
-        }
-        // Sin token, la lectura exige sesión: si no hay ninguna, no llamamos al
-        // server function autenticado (evita el 401 y la pantalla blanca).
-        const { data: sesion } = await supabase.auth.getSession();
-        if (!sesion.session) {
-          return {
-            errorAcceso:
-              "Para ver esta orden necesitas abrir el enlace del código QR o ingresar con tu cuenta.",
-          } as const;
-        }
-        return await getOrdenImagenParaImprimir({ data: { id: ordenId } });
-
+        return token
+          ? await getOrdenImagenPorToken({ data: { id: ordenId, token } })
+          : await getOrdenImagenParaImprimir({ data: { id: ordenId } });
       } catch (error) {
         const mensaje = (error as Error)?.message ?? "";
         return {
