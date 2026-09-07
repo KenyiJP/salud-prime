@@ -11,6 +11,7 @@ import {
   cambiarEstadoOrden,
   crearOrdenLaboratorio,
   getMedicoActual,
+  getOrdenLaboratorioPorToken,
   getOrdenParaImprimir,
   getOrdenesPaciente,
 } from "./laboratorio.functions";
@@ -64,10 +65,26 @@ export function useOrdenesPaciente(pacienteId: string | null) {
   });
 }
 
-export function useOrdenParaImprimir(ordenId: string) {
+export function useOrdenParaImprimir(ordenId: string, token?: string) {
   return useQuery({
-    queryKey: ["orden-laboratorio-imprimir", ordenId],
-    queryFn: () => getOrdenParaImprimir({ data: { id: ordenId } }),
+    queryKey: ["orden-laboratorio-imprimir", ordenId, token ?? "sesion"],
+    retry: false,
+    // El fallo esperado (sin sesión o con token vencido) se convierte en un
+    // mensaje mostrable, para que la página nunca quede en blanco.
+    queryFn: async () => {
+      try {
+        return token
+          ? await getOrdenLaboratorioPorToken({ data: { id: ordenId, token } })
+          : await getOrdenParaImprimir({ data: { id: ordenId } });
+      } catch (error) {
+        const mensaje = (error as Error)?.message ?? "";
+        return {
+          errorAcceso: /authorization|unauthorized|401/i.test(mensaje)
+            ? "Para ver esta orden necesitas abrir el enlace del código QR o ingresar con tu cuenta."
+            : mensaje || "No se pudo cargar la orden.",
+        } as const;
+      }
+    },
   });
 }
 

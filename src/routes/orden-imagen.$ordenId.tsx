@@ -6,15 +6,15 @@ import { useOrdenImagenImpresion } from "@/lib/imagenologia.queries";
 import { edadDesde, fechaLarga } from "@/lib/laboratorio-schemas";
 import { etiquetaModalidad } from "@/lib/imagenologia-schemas";
 import { nombrePaciente } from "@/lib/clinica-schemas";
+import { urlOrdenPublica } from "@/lib/orden-url";
 
 export const Route = createFileRoute("/orden-imagen/$ordenId")({
   // Sin `requireSession`: con un token firmado en la URL (?acceso=) el servicio
   // de imágenes abre la orden desde el QR sin tener cuenta. Sin token, la
   // lectura exige sesión del médico dueño de la orden.
   ssr: false,
-  validateSearch: (search: Record<string, unknown>) => ({
-    acceso: typeof search.acceso === "string" ? search.acceso : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { acceso?: string } =>
+    typeof search.acceso === "string" ? { acceso: search.acceso } : {},
   head: () => ({
     meta: [
       { title: "Orden de imágenes — MediSuite" },
@@ -61,10 +61,7 @@ function ImprimirOrdenImagenPage() {
 
   const { orden, paciente, medico, token } = data;
 
-  const urlOrden =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/orden-imagen/${orden.id}?acceso=${token}`
-      : "";
+  const urlOrden = urlOrdenPublica(`/orden-imagen/${orden.id}`, token);
   const conPreparacion = orden.estudios.filter(
     (e) => e.requiere_preparacion && e.instrucciones_preparacion,
   );
@@ -204,7 +201,7 @@ function ImprimirOrdenImagenPage() {
         ) : null}
 
         <footer className="mt-16 flex items-end justify-between gap-8">
-          <div className="w-72 text-center">
+          <div className="w-72">
             {medico.firma_url ? (
               <img
                 src={medico.firma_url}
@@ -214,11 +211,20 @@ function ImprimirOrdenImagenPage() {
             ) : (
               <div className="h-20 border-b border-dashed border-neutral-600" />
             )}
-            <p className="mt-1 border-t border-neutral-800 pt-1 text-[10pt] text-neutral-700">
-              Dr(a). {medico.nombres} {medico.apellidos}
-              {medico.cmp ? ` · CMP ${medico.cmp}` : ""}
-            </p>
-            <p className="text-[9pt] text-neutral-500">Firma y sello</p>
+            <div className="mt-1 border-t border-neutral-800 pt-1">
+              <p className="text-[11pt] font-semibold">
+                Dr(a). {medico.nombres} {medico.apellidos}
+              </p>
+              <p className="text-[10pt] text-neutral-700">
+                {medico.especialidad ?? "Medicina general"}
+              </p>
+              {medico.cmp ? (
+                <p className="text-[10pt] text-neutral-700">CMP: {medico.cmp}</p>
+              ) : null}
+              {medico.rne ? (
+                <p className="text-[10pt] text-neutral-700">RNE: {medico.rne}</p>
+              ) : null}
+            </div>
           </div>
 
           <div className="text-center" data-orden-url={urlOrden}>

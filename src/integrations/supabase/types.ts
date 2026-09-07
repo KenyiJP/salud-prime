@@ -14,6 +14,253 @@ export type Database = {
   }
   public: {
     Tables: {
+      atencion_adendas: {
+        Row: {
+          atencion_id: string
+          contenido: string
+          created_at: string
+          id: string
+          medico_id: string
+          tenant_id: string
+          tipo_adenda: string
+        }
+        Insert: {
+          atencion_id: string
+          contenido: string
+          created_at?: string
+          id?: string
+          medico_id: string
+          tenant_id: string
+          tipo_adenda?: string
+        }
+        Update: {
+          atencion_id?: string
+          contenido?: string
+          created_at?: string
+          id?: string
+          medico_id?: string
+          tenant_id?: string
+          tipo_adenda?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atencion_adendas_atencion_id_fkey"
+            columns: ["atencion_id"]
+            isOneToOne: false
+            referencedRelation: "atenciones_medicas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atencion_adendas_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atencion_adendas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atenciones_medicas: {
+        Row: {
+          antecedentes_alergicos: string | null
+          antecedentes_familiares: string | null
+          antecedentes_patologicos: string | null
+          antecedentes_personales: string | null
+          antecedentes_quirurgicos: string | null
+          campos_especialidad: Json
+          cita_id: string | null
+          created_at: string
+          curso_enfermedad: string | null
+          diagnosticos: Json
+          estado: string
+          estado_general: string | null
+          estado_nutricional: string | null
+          examen_general: string | null
+          examen_regional: Json
+          fecha_atencion: string
+          firma_digital_url: string | null
+          firma_hash: string | null
+          firmado_at: string | null
+          forma_inicio: string | null
+          frecuencia_cardiaca: number | null
+          frecuencia_respiratoria: number | null
+          funciones_biologicas: Json
+          hora_atencion: string
+          id: string
+          imc: number | null
+          indicaciones_generales: string | null
+          medicacion_habitual: string | null
+          medico_id: string
+          motivo_anulacion: string | null
+          motivo_consulta: string | null
+          numero_atencion: string | null
+          paciente_id: string
+          perimetro_abdominal: number | null
+          peso: number | null
+          plan_trabajo: string | null
+          plantilla_id: string | null
+          plantilla_version: number | null
+          presion_arterial_diastolica: number | null
+          presion_arterial_sistolica: number | null
+          proximo_control: string | null
+          relato_cronologico: string | null
+          saturacion_oxigeno: number | null
+          talla: number | null
+          temperatura: number | null
+          tenant_id: string
+          tiempo_enfermedad: string | null
+          tipo_atencion: string
+          tratamiento: string | null
+          updated_at: string
+        }
+        Insert: {
+          antecedentes_alergicos?: string | null
+          antecedentes_familiares?: string | null
+          antecedentes_patologicos?: string | null
+          antecedentes_personales?: string | null
+          antecedentes_quirurgicos?: string | null
+          campos_especialidad?: Json
+          cita_id?: string | null
+          created_at?: string
+          curso_enfermedad?: string | null
+          diagnosticos?: Json
+          estado?: string
+          estado_general?: string | null
+          estado_nutricional?: string | null
+          examen_general?: string | null
+          examen_regional?: Json
+          fecha_atencion?: string
+          firma_digital_url?: string | null
+          firma_hash?: string | null
+          firmado_at?: string | null
+          forma_inicio?: string | null
+          frecuencia_cardiaca?: number | null
+          frecuencia_respiratoria?: number | null
+          funciones_biologicas?: Json
+          hora_atencion?: string
+          id?: string
+          imc?: number | null
+          indicaciones_generales?: string | null
+          medicacion_habitual?: string | null
+          medico_id: string
+          motivo_anulacion?: string | null
+          motivo_consulta?: string | null
+          numero_atencion?: string | null
+          paciente_id: string
+          perimetro_abdominal?: number | null
+          peso?: number | null
+          plan_trabajo?: string | null
+          plantilla_id?: string | null
+          plantilla_version?: number | null
+          presion_arterial_diastolica?: number | null
+          presion_arterial_sistolica?: number | null
+          proximo_control?: string | null
+          relato_cronologico?: string | null
+          saturacion_oxigeno?: number | null
+          talla?: number | null
+          temperatura?: number | null
+          tenant_id: string
+          tiempo_enfermedad?: string | null
+          tipo_atencion?: string
+          tratamiento?: string | null
+          updated_at?: string
+        }
+        Update: {
+          antecedentes_alergicos?: string | null
+          antecedentes_familiares?: string | null
+          antecedentes_patologicos?: string | null
+          antecedentes_personales?: string | null
+          antecedentes_quirurgicos?: string | null
+          campos_especialidad?: Json
+          cita_id?: string | null
+          created_at?: string
+          curso_enfermedad?: string | null
+          diagnosticos?: Json
+          estado?: string
+          estado_general?: string | null
+          estado_nutricional?: string | null
+          examen_general?: string | null
+          examen_regional?: Json
+          fecha_atencion?: string
+          firma_digital_url?: string | null
+          firma_hash?: string | null
+          firmado_at?: string | null
+          forma_inicio?: string | null
+          frecuencia_cardiaca?: number | null
+          frecuencia_respiratoria?: number | null
+          funciones_biologicas?: Json
+          hora_atencion?: string
+          id?: string
+          imc?: number | null
+          indicaciones_generales?: string | null
+          medicacion_habitual?: string | null
+          medico_id?: string
+          motivo_anulacion?: string | null
+          motivo_consulta?: string | null
+          numero_atencion?: string | null
+          paciente_id?: string
+          perimetro_abdominal?: number | null
+          peso?: number | null
+          plan_trabajo?: string | null
+          plantilla_id?: string | null
+          plantilla_version?: number | null
+          presion_arterial_diastolica?: number | null
+          presion_arterial_sistolica?: number | null
+          proximo_control?: string | null
+          relato_cronologico?: string | null
+          saturacion_oxigeno?: number | null
+          talla?: number | null
+          temperatura?: number | null
+          tenant_id?: string
+          tiempo_enfermedad?: string | null
+          tipo_atencion?: string
+          tratamiento?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atenciones_medicas_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atenciones_medicas_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atenciones_medicas_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atenciones_medicas_plantilla_id_fkey"
+            columns: ["plantilla_id"]
+            isOneToOne: false
+            referencedRelation: "plantillas_especialidad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atenciones_medicas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       biologicos_categorias: {
         Row: {
           codigo_origen: string
@@ -549,6 +796,7 @@ export type Database = {
       }
       ordenes_imagen: {
         Row: {
+          atencion_id: string | null
           cita_id: string | null
           created_at: string
           diagnostico_presuntivo: string | null
@@ -563,6 +811,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          atencion_id?: string | null
           cita_id?: string | null
           created_at?: string
           diagnostico_presuntivo?: string | null
@@ -577,6 +826,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          atencion_id?: string | null
           cita_id?: string | null
           created_at?: string
           diagnostico_presuntivo?: string | null
@@ -591,6 +841,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ordenes_imagen_atencion_id_fkey"
+            columns: ["atencion_id"]
+            isOneToOne: false
+            referencedRelation: "atenciones_medicas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ordenes_imagen_cita_id_fkey"
             columns: ["cita_id"]
@@ -623,6 +880,7 @@ export type Database = {
       }
       ordenes_laboratorio: {
         Row: {
+          atencion_id: string | null
           cita_id: string | null
           created_at: string
           diagnostico_presuntivo: string | null
@@ -636,6 +894,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          atencion_id?: string | null
           cita_id?: string | null
           created_at?: string
           diagnostico_presuntivo?: string | null
@@ -649,6 +908,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          atencion_id?: string | null
           cita_id?: string | null
           created_at?: string
           diagnostico_presuntivo?: string | null
@@ -662,6 +922,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ordenes_laboratorio_atencion_id_fkey"
+            columns: ["atencion_id"]
+            isOneToOne: false
+            referencedRelation: "atenciones_medicas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ordenes_laboratorio_cita_id_fkey"
             columns: ["cita_id"]
@@ -695,41 +962,71 @@ export type Database = {
       pacientes: {
         Row: {
           apellidos: string
+          contacto_emergencia_nombre: string | null
+          contacto_emergencia_telefono: string | null
           created_at: string
+          direccion: string | null
           documento_identidad: string | null
           email: string | null
+          estado_civil: string | null
           fecha_nacimiento: string | null
+          grupo_sanguineo: string | null
           id: string
           medico_id: string | null
+          nacionalidad: string
           nombres: string
+          numero_historia_clinica: string
+          ocupacion: string | null
+          sexo: string | null
           telefono: string | null
           tenant_id: string
+          tipo_documento: string
           updated_at: string
         }
         Insert: {
           apellidos: string
+          contacto_emergencia_nombre?: string | null
+          contacto_emergencia_telefono?: string | null
           created_at?: string
+          direccion?: string | null
           documento_identidad?: string | null
           email?: string | null
+          estado_civil?: string | null
           fecha_nacimiento?: string | null
+          grupo_sanguineo?: string | null
           id?: string
           medico_id?: string | null
+          nacionalidad?: string
           nombres: string
+          numero_historia_clinica: string
+          ocupacion?: string | null
+          sexo?: string | null
           telefono?: string | null
           tenant_id: string
+          tipo_documento?: string
           updated_at?: string
         }
         Update: {
           apellidos?: string
+          contacto_emergencia_nombre?: string | null
+          contacto_emergencia_telefono?: string | null
           created_at?: string
+          direccion?: string | null
           documento_identidad?: string | null
           email?: string | null
+          estado_civil?: string | null
           fecha_nacimiento?: string | null
+          grupo_sanguineo?: string | null
           id?: string
           medico_id?: string | null
+          nacionalidad?: string
           nombres?: string
+          numero_historia_clinica?: string
+          ocupacion?: string | null
+          sexo?: string | null
           telefono?: string | null
           tenant_id?: string
+          tipo_documento?: string
           updated_at?: string
         }
         Relationships: [
@@ -742,6 +1039,69 @@ export type Database = {
           },
           {
             foreignKeyName: "pacientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plantillas_especialidad: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string | null
+          es_default: boolean
+          especialidad: string
+          esquema: Json
+          id: string
+          medico_id: string | null
+          nombre: string
+          tenant_id: string | null
+          tipo_plantilla: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          es_default?: boolean
+          especialidad: string
+          esquema?: Json
+          id?: string
+          medico_id?: string | null
+          nombre: string
+          tenant_id?: string | null
+          tipo_plantilla?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          es_default?: boolean
+          especialidad?: string
+          esquema?: Json
+          id?: string
+          medico_id?: string | null
+          nombre?: string
+          tenant_id?: string | null
+          tipo_plantilla?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plantillas_especialidad_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plantillas_especialidad_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
