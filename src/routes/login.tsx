@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { fetchRolActual, rutaInicialPorRol } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/login")({
-  ssr: false,
   head: () => ({
     meta: [
       { title: "Iniciar sesión — MediSuite Perú" },
