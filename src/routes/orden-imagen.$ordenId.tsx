@@ -84,21 +84,6 @@ function ImprimirOrdenImagenPage() {
       </div>
 
       <article className="hoja mx-auto w-[210mm] max-w-full bg-white p-[14mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
-        <header className="border-b-2 border-neutral-800 pb-3">
-          <h1 className="text-[16pt] font-semibold">
-            Dr(a). {medico.nombres} {medico.apellidos}
-          </h1>
-          <p className="text-[11pt] text-neutral-700">
-            {medico.especialidad ?? "Medicina general"}
-          </p>
-          <p className="text-[10pt] text-neutral-600">
-            {medico.cmp ? `CMP ${medico.cmp}` : null}
-            {medico.cmp && medico.rne ? " · " : null}
-            {medico.rne ? `RNE ${medico.rne}` : null}
-            {medico.email ? ` · ${medico.email}` : null}
-          </p>
-        </header>
-
         <h2 className="mt-5 text-center text-[14pt] font-semibold uppercase tracking-wide">
           Orden de estudios de imágenes
         </h2>
@@ -201,7 +186,7 @@ function ImprimirOrdenImagenPage() {
         ) : null}
 
         <footer className="mt-16 flex items-end justify-between gap-8">
-          <div className="w-72">
+          <div className="w-72 text-center">
             {medico.firma_url ? (
               <img
                 src={medico.firma_url}
