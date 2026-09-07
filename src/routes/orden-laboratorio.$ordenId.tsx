@@ -1,14 +1,20 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Printer } from "lucide-react";
-import { requireSession } from "@/lib/auth-guard";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
+import { urlOrdenPublica } from "@/lib/orden-url";
 import { useOrdenParaImprimir } from "@/lib/laboratorio.queries";
 import { edadDesde, fechaLarga } from "@/lib/laboratorio-schemas";
 import { nombrePaciente } from "@/lib/clinica-schemas";
 
 export const Route = createFileRoute("/orden-laboratorio/$ordenId")({
-  beforeLoad: () => requireSession(),
+  // Sin guard de sesión: con un token firmado en la URL (?acceso=) el
+  // laboratorio abre la orden desde el QR sin tener cuenta. Sin token, la
+  // lectura exige sesión del médico dueño de la orden.
   ssr: false,
+  validateSearch: (search: Record<string, unknown>) => ({
+    acceso: typeof search.acceso === "string" ? search.acceso : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Orden de laboratorio — MediSuite" },
@@ -38,20 +44,24 @@ export const Route = createFileRoute("/orden-laboratorio/$ordenId")({
 function ImprimirOrdenPage() {
   const { ordenId } = Route.useParams();
   const router = useRouter();
-  const { data, isLoading, error } = useOrdenParaImprimir(ordenId);
+  const { acceso } = Route.useSearch();
+  const { data, isLoading, error } = useOrdenParaImprimir(ordenId, acceso);
 
   if (isLoading) {
     return <p className="p-8 text-sm text-muted-foreground">Cargando orden…</p>;
   }
-  if (error || !data) {
+  if (error || !data || "errorAcceso" in data) {
     return (
       <p role="alert" className="p-8 text-sm text-destructive">
-        {(error as Error)?.message ?? "No se pudo cargar la orden."}
+        {(data && "errorAcceso" in data ? data.errorAcceso : null) ??
+          (error as Error)?.message ??
+          "No se pudo cargar la orden."}
       </p>
     );
   }
 
-  const { orden, paciente, medico } = data;
+  const { orden, paciente, medico, token } = data;
+  const urlOrden = urlOrdenPublica(`/orden-laboratorio/${orden.id}`, token);
 
   return (
     <div className="min-h-screen bg-neutral-200 py-6 print:bg-white print:py-0">
@@ -143,9 +153,28 @@ function ImprimirOrdenPage() {
           </p>
         ) : null}
 
-        <footer className="mt-20 flex justify-end">
-          <div className="w-64 border-t border-neutral-800 pt-2 text-center text-[10pt] text-neutral-700">
-            Firma y sello
+        <footer className="mt-20 flex items-end justify-between gap-8">
+          <div className="w-72">
+            <div className="h-16 border-b border-dashed border-neutral-500" />
+            <p className="mt-2 text-[11pt] font-semibold">
+              Dr(a). {medico.nombres} {medico.apellidos}
+            </p>
+            <p className="text-[10pt] text-neutral-700">
+              {medico.especialidad ?? "Medicina general"}
+            </p>
+            {medico.cmp ? (
+              <p className="text-[10pt] text-neutral-700">CMP: {medico.cmp}</p>
+            ) : null}
+            {medico.rne ? (
+              <p className="text-[10pt] text-neutral-700">RNE: {medico.rne}</p>
+            ) : null}
+          </div>
+
+          <div className="text-center" data-orden-url={urlOrden}>
+            {urlOrden ? <QRCodeSVG value={urlOrden} size={96} /> : null}
+            <p className="mt-1 max-w-[96px] text-[8pt] leading-tight text-neutral-600">
+              Escanea para ver esta orden
+            </p>
           </div>
         </footer>
       </article>
