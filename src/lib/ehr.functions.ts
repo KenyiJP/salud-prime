@@ -11,6 +11,7 @@ import {
   type PlantillaRow,
 } from "./ehr-schemas";
 import type { PacienteRow } from "./clinica-schemas";
+import type { TablesInsert } from "@/integrations/supabase/types";
 
 export type MedicoEhr = {
   id: string;
@@ -66,7 +67,7 @@ function filaDesdeInput(data: AtencionInput) {
     indicaciones_generales: vacioANull(data.indicaciones_generales),
     proximo_control: vacioANull(data.proximo_control),
     campos_especialidad: data.campos_especialidad ?? {},
-  };
+  } as unknown as TablesInsert<"atenciones_medicas">;
 }
 
 export const getMedicoEhr = createServerFn({ method: "GET" })
