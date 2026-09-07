@@ -3,6 +3,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { urlOrdenPublica } from "@/lib/orden-url";
+import { MarcaAnulada } from "@/components/marca-anulada";
 import { useOrdenParaImprimir } from "@/lib/laboratorio.queries";
 import { edadDesde, fechaLarga } from "@/lib/laboratorio-schemas";
 import { nombrePaciente } from "@/lib/clinica-schemas";
@@ -82,7 +83,8 @@ function ImprimirOrdenPage() {
         </Button>
       </div>
 
-      <article className="hoja mx-auto w-[210mm] max-w-full bg-white p-[16mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
+      <article className="hoja relative mx-auto w-[210mm] max-w-full bg-white p-[16mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
+        {orden.estado === "anulada" ? <MarcaAnulada /> : null}
         <header className="border-b-2 border-neutral-800 pb-3">
           <h1 className="text-[16pt] font-semibold">
             Dr(a). {medico.nombres} {medico.apellidos}
