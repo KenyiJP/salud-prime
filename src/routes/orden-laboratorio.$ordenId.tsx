@@ -12,9 +12,8 @@ export const Route = createFileRoute("/orden-laboratorio/$ordenId")({
   // laboratorio abre la orden desde el QR sin tener cuenta. Sin token, la
   // lectura exige sesión del médico dueño de la orden.
   ssr: false,
-  validateSearch: (search: Record<string, unknown>) => ({
-    acceso: typeof search.acceso === "string" ? search.acceso : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { acceso?: string } =>
+    typeof search.acceso === "string" ? { acceso: search.acceso } : {},
   head: () => ({
     meta: [
       { title: "Orden de laboratorio — MediSuite" },
