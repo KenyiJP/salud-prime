@@ -7,6 +7,7 @@ import { edadDesde, fechaLarga } from "@/lib/laboratorio-schemas";
 import { etiquetaModalidad } from "@/lib/imagenologia-schemas";
 import { nombrePaciente } from "@/lib/clinica-schemas";
 import { urlOrdenPublica } from "@/lib/orden-url";
+import { MarcaAnulada } from "@/components/marca-anulada";
 
 export const Route = createFileRoute("/orden-imagen/$ordenId")({
   // Sin `requireSession`: con un token firmado en la URL (?acceso=) el servicio
@@ -83,7 +84,8 @@ function ImprimirOrdenImagenPage() {
         </Button>
       </div>
 
-      <article className="hoja mx-auto w-[210mm] max-w-full bg-white p-[14mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
+      <article className="hoja relative mx-auto w-[210mm] max-w-full bg-white p-[14mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
+        {orden.estado === "anulada" ? <MarcaAnulada /> : null}
         <h2 className="mt-5 text-center text-[14pt] font-semibold uppercase tracking-wide">
           Orden de estudios de imágenes
         </h2>
