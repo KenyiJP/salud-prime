@@ -65,6 +65,11 @@ export const ordenesPacienteSchema = z.object({
 
 export const ordenPorIdSchema = z.object({ id: z.string().uuid() });
 
+export const ordenLabPublicaSchema = z.object({
+  id: z.string().uuid(),
+  token: z.string().min(16),
+});
+
 export function edadDesde(fechaNacimiento: string | null): string {
   if (!fechaNacimiento) return "—";
   const nac = new Date(fechaNacimiento);
