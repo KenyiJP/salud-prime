@@ -32,6 +32,8 @@ export const crearPaciente = createServerFn({ method: "POST" })
     );
     const { data: row, error } = await context.supabase
       .from("pacientes")
+      // `numero_historia_clinica` lo asigna la base de datos, por eso el insert
+      // no lo envía (los tipos generados lo marcan como obligatorio).
       .insert({
         // tenant_id / medico_id always come from the session, never the client.
         tenant_id: tenantId,
