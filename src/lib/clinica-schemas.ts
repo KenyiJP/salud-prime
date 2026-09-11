@@ -5,6 +5,7 @@ export type PacienteRow = Tables<"pacientes">;
 
 export type CitaRow = Tables<"citas"> & {
   pacientes: Pick<Tables<"pacientes">, "id" | "nombres" | "apellidos" | "documento_identidad"> | null;
+  tipos_consulta: Pick<Tables<"tipos_consulta">, "id" | "nombre" | "duracion_minutos"> | null;
 };
 
 // `citas.estado` is a free-text column in the database (no enum), and its
