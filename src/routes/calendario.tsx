@@ -1,15 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { requireSession } from "@/lib/auth-guard";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CalendarDays, Clock, Pencil, Plus, Trash2 } from "lucide-react";
+import { Clock, Pencil, Plus, Trash2 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
+import { PageHeader } from "@/components/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CitaDialog } from "@/components/cita-dialog";
+import { AgendaCalendario } from "@/components/agenda-calendario";
 import { ConfirmarEliminar } from "@/components/confirmar-eliminar";
 import { nombrePaciente } from "@/lib/clinica-schemas";
 import { pacientesQuery } from "@/lib/pacientes.queries";
+import { bloqueosQuery, tiposConsultaQuery } from "@/lib/agenda.queries";
 import {
   citasQuery,
   fechaCorta,
@@ -44,6 +46,8 @@ export const Route = createFileRoute("/calendario")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(citasQuery());
     context.queryClient.ensureQueryData(pacientesQuery());
+    context.queryClient.ensureQueryData(tiposConsultaQuery());
+    context.queryClient.ensureQueryData(bloqueosQuery());
   },
   component: CalendarioPage,
   errorComponent: ({ error }) => (
@@ -70,35 +74,27 @@ function CalendarioPage() {
         <PageHeader
           eyebrow="Agenda"
           title="Calendario de Citas"
-          description="Citas leídas de la tabla citas, vinculadas a tus pacientes."
+          description="Haz clic en un espacio libre para agendar, o en una cita para editarla."
           actions={
-            <CitaDialog
-              trigger={
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" /> Nueva cita
-                </Button>
-              }
-            />
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/horarios">
+                  <Clock className="h-4 w-4" /> Horarios
+                </Link>
+              </Button>
+              <CitaDialog
+                trigger={
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" /> Nueva cita
+                  </Button>
+                }
+              />
+            </div>
           }
         />
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <PlaceholderCard
-            icon={<CalendarDays className="h-5 w-5" />}
-            title="Vista semanal"
-            description="El calendario semanal con drag-and-drop reemplazará este listado."
-          />
-          <PlaceholderCard
-            icon={<Clock className="h-5 w-5" />}
-            title="Bloques de disponibilidad"
-            description="Define horarios de atención por sede y tipo de consulta."
-          />
-          <PlaceholderCard
-            icon={<Plus className="h-5 w-5" />}
-            title="Reserva online"
-            description="Comparte un enlace público para que pacientes agenden solos."
-          />
-        </div>
+        <AgendaCalendario />
+
 
         <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
           <table className="w-full text-sm">

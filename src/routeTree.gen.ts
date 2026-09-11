@@ -17,6 +17,7 @@ import { Route as PendienteActivacionRouteImport } from './routes/pendiente-acti
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LaboratoriosRouteImport } from './routes/laboratorios'
 import { Route as ImagenologiaRouteImport } from './routes/imagenologia'
+import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as HistoriasRouteImport } from './routes/historias'
 import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
@@ -66,6 +67,11 @@ const ImagenologiaRoute = ImagenologiaRouteImport.update({
   path: '/imagenologia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HorariosRoute = HorariosRouteImport.update({
+  id: '/horarios',
+  path: '/horarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoriasRoute = HistoriasRouteImport.update({
   id: '/historias',
   path: '/historias',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/historias': typeof HistoriasRoute
+  '/horarios': typeof HorariosRoute
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/historias': typeof HistoriasRoute
+  '/horarios': typeof HorariosRoute
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/historias': typeof HistoriasRoute
+  '/horarios': typeof HorariosRoute
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/facturacion'
     | '/fichas'
     | '/historias'
+    | '/horarios'
     | '/imagenologia'
     | '/laboratorios'
     | '/login'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/facturacion'
     | '/fichas'
     | '/historias'
+    | '/horarios'
     | '/imagenologia'
     | '/laboratorios'
     | '/login'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/facturacion'
     | '/fichas'
     | '/historias'
+    | '/horarios'
     | '/imagenologia'
     | '/laboratorios'
     | '/login'
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   FacturacionRoute: typeof FacturacionRoute
   FichasRoute: typeof FichasRoute
   HistoriasRoute: typeof HistoriasRoute
+  HorariosRoute: typeof HorariosRoute
   ImagenologiaRoute: typeof ImagenologiaRoute
   LaboratoriosRoute: typeof LaboratoriosRoute
   LoginRoute: typeof LoginRoute
@@ -296,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImagenologiaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/horarios': {
+      id: '/horarios'
+      path: '/horarios'
+      fullPath: '/horarios'
+      preLoaderRoute: typeof HorariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/historias': {
       id: '/historias'
       path: '/historias'
@@ -361,6 +381,7 @@ const rootRouteChildren: RootRouteChildren = {
   FacturacionRoute: FacturacionRoute,
   FichasRoute: FichasRoute,
   HistoriasRoute: HistoriasRoute,
+  HorariosRoute: HorariosRoute,
   ImagenologiaRoute: ImagenologiaRoute,
   LaboratoriosRoute: LaboratoriosRoute,
   LoginRoute: LoginRoute,

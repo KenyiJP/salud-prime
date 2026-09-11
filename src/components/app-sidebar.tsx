@@ -2,6 +2,7 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   CalendarDays,
+  CalendarClock,
   FileHeart,
   ClipboardPlus,
   FlaskConical,
@@ -32,6 +33,7 @@ import { useAuth } from "@/lib/auth-context";
 const items = [
   { title: "Dashboard Principal", url: "/", icon: LayoutDashboard },
   { title: "Calendario de Citas", url: "/calendario", icon: CalendarDays },
+  { title: "Horarios y bloqueos", url: "/horarios", icon: CalendarClock },
   { title: "Fichas Clínicas (EHR)", url: "/fichas", icon: FileHeart },
   { title: "Consulta / Historias", url: "/historias", icon: ClipboardPlus },
   { title: "Laboratorios", url: "/laboratorios", icon: FlaskConical },
@@ -49,6 +51,7 @@ const SOLO_CLINICO: readonly string[] = [
   "/imagenologia",
   "/fichas",
   "/calendario",
+  "/horarios",
   "/perfil-medico",
 ];
 

@@ -348,38 +348,89 @@ export type Database = {
           },
         ]
       }
+      bloqueos_horario: {
+        Row: {
+          created_at: string | null
+          fecha_fin: string
+          fecha_inicio: string
+          id: string
+          medico_id: string
+          motivo: string | null
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          fecha_fin: string
+          fecha_inicio: string
+          id?: string
+          medico_id: string
+          motivo?: string | null
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string | null
+          fecha_fin?: string
+          fecha_inicio?: string
+          id?: string
+          medico_id?: string
+          motivo?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bloqueos_horario_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bloqueos_horario_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       citas: {
         Row: {
           created_at: string
           estado: string
           fecha_hora: string
+          google_event_id: string | null
           id: string
           medico_id: string
           motivo: string | null
           paciente_id: string
           tenant_id: string
+          tipo_consulta_id: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           estado?: string
           fecha_hora: string
+          google_event_id?: string | null
           id?: string
           medico_id: string
           motivo?: string | null
           paciente_id: string
           tenant_id: string
+          tipo_consulta_id?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           estado?: string
           fecha_hora?: string
+          google_event_id?: string | null
           id?: string
           medico_id?: string
           motivo?: string | null
           paciente_id?: string
           tenant_id?: string
+          tipo_consulta_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -402,6 +453,13 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "citas_tipo_consulta_id_fkey"
+            columns: ["tipo_consulta_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_consulta"
             referencedColumns: ["id"]
           },
         ]
@@ -543,6 +601,57 @@ export type Database = {
           nombre?: string
         }
         Relationships: []
+      }
+      horarios_atencion: {
+        Row: {
+          activo: boolean | null
+          created_at: string | null
+          dia_semana: number
+          duracion_slot_minutos: number
+          hora_fin: string
+          hora_inicio: string
+          id: string
+          medico_id: string
+          tenant_id: string
+        }
+        Insert: {
+          activo?: boolean | null
+          created_at?: string | null
+          dia_semana: number
+          duracion_slot_minutos?: number
+          hora_fin: string
+          hora_inicio: string
+          id?: string
+          medico_id: string
+          tenant_id: string
+        }
+        Update: {
+          activo?: boolean | null
+          created_at?: string | null
+          dia_semana?: number
+          duracion_slot_minutos?: number
+          hora_fin?: string
+          hora_inicio?: string
+          id?: string
+          medico_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "horarios_atencion_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "horarios_atencion_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       medicamento_principios_activos: {
         Row: {
@@ -1182,6 +1291,41 @@ export type Database = {
           plan_suscripcion?: string
         }
         Relationships: []
+      }
+      tipos_consulta: {
+        Row: {
+          activo: boolean | null
+          created_at: string | null
+          duracion_minutos: number
+          id: string
+          nombre: string
+          tenant_id: string
+        }
+        Insert: {
+          activo?: boolean | null
+          created_at?: string | null
+          duracion_minutos?: number
+          id?: string
+          nombre: string
+          tenant_id: string
+        }
+        Update: {
+          activo?: boolean | null
+          created_at?: string | null
+          duracion_minutos?: number
+          id?: string
+          nombre?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tipos_consulta_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vias_administracion: {
         Row: {

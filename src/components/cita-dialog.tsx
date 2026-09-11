@@ -19,44 +19,67 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { nombrePaciente, nuevaCitaSchema, type CitaRow } from "@/lib/clinica-schemas";
 import { usePacientes } from "@/lib/pacientes.queries";
 import { isoAInputLocal, useActualizarCita, useCrearCita } from "@/lib/citas.queries";
+import { useTiposConsulta } from "@/lib/agenda.queries";
 
 type FormValues = z.infer<typeof nuevaCitaSchema>;
 
-const VACIO: FormValues = { paciente_id: "", fecha_hora: "", motivo: "" };
+const VACIO: FormValues = {
+  paciente_id: "",
+  fecha_hora: "",
+  motivo: "",
+  tipo_consulta_id: "",
+  duracion_minutos: 30,
+};
 
-export function CitaDialog({ cita, trigger }: { cita?: CitaRow; trigger: ReactNode }) {
-  const [open, setOpen] = useState(false);
+function valoresDe(cita?: CitaRow, fechaHoraInicial?: string): FormValues {
+  if (cita) {
+    return {
+      paciente_id: cita.paciente_id,
+      fecha_hora: isoAInputLocal(cita.fecha_hora),
+      motivo: cita.motivo ?? "",
+      tipo_consulta_id: cita.tipo_consulta_id ?? "",
+      duracion_minutos: cita.tipos_consulta?.duracion_minutos ?? 30,
+    };
+  }
+  return { ...VACIO, fecha_hora: fechaHoraInicial ?? "" };
+}
+
+export function CitaDialog({
+  cita,
+  trigger,
+  fechaHoraInicial,
+  open: openProp,
+  onOpenChange,
+}: {
+  cita?: CitaRow;
+  trigger?: ReactNode;
+  /** Value for <input type="datetime-local">, e.g. from a calendar slot click. */
+  fechaHoraInicial?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [openInterno, setOpenInterno] = useState(false);
+  const controlado = openProp !== undefined;
+  const open = controlado ? openProp : openInterno;
+  const setOpen = (v: boolean) => {
+    if (!controlado) setOpenInterno(v);
+    onOpenChange?.(v);
+  };
+
   const { data: pacientes } = usePacientes();
+  const { data: tipos } = useTiposConsulta();
   const crear = useCrearCita();
   const actualizar = useActualizarCita();
   const editando = !!cita;
 
-  const valoresIniciales: FormValues = cita
-    ? {
-        paciente_id: cita.paciente_id,
-        fecha_hora: isoAInputLocal(cita.fecha_hora),
-        motivo: cita.motivo ?? "",
-      }
-    : VACIO;
-
   const form = useForm<FormValues>({
     resolver: zodResolver(nuevaCitaSchema),
-    defaultValues: valoresIniciales,
+    defaultValues: valoresDe(cita, fechaHoraInicial),
   });
 
   useEffect(() => {
-    if (open) {
-      form.reset(
-        cita
-          ? {
-              paciente_id: cita.paciente_id,
-              fecha_hora: isoAInputLocal(cita.fecha_hora),
-              motivo: cita.motivo ?? "",
-            }
-          : VACIO,
-      );
-    }
-  }, [open, cita, form]);
+    if (open) form.reset(valoresDe(cita, fechaHoraInicial));
+  }, [open, cita, fechaHoraInicial, form]);
 
   function onSubmit(values: FormValues) {
     const opciones = {
@@ -73,7 +96,7 @@ export function CitaDialog({ cita, trigger }: { cita?: CitaRow; trigger: ReactNo
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{editando ? "Editar cita" : "Agendar nueva cita"}</DialogTitle>
@@ -111,19 +134,77 @@ export function CitaDialog({ cita, trigger }: { cita?: CitaRow; trigger: ReactNo
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="fecha_hora"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Fecha y hora</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+            {tipos.length > 0 ? (
+              <FormField
+                control={form.control}
+                name="tipo_consulta_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de consulta</FormLabel>
+                    <Select
+                      value={field.value || ""}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        const tipo = tipos.find((t) => t.id === value);
+                        if (tipo) form.setValue("duracion_minutos", tipo.duracion_minutos);
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona el tipo de consulta" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {tipos.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>
+                            {t.nombre} · {t.duracion_minutos} min
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="fecha_hora"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fecha y hora</FormLabel>
+                    <FormControl>
+                      <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="duracion_minutos"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Duración (min)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={5}
+                        step={5}
+                        {...field}
+                        value={field.value ?? 30}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
               name="motivo"
