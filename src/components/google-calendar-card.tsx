@@ -181,7 +181,8 @@ export function GoogleCalendarCard() {
                     disabled={desconectar.isPending}
                     onClick={(event) => {
                       event.preventDefault();
-                      desconectar.mutate(integracion.data.id);
+                      const integracionId = integracion.data?.id;
+                      if (integracionId) desconectar.mutate(integracionId);
                     }}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                   >

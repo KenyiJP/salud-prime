@@ -25,6 +25,7 @@ import { Route as CalendarioRouteImport } from './routes/calendario'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrdenLaboratorioOrdenIdRouteImport } from './routes/orden-laboratorio.$ordenId'
 import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
+import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
 import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
 
 const RegistroRoute = RegistroRouteImport.update({
@@ -107,6 +108,11 @@ const OrdenImagenOrdenIdRoute = OrdenImagenOrdenIdRouteImport.update({
   path: '/orden-imagen/$ordenId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfiguracionCalendarioRoute = ConfiguracionCalendarioRouteImport.update({
+  id: '/configuracion/calendario',
+  path: '/configuracion/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AtencionAtencionIdRoute = AtencionAtencionIdRouteImport.update({
   id: '/atencion/$atencionId',
   path: '/atencion/$atencionId',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
+  '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
+  '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/recetario': typeof RecetarioRoute
   '/registro': typeof RegistroRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
+  '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
 }
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/recetario'
     | '/registro'
     | '/atencion/$atencionId'
+    | '/configuracion/calendario'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
   fileRoutesByTo: FileRoutesByTo
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/recetario'
     | '/registro'
     | '/atencion/$atencionId'
+    | '/configuracion/calendario'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
   id:
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/recetario'
     | '/registro'
     | '/atencion/$atencionId'
+    | '/configuracion/calendario'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
   fileRoutesById: FileRoutesById
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   RecetarioRoute: typeof RecetarioRoute
   RegistroRoute: typeof RegistroRoute
   AtencionAtencionIdRoute: typeof AtencionAtencionIdRoute
+  ConfiguracionCalendarioRoute: typeof ConfiguracionCalendarioRoute
   OrdenImagenOrdenIdRoute: typeof OrdenImagenOrdenIdRoute
   OrdenLaboratorioOrdenIdRoute: typeof OrdenLaboratorioOrdenIdRoute
 }
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdenImagenOrdenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracion/calendario': {
+      id: '/configuracion/calendario'
+      path: '/configuracion/calendario'
+      fullPath: '/configuracion/calendario'
+      preLoaderRoute: typeof ConfiguracionCalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/atencion/$atencionId': {
       id: '/atencion/$atencionId'
       path: '/atencion/$atencionId'
@@ -391,6 +411,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecetarioRoute: RecetarioRoute,
   RegistroRoute: RegistroRoute,
   AtencionAtencionIdRoute: AtencionAtencionIdRoute,
+  ConfiguracionCalendarioRoute: ConfiguracionCalendarioRoute,
   OrdenImagenOrdenIdRoute: OrdenImagenOrdenIdRoute,
   OrdenLaboratorioOrdenIdRoute: OrdenLaboratorioOrdenIdRoute,
 }
