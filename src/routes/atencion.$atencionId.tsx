@@ -1,5 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ArrowLeft, Printer } from "lucide-react";
+
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { useAtencionImpresion } from "@/lib/ehr.queries";
@@ -62,7 +64,16 @@ function InformeAtencionPage() {
   const { atencionId } = Route.useParams();
   const { acceso } = Route.useSearch();
   const router = useRouter();
+  const navigate = Route.useNavigate();
   const { data, isLoading, error } = useAtencionImpresion(atencionId, acceso);
+  const sinAcceso = !!data && "errorAcceso" in data;
+
+  // Sin token válido ni sesión, el informe no es público: se va al login.
+  useEffect(() => {
+    if (sinAcceso) {
+      void navigate({ to: "/login", replace: true });
+    }
+  }, [sinAcceso, navigate]);
 
   if (isLoading) {
     return <p className="p-8 text-sm text-muted-foreground">Cargando informe…</p>;
@@ -76,6 +87,7 @@ function InformeAtencionPage() {
       </p>
     );
   }
+
 
   const { atencion, paciente, medico, adendas, plantilla, token } = data;
   const urlInforme = urlOrdenPublica(`/atencion/${atencion.id}`, token);
