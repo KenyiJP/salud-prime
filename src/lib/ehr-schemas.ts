@@ -212,6 +212,20 @@ export type AtencionInput = z.infer<typeof atencionSchema>;
 export const atencionPorIdSchema = z.object({ id: z.string().uuid() });
 export const atencionesPacienteSchema = z.object({ paciente_id: z.string().uuid() });
 
+export const atencionPublicaSchema = z.object({
+  id: z.string().uuid(),
+  token: z.string().min(16),
+});
+
+export const anularAtencionSchema = z.object({
+  id: z.string().uuid(),
+  motivo_anulacion: z
+    .string()
+    .trim()
+    .min(5, "Describe el motivo de la anulación."),
+});
+export type AnularAtencionInput = z.infer<typeof anularAtencionSchema>;
+
 export const nuevaAdendaSchema = z.object({
   atencion_id: z.string().uuid(),
   tipo_adenda: z.string().trim().min(1),

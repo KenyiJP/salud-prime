@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ClipboardPlus, FileText, Search, Stethoscope } from "lucide-react";
+import { ChevronDown, ClipboardPlus, FileText, FlaskConical, Scan, Search, Stethoscope } from "lucide-react";
 import { requireSession } from "@/lib/auth-guard";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader } from "@/components/page-primitives";
@@ -202,6 +202,12 @@ function HistoriasPage() {
                   adendas={detalle.data?.adendas ?? []}
                   onGuardado={(row) => setAtencionId(row.id)}
                 />
+                {detalle.data ? (
+                  <OrdenesVinculadas
+                    laboratorios={detalle.data.ordenesLaboratorio}
+                    imagenes={detalle.data.ordenesImagen}
+                  />
+                ) : null}
               </div>
             )}
           </section>
@@ -270,7 +276,13 @@ function Historial({
                       )}
                     </span>
                     <Badge
-                      variant={a.estado === "firmada" ? "default" : "secondary"}
+                      variant={
+                        a.estado === "anulada"
+                          ? "destructive"
+                          : a.estado === "firmada"
+                            ? "default"
+                            : "secondary"
+                      }
                     >
                       {ETIQUETA_ESTADO_ATENCION[a.estado as EstadoAtencion] ?? a.estado}
                     </Badge>
@@ -286,6 +298,11 @@ function Historial({
                       {principal.descripcion}
                     </p>
                   ) : null}
+                  {a.estado === "anulada" && a.motivo_anulacion ? (
+                    <p className="mt-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                      Motivo de anulación: {a.motivo_anulacion}
+                    </p>
+                  ) : null}
                 </button>
               </li>
             );
@@ -293,5 +310,84 @@ function Historial({
         </ol>
       )}
     </div>
+  );
+}
+
+type OrdenVinculada = {
+  id: string;
+  estado: string;
+  fecha_orden: string;
+  orden_laboratorio_examenes?: Array<{
+    examenes_laboratorio?: { nombre_display?: string } | null;
+  }>;
+  orden_imagen_estudios?: Array<{
+    estudios_imagen?: { nombre_display?: string; modalidad?: string } | null;
+  }>;
+};
+
+function OrdenesVinculadas({
+  laboratorios,
+  imagenes,
+}: {
+  laboratorios: OrdenVinculada[];
+  imagenes: OrdenVinculada[];
+}) {
+  const todas = [
+    ...laboratorios.map((orden) => ({ ...orden, tipo: "Laboratorio" as const })),
+    ...imagenes.map((orden) => ({ ...orden, tipo: "Imagenología" as const })),
+  ].sort((a, b) => b.fecha_orden.localeCompare(a.fecha_orden));
+  const vigentes = todas.filter((orden) => orden.estado !== "anulada");
+  const anuladas = todas.filter((orden) => orden.estado === "anulada");
+
+  const renderOrden = (orden: (typeof todas)[number]) => {
+    const items = orden.tipo === "Laboratorio"
+      ? orden.orden_laboratorio_examenes?.map(
+          (item) => item.examenes_laboratorio?.nombre_display ?? "Examen",
+        )
+      : orden.orden_imagen_estudios?.map(
+          (item) => item.estudios_imagen?.nombre_display ?? "Estudio",
+        );
+    return (
+      <li key={`${orden.tipo}-${orden.id}`} className="rounded-lg border border-border/60 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="flex items-center gap-2 text-sm font-medium">
+            {orden.tipo === "Laboratorio" ? (
+              <FlaskConical className="h-4 w-4 text-primary" />
+            ) : (
+              <Scan className="h-4 w-4 text-primary" />
+            )}
+            {orden.tipo}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              {new Date(orden.fecha_orden).toLocaleString("es-PE")}
+            </span>
+            <Badge variant={orden.estado === "anulada" ? "destructive" : "secondary"}>
+              {orden.estado === "anulada" ? "Anulada" : orden.estado}
+            </Badge>
+          </div>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">{items?.join(" · ") || "Sin detalle"}</p>
+      </li>
+    );
+  };
+
+  if (todas.length === 0) return null;
+  return (
+    <section className="space-y-3 rounded-xl border border-border/60 bg-card p-5">
+      <h3 className="font-display text-sm font-semibold">Órdenes emitidas en esta consulta</h3>
+      {vigentes.length > 0 ? <ul className="space-y-2">{vigentes.map(renderOrden)}</ul> : (
+        <p className="text-sm text-muted-foreground">No hay órdenes vigentes vinculadas.</p>
+      )}
+      {anuladas.length > 0 ? (
+        <details className="group border-t border-border/60 pt-3">
+          <summary className="flex cursor-pointer list-none items-center gap-2 text-sm text-muted-foreground">
+            <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+            Ver órdenes anuladas ({anuladas.length})
+          </summary>
+          <ul className="mt-3 space-y-2">{anuladas.map(renderOrden)}</ul>
+        </details>
+      ) : null}
+    </section>
   );
 }

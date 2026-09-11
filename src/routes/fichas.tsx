@@ -126,7 +126,10 @@ function FichasPage() {
                         size="icon"
                         aria-label={`Laboratorios de ${nombrePaciente(p)}`}
                       >
-                        <Link to="/laboratorios" search={{ paciente: p.id }}>
+                        <Link
+                          to="/laboratorios"
+                          search={{ paciente: p.id, atencion: undefined }}
+                        >
                           <FlaskConical className="h-4 w-4" />
                         </Link>
                       </Button>

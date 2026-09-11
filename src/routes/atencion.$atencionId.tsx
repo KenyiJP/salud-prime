@@ -1,9 +1,8 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Printer } from "lucide-react";
-import { requireSession } from "@/lib/auth-guard";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
-import { plantillasQuery, useAtencion } from "@/lib/ehr.queries";
+import { useAtencionImpresion } from "@/lib/ehr.queries";
 import {
   FUNCIONES_BIOLOGICAS,
   REGIONES_EXAMEN,
@@ -15,10 +14,14 @@ import {
   type CampoPlantilla,
 } from "@/lib/ehr-schemas";
 import { nombrePaciente } from "@/lib/clinica-schemas";
+import { urlOrdenPublica } from "@/lib/orden-url";
+import { MarcaAnulada } from "@/components/marca-anulada";
+import type { PlantillaRow } from "@/lib/ehr-schemas";
 
 export const Route = createFileRoute("/atencion/$atencionId")({
-  beforeLoad: () => requireSession(),
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { acceso?: string } =>
+    typeof search.acceso === "string" ? { acceso: search.acceso } : {},
   head: () => ({
     meta: [
       { title: "Informe de consulta — MediSuite" },
@@ -57,21 +60,25 @@ function Campo({ label, valor }: { label: string; valor?: string | null }) {
 
 function InformeAtencionPage() {
   const { atencionId } = Route.useParams();
+  const { acceso } = Route.useSearch();
   const router = useRouter();
-  const { data, isLoading, error } = useAtencion(atencionId);
+  const { data, isLoading, error } = useAtencionImpresion(atencionId, acceso);
 
   if (isLoading) {
     return <p className="p-8 text-sm text-muted-foreground">Cargando informe…</p>;
   }
-  if (error || !data) {
+  if (error || !data || "errorAcceso" in data) {
     return (
       <p role="alert" className="p-8 text-sm text-destructive">
-        {(error as Error)?.message ?? "No se pudo cargar el informe."}
+        {(data && "errorAcceso" in data ? data.errorAcceso : null) ??
+          (error as Error)?.message ??
+          "No se pudo cargar el informe."}
       </p>
     );
   }
 
-  const { atencion, paciente, medico, adendas } = data;
+  const { atencion, paciente, medico, adendas, plantilla, token } = data;
+  const urlInforme = urlOrdenPublica(`/atencion/${atencion.id}`, token);
   const dx = diagnosticosDe(atencion);
   const edad = edadEnAnios(paciente.fecha_nacimiento);
   const vitales = [
@@ -120,7 +127,8 @@ function InformeAtencionPage() {
         </Button>
       </div>
 
-      <article className="hoja mx-auto w-[210mm] max-w-full bg-white p-[16mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
+      <article className="hoja relative mx-auto w-[210mm] max-w-full bg-white p-[16mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
+        {atencion.estado === "anulada" ? <MarcaAnulada tipo="Atención" /> : null}
         <header className="border-b-2 border-neutral-800 pb-3">
           <h1 className="text-[16pt] font-semibold">
             Dr(a). {medico.nombres} {medico.apellidos}
@@ -172,9 +180,20 @@ function InformeAtencionPage() {
           </p>
           <p>
             <span className="text-neutral-600">Estado: </span>
-            {atencion.estado === "firmada" ? "Firmada" : "Borrador"}
+            {atencion.estado === "anulada"
+              ? "Anulada"
+              : atencion.estado === "firmada"
+                ? "Firmada"
+                : "Borrador"}
           </p>
         </section>
+
+        {atencion.estado === "anulada" && atencion.motivo_anulacion ? (
+          <p className="mt-4 border border-red-500 px-3 py-2 text-[11pt] text-red-700">
+            <span className="font-semibold">Motivo de anulación: </span>
+            {atencion.motivo_anulacion}
+          </p>
+        ) : null}
 
         {atencion.antecedentes_alergicos ? (
           <p className="mt-4 border border-red-500 px-3 py-2 text-[11pt] font-semibold text-red-700">
@@ -229,10 +248,7 @@ function InformeAtencionPage() {
             <h3 className="mb-1 text-[11pt] font-semibold uppercase tracking-wide text-neutral-700">
               Evaluación por especialidad
             </h3>
-            <CamposEspecialidadImpresos
-              campos={campos}
-              plantillaId={atencion.plantilla_id}
-            />
+            <CamposEspecialidadImpresos campos={campos} plantilla={plantilla} />
           </section>
         ) : null}
 
@@ -282,40 +298,44 @@ function InformeAtencionPage() {
         ) : null}
 
         <footer className="mt-16 flex items-end justify-between gap-8">
-          <div className="w-72">
+          <div className="w-72 text-center">
             {atencion.firma_digital_url ? (
               <img
                 src={atencion.firma_digital_url}
                 alt={`Firma de ${medico.nombres} ${medico.apellidos}`}
-                className="h-20 object-contain"
+                className="mx-auto max-h-20 object-contain"
               />
             ) : (
-              <div className="h-16 border-b border-dashed border-neutral-500" />
+              <div className="h-16" />
             )}
-            <p className="mt-2 text-[11pt] font-semibold">
-              Dr(a). {medico.nombres} {medico.apellidos}
-            </p>
-            <p className="text-[10pt] text-neutral-700">
-              {medico.especialidad ?? "Medicina general"}
-            </p>
-            {medico.cmp ? (
-              <p className="text-[10pt] text-neutral-700">CMP: {medico.cmp}</p>
-            ) : null}
-            {medico.rne ? (
-              <p className="text-[10pt] text-neutral-700">RNE: {medico.rne}</p>
-            ) : null}
+            <div className="mt-1 border-t border-dashed border-neutral-600 pt-2">
+              <p className="text-[11pt] font-semibold">
+                Dr(a). {medico.nombres} {medico.apellidos}
+              </p>
+              <p className="text-[10pt] text-neutral-700">
+                {medico.especialidad ?? "Medicina general"}
+              </p>
+              {medico.cmp ? <p className="text-[10pt] text-neutral-700">CMP: {medico.cmp}</p> : null}
+              {medico.rne ? <p className="text-[10pt] text-neutral-700">RNE: {medico.rne}</p> : null}
+            </div>
           </div>
 
-          {atencion.firmado_at ? (
-            <div className="text-right text-[8pt] text-neutral-600">
-              <p>Firmada el {new Date(atencion.firmado_at).toLocaleString("es-PE")}</p>
-              {atencion.firma_hash ? (
-                <p className="max-w-[60mm] break-all">
-                  Huella: {atencion.firma_hash.slice(0, 32)}…
-                </p>
-              ) : null}
+          <div className="text-center" data-informe-url={urlInforme}>
+            {urlInforme ? <QRCodeSVG value={urlInforme} size={96} /> : null}
+            <p className="mt-1 max-w-[96px] text-[8pt] leading-tight text-neutral-600">
+              Escanea para ver este informe
+            </p>
+            {atencion.firmado_at ? (
+              <p className="mt-2 max-w-[110px] text-[7pt] leading-tight text-neutral-600">
+                Firmada el {new Date(atencion.firmado_at).toLocaleString("es-PE")}
+              </p>
+            ) : null}
+            {atencion.firma_hash ? (
+              <p className="mt-1 max-w-[110px] break-all text-[6pt] text-neutral-500">
+                {atencion.firma_hash.slice(0, 24)}…
+              </p>
+            ) : null}
             </div>
-          ) : null}
         </footer>
       </article>
     </div>
@@ -325,13 +345,11 @@ function InformeAtencionPage() {
 /** Muestra las respuestas de la plantilla usando sus etiquetas cuando existen. */
 function CamposEspecialidadImpresos({
   campos,
-  plantillaId,
+  plantilla,
 }: {
   campos: Record<string, unknown>;
-  plantillaId: string | null;
+  plantilla: PlantillaRow | null;
 }) {
-  const { data: plantillas } = useQuery(plantillasQuery());
-  const plantilla = plantillas?.find((p) => p.id === plantillaId) ?? null;
   const etiquetas = new Map<string, CampoPlantilla>();
   for (const seccion of seccionesDe(plantilla)) {
     for (const campo of seccion.campos) etiquetas.set(campo.id, campo);

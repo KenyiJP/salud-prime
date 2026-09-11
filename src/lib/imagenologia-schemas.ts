@@ -55,6 +55,7 @@ export type OrdenImagen = {
   diagnostico_presuntivo: string | null;
   indicacion_clinica: string;
   observaciones: string | null;
+  atencion_id: string | null;
   estudios: {
     orden: number;
     estudio_id: string;
@@ -83,6 +84,7 @@ const opcional = z.string().trim().optional().or(z.literal(""));
 
 export const nuevaOrdenImagenSchema = z.object({
   paciente_id: z.string().uuid("Selecciona un paciente."),
+  atencion_id: z.string().uuid().nullable().optional(),
   indicacion_clinica: z
     .string()
     .trim()

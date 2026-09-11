@@ -5,16 +5,19 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
+  anularAtencion,
   crearAdenda,
   firmarAtencion,
   getAtencion,
+  getAtencionPorToken,
   getAtencionesPaciente,
   getMedicoEhr,
   getPlantillas,
   guardarBorradorAtencion,
 } from "./ehr.functions";
-import type { AtencionInput, NuevaAdendaInput } from "./ehr-schemas";
+import type { AnularAtencionInput, AtencionInput, NuevaAdendaInput } from "./ehr-schemas";
 
 export const medicoEhrQuery = () =>
   queryOptions({ queryKey: ["medico-ehr"], queryFn: () => getMedicoEhr() });
@@ -45,6 +48,33 @@ export function useAtencion(id: string | null) {
     queryFn: () => getAtencion({ data: { id: id! } }),
     enabled: !!id,
     retry: false,
+  });
+}
+
+export function useAtencionImpresion(id: string, token?: string) {
+  return useQuery({
+    queryKey: ["atencion-imprimir", id, token ?? "sesion"],
+    retry: false,
+    queryFn: async () => {
+      try {
+        if (token) return await getAtencionPorToken({ data: { id, token } });
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          return {
+            errorAcceso:
+              "Para ver este informe necesitas abrir el enlace del código QR o ingresar con tu cuenta.",
+          } as const;
+        }
+        return await getAtencion({ data: { id } });
+      } catch (error) {
+        const mensaje = (error as Error)?.message ?? "";
+        return {
+          errorAcceso: /authorization|unauthorized|401/i.test(mensaje)
+            ? "Para ver este informe necesitas abrir el enlace del código QR o ingresar con tu cuenta."
+            : mensaje || "No se pudo cargar el informe.",
+        } as const;
+      }
+    },
   });
 }
 
@@ -79,6 +109,20 @@ export function useFirmarAtencion() {
     onError: (error: Error) => {
       toast.error(error.message || "No se pudo firmar la atención.");
     },
+  });
+}
+
+export function useAnularAtencion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: AnularAtencionInput) => anularAtencion({ data: input }),
+    onSuccess: (row) => {
+      queryClient.invalidateQueries({ queryKey: atencionesPacienteKey(row.paciente_id) });
+      queryClient.invalidateQueries({ queryKey: atencionKey(row.id) });
+      toast.success("Atención anulada y conservada para auditoría.");
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "No se pudo anular la atención."),
   });
 }
 

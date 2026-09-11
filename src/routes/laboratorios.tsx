@@ -26,6 +26,7 @@ export const Route = createFileRoute("/laboratorios")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>) => ({
     paciente: typeof search.paciente === "string" ? search.paciente : undefined,
+    atencion: typeof search.atencion === "string" ? search.atencion : undefined,
   }),
   head: () => ({
     meta: [
@@ -64,7 +65,7 @@ export const Route = createFileRoute("/laboratorios")({
 });
 
 function LaboratoriosPage() {
-  const { paciente: pacienteInicial } = Route.useSearch();
+  const { paciente: pacienteInicial, atencion } = Route.useSearch();
   const { data: pacientes } = useSuspenseQuery(pacientesQuery());
   const [pacienteId, setPacienteId] = useState<string>(pacienteInicial ?? "");
   const [examenes, setExamenes] = useState<ExamenLaboratorio[]>([]);
@@ -80,6 +81,7 @@ function LaboratoriosPage() {
     crear.mutate(
       {
         paciente_id: pacienteId,
+        atencion_id: atencion ?? null,
         diagnostico_presuntivo: diagnostico,
         observaciones,
         examen_ids: ids,

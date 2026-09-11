@@ -29,6 +29,7 @@ export type OrdenLaboratorio = {
   estado: EstadoOrden;
   diagnostico_presuntivo: string | null;
   observaciones: string | null;
+  atencion_id: string | null;
   examenes: { orden: number; nombre_display: string; examen_id: string }[];
 };
 
@@ -45,6 +46,7 @@ const opcional = z.string().trim().optional().or(z.literal(""));
 
 export const nuevaOrdenSchema = z.object({
   paciente_id: z.string().uuid("Selecciona un paciente."),
+  atencion_id: z.string().uuid().nullable().optional(),
   diagnostico_presuntivo: opcional,
   observaciones: opcional,
   examen_ids: z
