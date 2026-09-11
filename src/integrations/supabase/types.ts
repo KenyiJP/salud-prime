@@ -602,6 +602,223 @@ export type Database = {
         }
         Relationships: []
       }
+      google_calendar_credenciales: {
+        Row: {
+          access_token_expira_en: string | null
+          access_token_secret_id: string | null
+          created_at: string
+          integracion_id: string
+          refresh_token_secret_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_token_expira_en?: string | null
+          access_token_secret_id?: string | null
+          created_at?: string
+          integracion_id: string
+          refresh_token_secret_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_token_expira_en?: string | null
+          access_token_secret_id?: string | null
+          created_at?: string
+          integracion_id?: string
+          refresh_token_secret_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_calendar_credenciales_integracion_id_fkey"
+            columns: ["integracion_id"]
+            isOneToOne: true
+            referencedRelation: "google_calendar_integraciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_calendar_integraciones: {
+        Row: {
+          calendar_id: string
+          created_at: string
+          estado: string
+          google_email: string
+          id: string
+          medico_id: string
+          sync_habilitado: boolean
+          tenant_id: string
+          ultima_sincronizacion: string | null
+          ultimo_error: string | null
+          updated_at: string
+          zona_horaria: string
+        }
+        Insert: {
+          calendar_id?: string
+          created_at?: string
+          estado?: string
+          google_email: string
+          id?: string
+          medico_id: string
+          sync_habilitado?: boolean
+          tenant_id: string
+          ultima_sincronizacion?: string | null
+          ultimo_error?: string | null
+          updated_at?: string
+          zona_horaria?: string
+        }
+        Update: {
+          calendar_id?: string
+          created_at?: string
+          estado?: string
+          google_email?: string
+          id?: string
+          medico_id?: string
+          sync_habilitado?: boolean
+          tenant_id?: string
+          ultima_sincronizacion?: string | null
+          ultimo_error?: string | null
+          updated_at?: string
+          zona_horaria?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_calendar_integraciones_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: true
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_calendar_integraciones_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_calendar_sync_cola: {
+        Row: {
+          accion: string
+          cita_id: string
+          created_at: string
+          estado: string
+          id: string
+          intentos: number
+          medico_id: string
+          procesado_en: string | null
+          proximo_intento: string
+          tenant_id: string
+          ultimo_error: string | null
+        }
+        Insert: {
+          accion: string
+          cita_id: string
+          created_at?: string
+          estado?: string
+          id?: string
+          intentos?: number
+          medico_id: string
+          procesado_en?: string | null
+          proximo_intento?: string
+          tenant_id: string
+          ultimo_error?: string | null
+        }
+        Update: {
+          accion?: string
+          cita_id?: string
+          created_at?: string
+          estado?: string
+          id?: string
+          intentos?: number
+          medico_id?: string
+          procesado_en?: string | null
+          proximo_intento?: string
+          tenant_id?: string
+          ultimo_error?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_calendar_sync_cola_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_calendar_sync_cola_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_calendar_sync_cola_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_calendar_sync_log: {
+        Row: {
+          accion: string
+          cita_id: string | null
+          created_at: string
+          detalle: string | null
+          google_event_id: string | null
+          id: string
+          medico_id: string
+          resultado: string
+          tenant_id: string
+        }
+        Insert: {
+          accion: string
+          cita_id?: string | null
+          created_at?: string
+          detalle?: string | null
+          google_event_id?: string | null
+          id?: string
+          medico_id: string
+          resultado: string
+          tenant_id: string
+        }
+        Update: {
+          accion?: string
+          cita_id?: string | null
+          created_at?: string
+          detalle?: string | null
+          google_event_id?: string | null
+          id?: string
+          medico_id?: string
+          resultado?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_calendar_sync_log_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_calendar_sync_log_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_calendar_sync_log_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       horarios_atencion: {
         Row: {
           activo: boolean | null
@@ -1358,6 +1575,29 @@ export type Database = {
     }
     Functions: {
       f_unaccent: { Args: { "": string }; Returns: string }
+      gcal_guardar_credenciales: {
+        Args: {
+          p_calendar_id?: string
+          p_google_email: string
+          p_medico_id: string
+          p_refresh_token: string
+          p_tenant_id: string
+          p_zona_horaria?: string
+        }
+        Returns: string
+      }
+      gcal_marcar_fallo_cola: {
+        Args: { p_cola_id: string; p_error: string }
+        Returns: undefined
+      }
+      gcal_obtener_refresh_token: {
+        Args: { p_integracion_id: string }
+        Returns: string
+      }
+      gcal_revocar_integracion: {
+        Args: { p_integracion_id: string }
+        Returns: undefined
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       unaccent: { Args: { "": string }; Returns: string }
