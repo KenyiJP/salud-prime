@@ -8,7 +8,8 @@ import {
   type CitaRow,
 } from "./clinica-schemas";
 
-const SELECT_CITA = "*, pacientes(id, nombres, apellidos, documento_identidad)";
+const SELECT_CITA =
+  "*, pacientes(id, nombres, apellidos, documento_identidad), tipos_consulta(id, nombre, duracion_minutos)";
 
 export const getCitas = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -55,6 +56,7 @@ export const crearCita = createServerFn({ method: "POST" })
         paciente_id: data.paciente_id,
         fecha_hora: new Date(data.fecha_hora).toISOString(),
         motivo: data.motivo || null,
+        tipo_consulta_id: data.tipo_consulta_id || null,
       })
       .select(SELECT_CITA)
       .single();
@@ -86,6 +88,7 @@ export const actualizarCita = createServerFn({ method: "POST" })
         paciente_id: data.paciente_id,
         fecha_hora: new Date(data.fecha_hora).toISOString(),
         motivo: data.motivo || null,
+        tipo_consulta_id: data.tipo_consulta_id || null,
         ...(data.estado ? { estado: data.estado } : {}),
       })
       .eq("id", data.id)
