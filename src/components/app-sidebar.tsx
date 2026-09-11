@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   CalendarDays,
   CalendarClock,
+  CalendarSync,
   FileHeart,
   ClipboardPlus,
   FlaskConical,
@@ -34,6 +35,7 @@ const items = [
   { title: "Dashboard Principal", url: "/", icon: LayoutDashboard },
   { title: "Calendario de Citas", url: "/calendario", icon: CalendarDays },
   { title: "Horarios y bloqueos", url: "/horarios", icon: CalendarClock },
+  { title: "Google Calendar", url: "/configuracion/calendario", icon: CalendarSync },
   { title: "Fichas Clínicas (EHR)", url: "/fichas", icon: FileHeart },
   { title: "Consulta / Historias", url: "/historias", icon: ClipboardPlus },
   { title: "Laboratorios", url: "/laboratorios", icon: FlaskConical },
@@ -52,6 +54,7 @@ const SOLO_CLINICO: readonly string[] = [
   "/fichas",
   "/calendario",
   "/horarios",
+  "/configuracion/calendario",
   "/perfil-medico",
 ];
 
