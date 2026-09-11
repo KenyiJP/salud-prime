@@ -4,6 +4,7 @@ import {
   FileText,
   FlaskConical,
   Lock,
+  Ban,
   Pill,
   Printer,
   Save,
@@ -70,7 +71,12 @@ import {
   type Diagnostico,
   type PlantillaRow,
 } from "@/lib/ehr-schemas";
-import { useCrearAdenda, useFirmarAtencion, useGuardarBorrador } from "@/lib/ehr.queries";
+import {
+  useAnularAtencion,
+  useCrearAdenda,
+  useFirmarAtencion,
+  useGuardarBorrador,
+} from "@/lib/ehr.queries";
 
 type Props = {
   paciente: PacienteRow;
@@ -121,10 +127,13 @@ export function AtencionForm({
   const [adendaAbierta, setAdendaAbierta] = useState(false);
   const [adendaTipo, setAdendaTipo] = useState<string>(TIPOS_ADENDA[0].valor);
   const [adendaTexto, setAdendaTexto] = useState("");
+  const [anulacionAbierta, setAnulacionAbierta] = useState(false);
+  const [motivoAnulacion, setMotivoAnulacion] = useState("");
 
   const guardar = useGuardarBorrador();
   const firmar = useFirmarAtencion();
   const adenda = useCrearAdenda();
+  const anular = useAnularAtencion();
 
   const firmada = atencion?.estado === "firmada";
   const anulada = atencion?.estado === "anulada";
@@ -721,12 +730,18 @@ export function AtencionForm({
                 </Link>
               </Button>
               <Button asChild variant="outline" className="gap-2">
-                <Link to="/laboratorios" search={{ paciente: paciente.id }}>
+                <Link
+                  to="/laboratorios"
+                  search={{ paciente: paciente.id, atencion: atencion?.id }}
+                >
                   <FlaskConical className="h-4 w-4" /> Emitir orden de laboratorio
                 </Link>
               </Button>
               <Button asChild variant="outline" className="gap-2">
-                <Link to="/imagenologia" search={{ paciente: paciente.id }}>
+                <Link
+                  to="/imagenologia"
+                  search={{ paciente: paciente.id, atencion: atencion?.id }}
+                >
                   <Scan className="h-4 w-4" /> Emitir orden de imagenología
                 </Link>
               </Button>
@@ -792,6 +807,16 @@ export function AtencionForm({
           {firmada ? (
             <Button variant="outline" className="gap-2" onClick={() => setAdendaAbierta(true)}>
               <FileText className="h-4 w-4" /> Agregar adenda
+            </Button>
+          ) : null}
+
+          {firmada ? (
+            <Button
+              variant="destructive"
+              className="gap-2"
+              onClick={() => setAnulacionAbierta(true)}
+            >
+              <Ban className="h-4 w-4" /> Anular atención
             </Button>
           ) : null}
         </div>
@@ -881,6 +906,50 @@ export function AtencionForm({
           </DialogFooter>
         </DialogContent>
 
+      </Dialog>
+
+      <Dialog open={anulacionAbierta} onOpenChange={setAnulacionAbierta}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Anular atención médica</DialogTitle>
+            <DialogDescription>
+              La atención conservará todo su contenido para auditoría y no podrá reactivarse.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="motivo-anulacion">Motivo de anulación *</Label>
+            <Textarea
+              id="motivo-anulacion"
+              rows={4}
+              value={motivoAnulacion}
+              onChange={(e) => setMotivoAnulacion(e.target.value)}
+              placeholder="Describe el motivo médico-administrativo"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAnulacionAbierta(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={anular.isPending || motivoAnulacion.trim().length < 5}
+              onClick={() => {
+                if (!atencion?.id) return;
+                anular.mutate(
+                  { id: atencion.id, motivo_anulacion: motivoAnulacion.trim() },
+                  {
+                    onSuccess: () => {
+                      setMotivoAnulacion("");
+                      setAnulacionAbierta(false);
+                    },
+                  },
+                );
+              }}
+            >
+              {anular.isPending ? "Anulando…" : "Confirmar anulación"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );
