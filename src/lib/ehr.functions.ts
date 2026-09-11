@@ -2,8 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   atencionPorIdSchema,
+  atencionPublicaSchema,
   atencionSchema,
   atencionesPacienteSchema,
+  anularAtencionSchema,
   nuevaAdendaSchema,
   type AdendaRow,
   type AtencionInput,
@@ -24,6 +26,52 @@ export type MedicoEhr = {
 };
 
 const SELECT_MEDICO = "id, nombres, apellidos, cmp, rne, especialidad, firma_url";
+
+const SELECT_ORDEN_LAB =
+  "id, atencion_id, fecha_orden, estado, diagnostico_presuntivo, observaciones, orden_laboratorio_examenes(orden, examen_id, examenes_laboratorio(nombre_display))";
+const SELECT_ORDEN_IMAGEN =
+  "id, atencion_id, fecha_orden, estado, diagnostico_presuntivo, indicacion_clinica, observaciones, orden_imagen_estudios(orden, estudio_id, nota, estudios_imagen(nombre_display, modalidad))";
+
+async function cargarComplementosAtencion(db: any, atencion: AtencionRow) {
+  const [pacienteRes, medicoRes, adendasRes, plantillaRes, laboratorioRes, imagenRes] =
+    await Promise.all([
+      db.from("pacientes").select("*").eq("id", atencion.paciente_id).single(),
+      db.from("medicos").select(SELECT_MEDICO).eq("id", atencion.medico_id).single(),
+      db
+        .from("atencion_adendas")
+        .select("*")
+        .eq("atencion_id", atencion.id)
+        .order("created_at", { ascending: true }),
+      atencion.plantilla_id
+        ? db.from("plantillas_especialidad").select("*").eq("id", atencion.plantilla_id).maybeSingle()
+        : Promise.resolve({ data: null, error: null }),
+      db
+        .from("ordenes_laboratorio")
+        .select(SELECT_ORDEN_LAB)
+        .eq("atencion_id", atencion.id)
+        .order("fecha_orden", { ascending: false }),
+      db
+        .from("ordenes_imagen")
+        .select(SELECT_ORDEN_IMAGEN)
+        .eq("atencion_id", atencion.id)
+        .order("fecha_orden", { ascending: false }),
+    ]);
+
+  const fallo = [pacienteRes, medicoRes, adendasRes, plantillaRes, laboratorioRes, imagenRes]
+    .map((resultado) => resultado.error)
+    .find(Boolean);
+  if (fallo) throw new Error(fallo.message);
+
+  return {
+    atencion,
+    paciente: pacienteRes.data as PacienteRow,
+    medico: medicoRes.data as MedicoEhr,
+    adendas: (adendasRes.data ?? []) as AdendaRow[],
+    plantilla: (plantillaRes.data ?? null) as PlantillaRow | null,
+    ordenesLaboratorio: laboratorioRes.data ?? [],
+    ordenesImagen: imagenRes.data ?? [],
+  };
+}
 
 /** Campos que se escriben en la base; `imc` y `estado_nutricional` los calcula un trigger. */
 function filaDesdeInput(data: AtencionInput) {
@@ -134,32 +182,32 @@ export const getAtencion = createServerFn({ method: "POST" })
       throw new Error("La atención no existe o no pertenece a tu consultorio.");
     }
 
-    const { data: paciente, error: pacienteError } = await context.supabase
-      .from("pacientes")
+    const detalle = await cargarComplementosAtencion(
+      context.supabase,
+      atencion as AtencionRow,
+    );
+    const { crearTokenOrden } = await import("./orden-token.server");
+    return { ...detalle, token: await crearTokenOrden(atencion.id) };
+  });
+
+export const getAtencionPorToken = createServerFn({ method: "POST" })
+  .inputValidator(atencionPublicaSchema.parse)
+  .handler(async ({ data }) => {
+    const { verificarTokenOrden } = await import("./orden-token.server");
+    if (!(await verificarTokenOrden(data.id, data.token))) {
+      throw new Error("El enlace del informe no es válido o ya venció.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: atencion, error } = await supabaseAdmin
+      .from("atenciones_medicas")
       .select("*")
-      .eq("id", atencion.paciente_id)
-      .single();
-    if (pacienteError) throw new Error(pacienteError.message);
-
-    const { data: medico, error: medicoError } = await context.supabase
-      .from("medicos")
-      .select(SELECT_MEDICO)
-      .eq("id", medicoId)
-      .single();
-    if (medicoError) throw new Error(medicoError.message);
-
-    const { data: adendas, error: adendasError } = await context.supabase
-      .from("atencion_adendas")
-      .select("*")
-      .eq("atencion_id", data.id)
-      .order("created_at", { ascending: true });
-    if (adendasError) throw new Error(adendasError.message);
-
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!atencion) throw new Error("La atención no existe.");
     return {
-      atencion: atencion as AtencionRow,
-      paciente: paciente as PacienteRow,
-      medico: medico as MedicoEhr,
-      adendas: (adendas ?? []) as AdendaRow[],
+      ...(await cargarComplementosAtencion(supabaseAdmin, atencion as AtencionRow)),
+      token: data.token,
     };
   });
 
@@ -289,6 +337,34 @@ export const firmarAtencion = createServerFn({ method: "POST" })
         firma_digital_url: (medico as MedicoEhr).firma_url ?? null,
         firma_hash,
       })
+      .eq("id", data.id)
+      .eq("medico_id", medicoId)
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return row as AtencionRow;
+  });
+
+export const anularAtencion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(anularAtencionSchema.parse)
+  .handler(async ({ context, data }) => {
+    const { resolveMedicoContext } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { data: actual, error: leerError } = await context.supabase
+      .from("atenciones_medicas")
+      .select("id, estado")
+      .eq("id", data.id)
+      .eq("medico_id", medicoId)
+      .maybeSingle();
+    if (leerError) throw new Error(leerError.message);
+    if (!actual) throw new Error("La atención no existe o no es tuya.");
+    if (actual.estado !== "firmada") {
+      throw new Error("Solo una atención firmada puede anularse.");
+    }
+    const { data: row, error } = await context.supabase
+      .from("atenciones_medicas")
+      .update({ estado: "anulada", motivo_anulacion: data.motivo_anulacion.trim() })
       .eq("id", data.id)
       .eq("medico_id", medicoId)
       .select("*")
