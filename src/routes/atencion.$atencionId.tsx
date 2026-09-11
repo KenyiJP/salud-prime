@@ -128,7 +128,7 @@ function InformeAtencionPage() {
       </div>
 
       <article className="hoja relative mx-auto w-[210mm] max-w-full bg-white p-[16mm] text-[12pt] leading-relaxed text-neutral-900 shadow-lg">
-        {atencion.estado === "anulada" ? <MarcaAnulada /> : null}
+        {atencion.estado === "anulada" ? <MarcaAnulada tipo="Atención" /> : null}
         <header className="border-b-2 border-neutral-800 pb-3">
           <h1 className="text-[16pt] font-semibold">
             Dr(a). {medico.nombres} {medico.apellidos}

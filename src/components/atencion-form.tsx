@@ -723,7 +723,7 @@ export function AtencionForm({
 
           <div className="space-y-2">
             <h3 className="font-display text-sm font-semibold">Emitir documentos</h3>
-            <div className="flex flex-wrap gap-3">
+            {atencion?.id ? <div className="flex flex-wrap gap-3">
               <Button asChild variant="outline" className="gap-2">
                 <Link to="/recetario">
                   <Pill className="h-4 w-4" /> Emitir receta médica
@@ -745,7 +745,11 @@ export function AtencionForm({
                   <Scan className="h-4 w-4" /> Emitir orden de imagenología
                 </Link>
               </Button>
-            </div>
+            </div> : (
+              <p className="text-sm text-muted-foreground">
+                Guarda primero la atención para vincular las órdenes al expediente.
+              </p>
+            )}
           </div>
         </TabsContent>
       </Tabs>
