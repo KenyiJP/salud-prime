@@ -48,6 +48,11 @@ export const nuevaCitaSchema = z.object({
   paciente_id: z.string().uuid("Selecciona un paciente."),
   fecha_hora: z.string().min(1, "Selecciona la fecha y hora de la cita."),
   motivo: opcional,
+  // Optional: only set when the tenant has consultation types configured.
+  tipo_consulta_id: z.string().uuid().optional().or(z.literal("")),
+  // Free duration in minutes, used to render the appointment length on the
+  // calendar. `citas` has no duration column, so it is not persisted.
+  duracion_minutos: z.coerce.number().int().min(5).max(480).optional(),
 });
 
 export type NuevaCitaInput = z.infer<typeof nuevaCitaSchema>;
