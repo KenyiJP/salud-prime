@@ -750,7 +750,7 @@ export function AtencionForm({
         </TabsContent>
       </Tabs>
 
-      {firmada && adendas.length > 0 ? (
+      {(firmada || anulada) && adendas.length > 0 ? (
         <section className="space-y-3 rounded-xl border border-border/60 bg-card p-5">
           <h3 className="font-display text-sm font-semibold">Adendas de esta atención</h3>
           <ul className="space-y-3">
@@ -772,9 +772,10 @@ export function AtencionForm({
       {/* ------------------------------------------- barra de acciones */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border/70 bg-background/95 px-4 py-3 backdrop-blur md:left-[var(--sidebar-width,0px)]">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-end gap-3">
-          {firmada ? (
+          {firmada || anulada ? (
             <span className="mr-auto flex items-center gap-2 text-xs text-muted-foreground">
-              <Lock className="h-3.5 w-3.5" /> Atención firmada e inmutable
+              <Lock className="h-3.5 w-3.5" />
+              {anulada ? "Atención anulada e inmutable" : "Atención firmada e inmutable"}
             </span>
           ) : null}
 

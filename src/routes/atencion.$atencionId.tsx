@@ -180,9 +180,20 @@ function InformeAtencionPage() {
           </p>
           <p>
             <span className="text-neutral-600">Estado: </span>
-            {atencion.estado === "firmada" ? "Firmada" : "Borrador"}
+            {atencion.estado === "anulada"
+              ? "Anulada"
+              : atencion.estado === "firmada"
+                ? "Firmada"
+                : "Borrador"}
           </p>
         </section>
+
+        {atencion.estado === "anulada" && atencion.motivo_anulacion ? (
+          <p className="mt-4 border border-red-500 px-3 py-2 text-[11pt] text-red-700">
+            <span className="font-semibold">Motivo de anulación: </span>
+            {atencion.motivo_anulacion}
+          </p>
+        ) : null}
 
         {atencion.antecedentes_alergicos ? (
           <p className="mt-4 border border-red-500 px-3 py-2 text-[11pt] font-semibold text-red-700">
