@@ -74,35 +74,27 @@ function CalendarioPage() {
         <PageHeader
           eyebrow="Agenda"
           title="Calendario de Citas"
-          description="Citas leídas de la tabla citas, vinculadas a tus pacientes."
+          description="Haz clic en un espacio libre para agendar, o en una cita para editarla."
           actions={
-            <CitaDialog
-              trigger={
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" /> Nueva cita
-                </Button>
-              }
-            />
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/horarios">
+                  <Clock className="h-4 w-4" /> Horarios
+                </Link>
+              </Button>
+              <CitaDialog
+                trigger={
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" /> Nueva cita
+                  </Button>
+                }
+              />
+            </div>
           }
         />
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <PlaceholderCard
-            icon={<CalendarDays className="h-5 w-5" />}
-            title="Vista semanal"
-            description="El calendario semanal con drag-and-drop reemplazará este listado."
-          />
-          <PlaceholderCard
-            icon={<Clock className="h-5 w-5" />}
-            title="Bloques de disponibilidad"
-            description="Define horarios de atención por sede y tipo de consulta."
-          />
-          <PlaceholderCard
-            icon={<Plus className="h-5 w-5" />}
-            title="Reserva online"
-            description="Comparte un enlace público para que pacientes agenden solos."
-          />
-        </div>
+        <AgendaCalendario />
+
 
         <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
           <table className="w-full text-sm">
