@@ -1,15 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { requireSession } from "@/lib/auth-guard";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CalendarDays, Clock, Pencil, Plus, Trash2 } from "lucide-react";
+import { Clock, Pencil, Plus, Trash2 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
+import { PageHeader } from "@/components/page-primitives";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CitaDialog } from "@/components/cita-dialog";
+import { AgendaCalendario } from "@/components/agenda-calendario";
 import { ConfirmarEliminar } from "@/components/confirmar-eliminar";
 import { nombrePaciente } from "@/lib/clinica-schemas";
 import { pacientesQuery } from "@/lib/pacientes.queries";
+import { bloqueosQuery, tiposConsultaQuery } from "@/lib/agenda.queries";
 import {
   citasQuery,
   fechaCorta,
