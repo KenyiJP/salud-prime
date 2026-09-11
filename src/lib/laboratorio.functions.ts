@@ -18,7 +18,7 @@ import type { PacienteRow } from "./clinica-schemas";
 const untyped = (client: unknown) => client as SupabaseClient<any>;
 
 const SELECT_ORDEN =
-  "id, paciente_id, medico_id, fecha_orden, estado, diagnostico_presuntivo, observaciones, orden_laboratorio_examenes(orden, examen_id, examenes_laboratorio(nombre_display))";
+  "id, paciente_id, medico_id, atencion_id, fecha_orden, estado, diagnostico_presuntivo, observaciones, orden_laboratorio_examenes(orden, examen_id, examenes_laboratorio(nombre_display))";
 
 type FilaDetalle = {
   orden: number;
@@ -36,6 +36,7 @@ function normalizarOrden(row: any): OrdenLaboratorio {
     estado: row.estado,
     diagnostico_presuntivo: row.diagnostico_presuntivo,
     observaciones: row.observaciones,
+    atencion_id: row.atencion_id ?? null,
     examenes: detalle
       .slice()
       .sort((a, b) => a.orden - b.orden)
@@ -100,6 +101,18 @@ export const crearOrdenLaboratorio = createServerFn({ method: "POST" })
       throw new Error("El paciente seleccionado no pertenece a tu consultorio.");
     }
 
+    if (data.atencion_id) {
+      const { data: atencion, error: atencionError } = await context.supabase
+        .from("atenciones_medicas")
+        .select("id")
+        .eq("id", data.atencion_id)
+        .eq("medico_id", medicoId)
+        .eq("paciente_id", data.paciente_id)
+        .maybeSingle();
+      if (atencionError) throw new Error(atencionError.message);
+      if (!atencion) throw new Error("La atención no corresponde al paciente seleccionado.");
+    }
+
     const db = untyped(context.supabase);
     const { data: cabecera, error } = await db
       .from("ordenes_laboratorio")
@@ -107,6 +120,7 @@ export const crearOrdenLaboratorio = createServerFn({ method: "POST" })
         tenant_id: tenantId,
         medico_id: medicoId,
         paciente_id: data.paciente_id,
+        atencion_id: data.atencion_id ?? null,
         diagnostico_presuntivo: data.diagnostico_presuntivo || null,
         observaciones: data.observaciones || null,
       })
@@ -125,8 +139,7 @@ export const crearOrdenLaboratorio = createServerFn({ method: "POST" })
       .from("orden_laboratorio_examenes")
       .insert(renglones);
     if (detalleError) {
-      // Never leave an orphan header behind.
-      await db.from("ordenes_laboratorio").delete().eq("id", cabecera.id);
+      await db.from("ordenes_laboratorio").update({ estado: "anulada" }).eq("id", cabecera.id);
       throw new Error(
         `No se pudieron guardar los exámenes de la orden: ${detalleError.message}`,
       );

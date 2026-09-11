@@ -12,7 +12,7 @@ import {
 import type { PacienteRow } from "./clinica-schemas";
 
 const SELECT_ORDEN =
-  "id, paciente_id, medico_id, fecha_orden, estado, diagnostico_presuntivo, indicacion_clinica, observaciones, orden_imagen_estudios(orden, estudio_id, nota, estudios_imagen(nombre_display, modalidad, region, requiere_contraste, requiere_preparacion, instrucciones_preparacion))";
+  "id, paciente_id, medico_id, atencion_id, fecha_orden, estado, diagnostico_presuntivo, indicacion_clinica, observaciones, orden_imagen_estudios(orden, estudio_id, nota, estudios_imagen(nombre_display, modalidad, region, requiere_contraste, requiere_preparacion, instrucciones_preparacion))";
 
 const SELECT_MEDICO =
   "id, nombres, apellidos, cmp, rne, especialidad, email, firma_url";
@@ -28,6 +28,7 @@ function normalizarOrden(row: any): OrdenImagen {
     diagnostico_presuntivo: row.diagnostico_presuntivo,
     indicacion_clinica: row.indicacion_clinica ?? "",
     observaciones: row.observaciones,
+    atencion_id: row.atencion_id ?? null,
     estudios: detalle
       .slice()
       .sort((a, b) => a.orden - b.orden)
@@ -99,12 +100,25 @@ export const crearOrdenImagen = createServerFn({ method: "POST" })
       throw new Error("El paciente seleccionado no pertenece a tu consultorio.");
     }
 
+    if (data.atencion_id) {
+      const { data: atencion, error: atencionError } = await context.supabase
+        .from("atenciones_medicas")
+        .select("id")
+        .eq("id", data.atencion_id)
+        .eq("medico_id", medicoId)
+        .eq("paciente_id", data.paciente_id)
+        .maybeSingle();
+      if (atencionError) throw new Error(atencionError.message);
+      if (!atencion) throw new Error("La atención no corresponde al paciente seleccionado.");
+    }
+
     const { data: cabecera, error } = await context.supabase
       .from("ordenes_imagen")
       .insert({
         tenant_id: tenantId,
         medico_id: medicoId,
         paciente_id: data.paciente_id,
+        atencion_id: data.atencion_id ?? null,
         indicacion_clinica: data.indicacion_clinica,
         diagnostico_presuntivo: data.diagnostico_presuntivo || null,
         observaciones: data.observaciones || null,
@@ -125,7 +139,10 @@ export const crearOrdenImagen = createServerFn({ method: "POST" })
       .from("orden_imagen_estudios")
       .insert(renglones);
     if (detalleError) {
-      await context.supabase.from("ordenes_imagen").delete().eq("id", cabecera.id);
+      await context.supabase
+        .from("ordenes_imagen")
+        .update({ estado: "anulada" })
+        .eq("id", cabecera.id);
       throw new Error(
         `No se pudieron guardar los estudios de la orden: ${detalleError.message}`,
       );
