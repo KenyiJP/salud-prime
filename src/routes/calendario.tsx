@@ -46,6 +46,8 @@ export const Route = createFileRoute("/calendario")({
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(citasQuery());
     context.queryClient.ensureQueryData(pacientesQuery());
+    context.queryClient.ensureQueryData(tiposConsultaQuery());
+    context.queryClient.ensureQueryData(bloqueosQuery());
   },
   component: CalendarioPage,
   errorComponent: ({ error }) => (
