@@ -29,6 +29,7 @@ import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atenc
 import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
 import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
 import { Route as OrdenLaboratorioOrdenIdRouteImport } from './routes/orden-laboratorio.$ordenId'
+import { Route as RecetaRecetaIdRouteImport } from './routes/receta.$recetaId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -130,6 +131,11 @@ const OrdenLaboratorioOrdenIdRoute = OrdenLaboratorioOrdenIdRouteImport.update({
   path: '/orden-laboratorio/$ordenId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecetaRecetaIdRoute = RecetaRecetaIdRouteImport.update({
+  id: '/receta/$recetaId',
+  path: '/receta/$recetaId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
+  '/receta/$recetaId': typeof RecetaRecetaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
+  '/receta/$recetaId': typeof RecetaRecetaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
+  '/receta/$recetaId': typeof RecetaRecetaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/configuracion/calendario'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
+    | '/receta/$recetaId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/configuracion/calendario'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
+    | '/receta/$recetaId'
   id:
     | '__root__'
     | '/'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/configuracion/calendario'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
+    | '/receta/$recetaId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -288,6 +300,7 @@ export interface RootRouteChildren {
   ConfiguracionCalendarioRoute: typeof ConfiguracionCalendarioRoute
   OrdenImagenOrdenIdRoute: typeof OrdenImagenOrdenIdRoute
   OrdenLaboratorioOrdenIdRoute: typeof OrdenLaboratorioOrdenIdRoute
+  RecetaRecetaIdRoute: typeof RecetaRecetaIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -432,6 +445,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdenLaboratorioOrdenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/receta/$recetaId': {
+      id: '/receta/$recetaId'
+      path: '/receta/$recetaId'
+      fullPath: '/receta/$recetaId'
+      preLoaderRoute: typeof RecetaRecetaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -456,6 +476,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracionCalendarioRoute: ConfiguracionCalendarioRoute,
   OrdenImagenOrdenIdRoute: OrdenImagenOrdenIdRoute,
   OrdenLaboratorioOrdenIdRoute: OrdenLaboratorioOrdenIdRoute,
+  RecetaRecetaIdRoute: RecetaRecetaIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

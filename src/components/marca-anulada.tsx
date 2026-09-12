@@ -6,7 +6,7 @@
 export function MarcaAnulada({
   tipo = "Orden",
 }: {
-  tipo?: "Orden" | "Atención";
+  tipo?: "Orden" | "Atención" | "Receta";
 }) {
   return (
     <>

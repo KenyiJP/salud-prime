@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       atencion_adendas: {
@@ -1450,6 +1475,170 @@ export type Database = {
         }
         Relationships: []
       }
+      receta_medicamentos: {
+        Row: {
+          cantidad: string | null
+          created_at: string
+          descripcion_libre: string | null
+          dosis: string | null
+          duracion: string | null
+          frecuencia: string | null
+          id: string
+          indicaciones: string | null
+          medicamento_id: string | null
+          orden: number
+          receta_id: string
+          tenant_id: string
+          via_administracion_id: number | null
+        }
+        Insert: {
+          cantidad?: string | null
+          created_at?: string
+          descripcion_libre?: string | null
+          dosis?: string | null
+          duracion?: string | null
+          frecuencia?: string | null
+          id?: string
+          indicaciones?: string | null
+          medicamento_id?: string | null
+          orden?: number
+          receta_id: string
+          tenant_id: string
+          via_administracion_id?: number | null
+        }
+        Update: {
+          cantidad?: string | null
+          created_at?: string
+          descripcion_libre?: string | null
+          dosis?: string | null
+          duracion?: string | null
+          frecuencia?: string | null
+          id?: string
+          indicaciones?: string | null
+          medicamento_id?: string | null
+          orden?: number
+          receta_id?: string
+          tenant_id?: string
+          via_administracion_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receta_medicamentos_medicamento_id_fkey"
+            columns: ["medicamento_id"]
+            isOneToOne: false
+            referencedRelation: "medicamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receta_medicamentos_receta_id_fkey"
+            columns: ["receta_id"]
+            isOneToOne: false
+            referencedRelation: "recetas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receta_medicamentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receta_medicamentos_via_administracion_id_fkey"
+            columns: ["via_administracion_id"]
+            isOneToOne: false
+            referencedRelation: "vias_administracion"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recetas: {
+        Row: {
+          atencion_id: string | null
+          cita_id: string | null
+          created_at: string
+          diagnostico_presuntivo: string | null
+          estado: string
+          fecha_emision: string
+          id: string
+          medico_id: string
+          motivo_anulacion: string | null
+          observaciones: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at: string
+          vigencia_dias: number
+        }
+        Insert: {
+          atencion_id?: string | null
+          cita_id?: string | null
+          created_at?: string
+          diagnostico_presuntivo?: string | null
+          estado?: string
+          fecha_emision?: string
+          id?: string
+          medico_id: string
+          motivo_anulacion?: string | null
+          observaciones?: string | null
+          paciente_id: string
+          tenant_id: string
+          updated_at?: string
+          vigencia_dias?: number
+        }
+        Update: {
+          atencion_id?: string | null
+          cita_id?: string | null
+          created_at?: string
+          diagnostico_presuntivo?: string | null
+          estado?: string
+          fecha_emision?: string
+          id?: string
+          medico_id?: string
+          motivo_anulacion?: string | null
+          observaciones?: string | null
+          paciente_id?: string
+          tenant_id?: string
+          updated_at?: string
+          vigencia_dias?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recetas_atencion_id_fkey"
+            columns: ["atencion_id"]
+            isOneToOne: false
+            referencedRelation: "atenciones_medicas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recetas_cita_id_fkey"
+            columns: ["cita_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recetas_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recetas_paciente_id_fkey"
+            columns: ["paciente_id"]
+            isOneToOne: false
+            referencedRelation: "pacientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recetas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roles_usuario: {
         Row: {
           created_at: string
@@ -1729,6 +1918,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       rol_usuario: ["founder", "medico", "community_manager", "asistente"],
