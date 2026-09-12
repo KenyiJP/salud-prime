@@ -33,10 +33,10 @@ export const Route = createFileRoute("/")({
     context.queryClient.ensureQueryData(pacientesQuery());
   },
   component: DashboardHome,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: unknown }) => (
     <DashboardShell>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
-        No se pudo cargar la información clínica: {error.message}
+        No se pudo cargar la información clínica: {error instanceof Error ? error.message : String(error)}
       </div>
     </DashboardShell>
   ),

@@ -25,10 +25,10 @@ export const Route = createFileRoute("/perfil-medico")({
     ],
   }),
   component: PerfilMedicoPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: unknown }) => (
     <DashboardShell>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
-        No se pudo cargar tu perfil: {error.message}
+        No se pudo cargar tu perfil: {error instanceof Error ? error.message : String(error)}
       </div>
     </DashboardShell>
   ),

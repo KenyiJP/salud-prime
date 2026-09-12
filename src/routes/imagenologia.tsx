@@ -54,10 +54,10 @@ export const Route = createFileRoute("/imagenologia")({
     context.queryClient.ensureQueryData(pacientesQuery());
   },
   component: ImagenologiaPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: unknown }) => (
     <DashboardShell>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
-        No se pudo cargar el módulo de imagenología: {error.message}
+        No se pudo cargar el módulo de imagenología: {error instanceof Error ? error.message : String(error)}
       </div>
     </DashboardShell>
   ),

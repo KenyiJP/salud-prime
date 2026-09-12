@@ -34,9 +34,9 @@ export const Route = createFileRoute("/orden-imagen/$ordenId")({
     ],
   }),
   component: ImprimirOrdenImagenPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: unknown }) => (
     <div role="alert" className="p-8 text-sm">
-      No se pudo cargar la orden: {error.message}
+      No se pudo cargar la orden: {error instanceof Error ? error.message : String(error)}
     </div>
   ),
   notFoundComponent: () => <p className="p-8 text-sm">Orden no encontrada.</p>,

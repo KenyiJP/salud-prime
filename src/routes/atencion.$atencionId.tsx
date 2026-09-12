@@ -42,9 +42,9 @@ export const Route = createFileRoute("/atencion/$atencionId")({
     ],
   }),
   component: InformeAtencionPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: unknown }) => (
     <div role="alert" className="p-8 text-sm">
-      No se pudo cargar el informe: {error.message}
+      No se pudo cargar el informe: {error instanceof Error ? error.message : String(error)}
     </div>
   ),
   notFoundComponent: () => <p className="p-8 text-sm">Atención no encontrada.</p>,

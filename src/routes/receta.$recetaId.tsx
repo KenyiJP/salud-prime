@@ -34,9 +34,9 @@ export const Route = createFileRoute("/receta/$recetaId")({
     ],
   }),
   component: ImprimirRecetaPage,
-  errorComponent: ({ error }) => (
+  errorComponent: ({ error }: { error: unknown }) => (
     <div role="alert" className="p-8 text-sm">
-      No se pudo cargar la receta: {error.message}
+      No se pudo cargar la receta: {error instanceof Error ? error.message : String(error)}
     </div>
   ),
   notFoundComponent: () => <p className="p-8 text-sm">Receta no encontrada.</p>,
