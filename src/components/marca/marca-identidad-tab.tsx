@@ -1,12 +1,13 @@
 import { useEffect, useState, type ChangeEvent } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Image as ImageIcon, Loader2, Upload } from "lucide-react";
+import { Check, Code2, Copy, Image as ImageIcon, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/form";
 import {
   ETIQUETA_TIPOGRAFIA,
+  FUENTE_CSS,
   TIPOGRAFIAS_PERMITIDAS,
   landingConfigSchema,
   type LandingConfigInput,
@@ -44,7 +46,13 @@ function aFormulario(config: LandingConfigRow): LandingConfigInput {
   return resto;
 }
 
-/** Selector de color: swatch nativo + input de texto hex, ambos sincronizados. */
+/**
+ * Selector de color: una muestra grande y clicable abre un popover con el
+ * selector nativo (arrastre libre de tono, como en apps de diseño). El
+ * código hexadecimal queda oculto por defecto — el médico no necesita
+ * verlo para elegir su color — pero sigue disponible con un clic en "Ver
+ * código" por si necesita compartirlo o pegarlo en otra herramienta.
+ */
 function CampoColor({
   label,
   value,
@@ -56,25 +64,71 @@ function CampoColor({
   onChange: (value: string) => void;
   error?: string;
 }) {
+  const [mostrarCodigo, setMostrarCodigo] = useState(false);
+  const [copiado, setCopiado] = useState(false);
   const esHexValido = /^#[0-9a-fA-F]{6}$/.test(value);
+  const colorSwatch = esHexValido ? value : "#000000";
+
+  async function copiarCodigo() {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 1500);
+    } catch {
+      // Portapapeles no disponible (contexto no seguro o permiso denegado); se ignora.
+    }
+  }
+
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <div className="flex items-center gap-3">
-        <input
-          type="color"
-          value={esHexValido ? value : "#000000"}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-9 w-12 shrink-0 cursor-pointer rounded-md border border-input bg-transparent p-1"
-          aria-label={`Selector de ${label.toLowerCase()}`}
-        />
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="#0f766e"
-          className="font-mono uppercase"
-        />
-      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="flex h-16 w-full items-center justify-center rounded-lg border border-input shadow-sm transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring"
+            style={{ backgroundColor: colorSwatch }}
+            aria-label={`Elegir ${label.toLowerCase()}`}
+          />
+        </PopoverTrigger>
+        <PopoverContent className="w-auto space-y-3 p-4">
+          <input
+            type="color"
+            value={colorSwatch}
+            onChange={(e) => onChange(e.target.value)}
+            className="h-32 w-40 cursor-pointer rounded-md border-0 bg-transparent p-0"
+            aria-label={`Selector de ${label.toLowerCase()}`}
+          />
+          {mostrarCodigo ? (
+            <div className="flex items-center gap-2">
+              <Input
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder="#0f766e"
+                className="font-mono text-xs uppercase"
+              />
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="shrink-0"
+                onClick={copiarCodigo}
+                aria-label="Copiar código de color"
+              >
+                {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              </Button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setMostrarCodigo(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+            >
+              <Code2 className="h-3.5 w-3.5" /> Ver código del color
+            </button>
+          )}
+        </PopoverContent>
+      </Popover>
       {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
     </div>
   );
@@ -227,18 +281,22 @@ export function MarcaIdentidadTab({
                 <FormLabel>Fuente de la landing</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger style={{ fontFamily: FUENTE_CSS[field.value] }}>
                       <SelectValue />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {TIPOGRAFIAS_PERMITIDAS.map((t) => (
-                      <SelectItem key={t} value={t}>
+                      <SelectItem key={t} value={t} style={{ fontFamily: FUENTE_CSS[t] }}>
                         {ETIQUETA_TIPOGRAFIA[t]}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  Cada opción se muestra con su propia tipografía: elige la que más te guste sin
+                  necesidad de guardar para verla.
+                </p>
                 <FormMessage />
               </FormItem>
             )}

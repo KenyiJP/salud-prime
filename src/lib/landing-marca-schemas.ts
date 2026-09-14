@@ -4,9 +4,13 @@ export const TIPOGRAFIAS_PERMITIDAS = [
   "inter",
   "roboto",
   "poppins",
+  "nunito",
+  "montserrat",
+  "work-sans",
   "merriweather",
   "playfair-display",
   "lora",
+  "source-serif-pro",
 ] as const;
 export type Tipografia = (typeof TIPOGRAFIAS_PERMITIDAS)[number];
 
@@ -14,9 +18,31 @@ export const ETIQUETA_TIPOGRAFIA: Record<Tipografia, string> = {
   inter: "Inter",
   roboto: "Roboto",
   poppins: "Poppins",
+  nunito: "Nunito",
+  montserrat: "Montserrat",
+  "work-sans": "Work Sans",
   merriweather: "Merriweather",
   "playfair-display": "Playfair Display",
   lora: "Lora",
+  "source-serif-pro": "Source Serif Pro",
+};
+
+/**
+ * Mapeo a `font-family` CSS real por tipografía — se usa tanto en el
+ * selector (para previsualizar cada opción con su propia fuente antes de
+ * elegirla) como en la vista previa en vivo del panel de Marca.
+ */
+export const FUENTE_CSS: Record<Tipografia, string> = {
+  inter: "'Inter', sans-serif",
+  roboto: "'Roboto', sans-serif",
+  poppins: "'Poppins', sans-serif",
+  nunito: "'Nunito', sans-serif",
+  montserrat: "'Montserrat', sans-serif",
+  "work-sans": "'Work Sans', sans-serif",
+  merriweather: "'Merriweather', serif",
+  "playfair-display": "'Playfair Display', serif",
+  lora: "'Lora', serif",
+  "source-serif-pro": "'Source Serif Pro', serif",
 };
 
 export const ORIGENES_TESTIMONIO = ["manual", "motor_resenas"] as const;

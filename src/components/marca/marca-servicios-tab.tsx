@@ -147,7 +147,20 @@ function ServicioFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Duración de la consulta</FormLabel>
-                    <div className="flex items-center gap-2 pb-1.5">
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="1"
+                        min="1"
+                        placeholder="30 min"
+                        disabled={!mostrarDuracion}
+                        value={field.value ?? ""}
+                        onChange={(e) =>
+                          field.onChange(e.target.value === "" ? null : Number(e.target.value))
+                        }
+                      />
+                    </FormControl>
+                    <div className="flex items-center gap-2 pt-1.5">
                       <Switch
                         checked={mostrarDuracion}
                         onCheckedChange={(checked) => {
@@ -159,20 +172,6 @@ function ServicioFormDialog({
                         {mostrarDuracion ? "Se mostrará al público" : "No se mostrará"}
                       </span>
                     </div>
-                    {mostrarDuracion ? (
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="1"
-                          min="1"
-                          placeholder="30 min"
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.value === "" ? null : Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                    ) : null}
                     <FormMessage />
                   </FormItem>
                 )}

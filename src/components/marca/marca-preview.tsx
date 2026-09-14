@@ -4,20 +4,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ETIQUETA_TIPOGRAFIA,
+  FUENTE_CSS,
   construirUrlGoogleMaps,
   type LandingConfigInput,
   type LandingServicioRow,
   type LandingTestimonioRow,
 } from "@/lib/landing-marca-schemas";
-
-const FUENTE_CSS: Record<LandingConfigInput["tipografia"], string> = {
-  inter: "'Inter', sans-serif",
-  roboto: "'Roboto', sans-serif",
-  poppins: "'Poppins', sans-serif",
-  merriweather: "'Merriweather', serif",
-  "playfair-display": "'Playfair Display', serif",
-  lora: "'Lora', serif",
-};
 
 export function MarcaPreview({
   config,
