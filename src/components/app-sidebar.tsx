@@ -13,6 +13,7 @@ import {
   Stethoscope,
   UserCog,
   LogOut,
+  Palette,
 } from "lucide-react";
 
 
@@ -43,6 +44,7 @@ const clinicalItems = [
 ] as const;
 
 const configurationItems = [
+  { title: "Identidad y landing", url: "/marca", icon: Palette },
   { title: "Horarios y bloqueos", url: "/horarios", icon: CalendarClock },
   { title: "Google Calendar", url: "/configuracion/calendario", icon: CalendarSync },
   { title: "Mi perfil médico", url: "/perfil-medico", icon: UserCog },

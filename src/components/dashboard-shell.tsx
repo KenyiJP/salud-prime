@@ -5,9 +5,19 @@ import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { RequireClinicalAccess } from "@/components/require-clinical-access";
 
-export function DashboardShell({ children }: { children: ReactNode }) {
+export function DashboardShell({
+  children,
+  Guard = RequireClinicalAccess,
+}: {
+  children: ReactNode;
+  /**
+   * Por defecto exige rol clínico (expulsa a `community_manager`). Rutas
+   * compartidas con marketing (ej. `/marca`) pasan `RequireTenantAccess`.
+   */
+  Guard?: (props: { children: ReactNode }) => ReactNode;
+}) {
   return (
-    <RequireClinicalAccess>
+    <Guard>
       <SidebarProvider>
         <div className="dark flex min-h-screen w-full bg-background text-foreground">
           <AppSidebar />
@@ -36,6 +46,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </SidebarProvider>
-    </RequireClinicalAccess>
+    </Guard>
   );
 }

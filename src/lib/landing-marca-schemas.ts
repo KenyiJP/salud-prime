@@ -1,0 +1,131 @@
+import { z } from "zod";
+
+export const TIPOGRAFIAS_PERMITIDAS = [
+  "inter",
+  "roboto",
+  "poppins",
+  "merriweather",
+  "playfair-display",
+  "lora",
+] as const;
+export type Tipografia = (typeof TIPOGRAFIAS_PERMITIDAS)[number];
+
+export const ETIQUETA_TIPOGRAFIA: Record<Tipografia, string> = {
+  inter: "Inter",
+  roboto: "Roboto",
+  poppins: "Poppins",
+  merriweather: "Merriweather",
+  "playfair-display": "Playfair Display",
+  lora: "Lora",
+};
+
+export const ORIGENES_TESTIMONIO = ["manual", "motor_resenas"] as const;
+export type OrigenTestimonio = (typeof ORIGENES_TESTIMONIO)[number];
+
+export const ETIQUETA_ORIGEN_TESTIMONIO: Record<OrigenTestimonio, string> = {
+  manual: "Cargado manualmente",
+  motor_resenas: "Motor de reseñas",
+};
+
+const hexColor = z
+  .string()
+  .trim()
+  .regex(/^#[0-9a-fA-F]{6}$/, "Usa un color en formato hexadecimal, ej. #0f766e.");
+
+export const landingConfigSchema = z.object({
+  color_primario: hexColor,
+  color_secundario: hexColor,
+  color_fondo: hexColor,
+  tipografia: z.enum(TIPOGRAFIAS_PERMITIDAS),
+  foto_medico_url: z.string().url().nullable(),
+  logo_url: z.string().url().nullable(),
+  galeria_fotos_urls: z.array(z.string().url()).max(12, "Máximo 12 fotos en la galería."),
+  biografia: z.string().trim().max(2000, "Máximo 2000 caracteres.").nullable(),
+  formacion_academica: z.string().trim().max(2000, "Máximo 2000 caracteres.").nullable(),
+  mostrar_cmp: z.boolean(),
+  mostrar_rne: z.boolean(),
+  video_url: z
+    .string()
+    .trim()
+    .url("Ingresa una URL válida (YouTube, Vimeo, etc.).")
+    .nullable(),
+  animaciones_activas: z.boolean(),
+  mostrar_boton_reserva: z.boolean(),
+  mostrar_boton_whatsapp: z.boolean(),
+  whatsapp_numero: z
+    .string()
+    .trim()
+    .regex(/^\+?[0-9]{9,15}$/, "Ingresa un número válido, ej. +51987654321.")
+    .nullable(),
+  mapa_direccion: z.string().trim().max(300).nullable(),
+  mapa_lat: z.number().min(-90).max(90).nullable(),
+  mapa_lng: z.number().min(-180).max(180).nullable(),
+  publicado: z.boolean(),
+});
+export type LandingConfigInput = z.infer<typeof landingConfigSchema>;
+
+export type LandingConfigRow = LandingConfigInput & {
+  id: string;
+  tenant_id: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export const landingServicioSchema = z.object({
+  nombre: z.string().trim().min(2, "El nombre es obligatorio.").max(120),
+  descripcion: z.string().trim().max(500).nullable(),
+  precio: z
+    .number({ invalid_type_error: "Ingresa un precio válido." })
+    .min(0, "El precio no puede ser negativo.")
+    .nullable(),
+  duracion_minutos: z
+    .number()
+    .int()
+    .positive("La duración debe ser mayor a 0 minutos.")
+    .nullable(),
+  activo: z.boolean(),
+});
+export type LandingServicioInput = z.infer<typeof landingServicioSchema>;
+
+export type LandingServicioRow = LandingServicioInput & {
+  id: string;
+  tenant_id: string;
+  landing_config_id: string;
+  orden: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export const landingTestimonioSchema = z.object({
+  nombre_paciente: z.string().trim().min(2, "El nombre es obligatorio.").max(120),
+  contenido: z.string().trim().min(5, "Escribe el testimonio completo.").max(1000),
+  calificacion: z.number().int().min(1).max(5).nullable(),
+  origen: z.enum(ORIGENES_TESTIMONIO),
+  aprobado: z.boolean(),
+});
+export type LandingTestimonioInput = z.infer<typeof landingTestimonioSchema>;
+
+export type LandingTestimonioRow = LandingTestimonioInput & {
+  id: string;
+  tenant_id: string;
+  landing_config_id: string;
+  orden: number;
+  created_at: string;
+  updated_at: string;
+};
+
+// Debe coincidir exactamente con `tenants_slug_formato_chk` (3-63 chars).
+export const SLUG_REGEX = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+export const slugSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, "El slug debe tener al menos 3 caracteres.")
+  .max(63, "El slug no puede pasar de 63 caracteres.")
+  .regex(
+    SLUG_REGEX,
+    "Solo minúsculas, números y guiones simples entre palabras (ej. dr-juan-perez).",
+  );
+
+export const MAX_ARCHIVO_BYTES = 5 * 1024 * 1024; // 5 MB
+export const TIPOS_IMAGEN_PERMITIDOS = ["image/png", "image/jpeg", "image/webp"] as const;
