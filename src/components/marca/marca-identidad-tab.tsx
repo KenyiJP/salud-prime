@@ -48,9 +48,10 @@ function aFormulario(config: LandingConfigRow): LandingConfigInput {
 /**
  * Selector de color: la muestra grande ES el input nativo de color, así
  * que un solo clic abre de inmediato el selector del sistema/navegador
- * (arrastre libre de tono) sin pasos intermedios. Debajo, el código
- * hexadecimal queda siempre visible (editable y copiable) por si el
- * médico necesita compartirlo o pegarlo en otra herramienta.
+ * (arrastre libre de tono) sin pasos intermedios. El código hexadecimal
+ * sólo aparece mientras esa misma ventana de selección está activa (foco
+ * en el control): se muestra al abrir y se oculta al cerrar/hacer clic
+ * fuera, en vez de quedar como un bloque fijo aparte.
  */
 function CampoColor({
   label,
@@ -65,6 +66,7 @@ function CampoColor({
 }) {
   const inputId = useId();
   const [copiado, setCopiado] = useState(false);
+  const [seleccionActiva, setSeleccionActiva] = useState(false);
   const esHexValido = /^#[0-9a-fA-F]{6}$/.test(value);
   const colorSwatch = esHexValido ? value : "#000000";
 
@@ -81,31 +83,43 @@ function CampoColor({
   return (
     <div className="space-y-2">
       <Label htmlFor={inputId}>{label}</Label>
-      <input
-        id={inputId}
-        type="color"
-        value={colorSwatch}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-16 w-full cursor-pointer rounded-lg border border-input bg-transparent p-1 shadow-sm transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring"
-        aria-label={`Elegir ${label.toLowerCase()}`}
-      />
-      <div className="flex items-center gap-2">
-        <Input
-          value={value}
+      <div
+        className="space-y-2"
+        onFocus={() => setSeleccionActiva(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+            setSeleccionActiva(false);
+          }
+        }}
+      >
+        <input
+          id={inputId}
+          type="color"
+          value={colorSwatch}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="#0f766e"
-          className="font-mono text-xs uppercase"
+          className="h-16 w-full cursor-pointer rounded-lg border border-input bg-transparent p-1 shadow-sm transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring"
+          aria-label={`Elegir ${label.toLowerCase()}`}
         />
-        <Button
-          type="button"
-          size="icon"
-          variant="ghost"
-          className="shrink-0"
-          onClick={copiarCodigo}
-          aria-label="Copiar código de color"
-        >
-          {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        </Button>
+        {seleccionActiva ? (
+          <div className="flex items-center gap-2">
+            <Input
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="#0f766e"
+              className="font-mono text-xs uppercase"
+            />
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="shrink-0"
+              onClick={copiarCodigo}
+              aria-label="Copiar código de color"
+            >
+              {copiado ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </Button>
+          </div>
+        ) : null}
       </div>
       {error ? <p className="text-sm font-medium text-destructive">{error}</p> : null}
     </div>
