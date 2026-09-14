@@ -58,11 +58,19 @@ export const landingConfigSchema = z.object({
     .regex(/^\+?[0-9]{9,15}$/, "Ingresa un número válido, ej. +51987654321.")
     .nullable(),
   mapa_direccion: z.string().trim().max(300).nullable(),
-  mapa_lat: z.number().min(-90).max(90).nullable(),
-  mapa_lng: z.number().min(-180).max(180).nullable(),
   publicado: z.boolean(),
 });
 export type LandingConfigInput = z.infer<typeof landingConfigSchema>;
+
+/**
+ * Construye el enlace de búsqueda de Google Maps a partir de la dirección
+ * descriptiva que escribe el médico. Al abrirse (web o app móvil) Google
+ * Maps geocodifica el texto y ubica el pin — no requerimos que el médico
+ * conozca ni copie coordenadas manualmente.
+ */
+export function construirUrlGoogleMaps(direccion: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
+}
 
 export type LandingConfigRow = LandingConfigInput & {
   id: string;

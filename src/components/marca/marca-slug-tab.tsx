@@ -26,9 +26,9 @@ export function MarcaSlugTab() {
   const actualizar = useActualizarTenantSlug();
 
   const [valor, setValor] = useState("");
-  const [estado, setEstado] = useState<"idle" | "checking" | "disponible" | "ocupado" | "invalido">(
-    "idle",
-  );
+  const [estado, setEstado] = useState<
+    "idle" | "checking" | "disponible" | "ocupado" | "invalido" | "error"
+  >("idle");
 
   useEffect(() => {
     if (data?.slug) setValor(data.slug);
@@ -54,7 +54,7 @@ export function MarcaSlugTab() {
         const resultado = await verificar.mutateAsync(parsed.data);
         setEstado(resultado.disponible ? "disponible" : "ocupado");
       } catch {
-        setEstado("idle");
+        setEstado("error");
       }
     }, 450);
     return () => clearTimeout(timeout);
@@ -102,7 +102,7 @@ export function MarcaSlugTab() {
               <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
             ) : estado === "disponible" ? (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
-            ) : estado === "ocupado" || estado === "invalido" ? (
+            ) : estado === "ocupado" || estado === "invalido" || estado === "error" ? (
               <XCircle className="h-4 w-4 shrink-0 text-destructive" />
             ) : null}
           </div>
@@ -114,6 +114,10 @@ export function MarcaSlugTab() {
           ) : estado === "ocupado" ? (
             <p className="text-sm font-medium text-destructive">
               Ese slug ya está en uso por otro consultorio.
+            </p>
+          ) : estado === "error" ? (
+            <p className="text-sm font-medium text-destructive">
+              No se pudo verificar la disponibilidad. Revisa tu conexión e inténtalo de nuevo.
             </p>
           ) : estado === "disponible" ? (
             <p className="text-sm font-medium text-green-600">Disponible.</p>

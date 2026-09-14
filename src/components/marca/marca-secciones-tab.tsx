@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import {
   landingConfigSchema,
+  construirUrlGoogleMaps,
   type LandingConfigInput,
   type LandingConfigRow,
 } from "@/lib/landing-marca-schemas";
@@ -208,54 +209,20 @@ export function MarcaSeccionesTab({
               </FormItem>
             )}
           />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FormField
-              control={form.control}
-              name="mapa_lat"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Latitud</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.000001"
-                      placeholder="-8.111990"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(e.target.value === "" ? null : Number(e.target.value))
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="mapa_lng"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Longitud</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.000001"
-                      placeholder="-79.028180"
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(e.target.value === "" ? null : Number(e.target.value))
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
           <p className="text-xs text-muted-foreground">
-            Tip: abre tu consultorio en Google Maps, clic derecho sobre el pin y copia las
-            coordenadas que aparecen arriba.
+            Con solo escribir la dirección, tus pacientes podrán abrirla directamente en Google
+            Maps (web o app) desde tu landing — no necesitas indicar coordenadas.
           </p>
+          {valores.mapa_direccion ? (
+            <a
+              href={construirUrlGoogleMaps(valores.mapa_direccion)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+            >
+              <MapPin className="h-3.5 w-3.5" /> Probar enlace en Google Maps
+            </a>
+          ) : null}
         </section>
 
         <section className="space-y-4">

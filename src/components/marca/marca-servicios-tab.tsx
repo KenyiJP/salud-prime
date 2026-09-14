@@ -59,10 +59,13 @@ function ServicioFormDialog({
     resolver: zodResolver(landingServicioSchema),
     defaultValues: VALORES_VACIOS,
   });
+  const [mostrarDuracion, setMostrarDuracion] = useState(false);
 
   useEffect(() => {
     if (open) {
-      form.reset(servicio ? { ...servicio } : VALORES_VACIOS);
+      const valores = servicio ? { ...servicio } : VALORES_VACIOS;
+      form.reset(valores);
+      setMostrarDuracion(valores.duracion_minutos != null);
     }
   }, [open, servicio, form]);
 
@@ -143,19 +146,33 @@ function ServicioFormDialog({
                 name="duracion_minutos"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duración (min)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="1"
-                        min="1"
-                        placeholder="30"
-                        value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(e.target.value === "" ? null : Number(e.target.value))
-                        }
+                    <FormLabel>Duración de la consulta</FormLabel>
+                    <div className="flex items-center gap-2 pb-1.5">
+                      <Switch
+                        checked={mostrarDuracion}
+                        onCheckedChange={(checked) => {
+                          setMostrarDuracion(checked);
+                          if (!checked) field.onChange(null);
+                        }}
                       />
-                    </FormControl>
+                      <span className="text-xs text-muted-foreground">
+                        {mostrarDuracion ? "Se mostrará al público" : "No se mostrará"}
+                      </span>
+                    </div>
+                    {mostrarDuracion ? (
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="1"
+                          min="1"
+                          placeholder="30 min"
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value === "" ? null : Number(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                    ) : null}
                     <FormMessage />
                   </FormItem>
                 )}

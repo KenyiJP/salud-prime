@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   ETIQUETA_TIPOGRAFIA,
+  construirUrlGoogleMaps,
   type LandingConfigInput,
   type LandingServicioRow,
   type LandingTestimonioRow,
@@ -148,6 +149,9 @@ export function MarcaPreview({
                       {s.precio != null ? (
                         <p className="text-gray-500">S/ {s.precio.toFixed(2)}</p>
                       ) : null}
+                      {s.duracion_minutos != null ? (
+                        <p className="text-gray-400">{s.duracion_minutos} min</p>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -179,10 +183,15 @@ export function MarcaPreview({
             ) : null}
 
             {config.mapa_direccion ? (
-              <div className="flex items-start gap-2 rounded-md bg-gray-50 p-2.5 text-xs text-gray-600">
+              <a
+                href={construirUrlGoogleMaps(config.mapa_direccion)}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-start gap-2 rounded-md bg-gray-50 p-2.5 text-xs text-gray-600 hover:bg-gray-100"
+              >
                 <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>{config.mapa_direccion}</span>
-              </div>
+                <span className="underline-offset-2 hover:underline">{config.mapa_direccion}</span>
+              </a>
             ) : null}
 
             <div className="flex flex-wrap justify-center gap-2 pt-2">

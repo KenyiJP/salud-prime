@@ -15,7 +15,7 @@ import { z } from "zod";
 const untyped = (client: unknown) => client as SupabaseClient<any>;
 
 const SELECT_CONFIG =
-  "id, tenant_id, color_primario, color_secundario, color_fondo, tipografia, foto_medico_url, logo_url, galeria_fotos_urls, biografia, formacion_academica, mostrar_cmp, mostrar_rne, video_url, animaciones_activas, mostrar_boton_reserva, mostrar_boton_whatsapp, whatsapp_numero, mapa_direccion, mapa_lat, mapa_lng, publicado, created_at, updated_at";
+  "id, tenant_id, color_primario, color_secundario, color_fondo, tipografia, foto_medico_url, logo_url, galeria_fotos_urls, biografia, formacion_academica, mostrar_cmp, mostrar_rne, video_url, animaciones_activas, mostrar_boton_reserva, mostrar_boton_whatsapp, whatsapp_numero, mapa_direccion, publicado, created_at, updated_at";
 
 const DEFAULTS_CONFIG = {
   color_primario: "#0f766e",
@@ -35,8 +35,6 @@ const DEFAULTS_CONFIG = {
   mostrar_boton_whatsapp: true,
   whatsapp_numero: null,
   mapa_direccion: null,
-  mapa_lat: null,
-  mapa_lng: null,
   publicado: false,
 };
 
