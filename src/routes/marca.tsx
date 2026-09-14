@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { requireSession } from "@/lib/auth-guard";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -11,6 +11,7 @@ import { MarcaTestimoniosTab } from "@/components/marca/marca-testimonios-tab";
 import { MarcaSlugTab } from "@/components/marca/marca-slug-tab";
 import { MarcaPreview } from "@/components/marca/marca-preview";
 import { cn } from "@/lib/utils";
+import type { LandingConfigInput } from "@/lib/landing-marca-schemas";
 import {
   landingConfigQuery,
   landingServiciosQuery,
@@ -79,6 +80,7 @@ const TABS: { id: TabId; label: string }[] = [
 function MarcaPage() {
   const [tab, setTab] = useState<TabId>("identidad");
   const [tenantId, setTenantId] = useState<string | null>(null);
+  const [previewValores, setPreviewValores] = useState<LandingConfigInput | null>(null);
 
   const configQuery = useLandingConfigQuery();
   const serviciosQuery = useLandingServiciosQuery();
@@ -93,6 +95,19 @@ function MarcaPage() {
   if (config && config.tenant_id !== tenantId) {
     setTenantId(config.tenant_id);
   }
+
+  // Cuando llega o cambia la config guardada (carga inicial o tras
+  // "Guardar"), reinicia la base de la vista previa en vivo.
+  useEffect(() => {
+    if (config) setPreviewValores(config);
+  }, [config]);
+
+  // Combina lo guardado con lo que el médico está tecleando/eligiendo
+  // ahora mismo en Identidad o Secciones — la vista previa se actualiza
+  // al instante, sin esperar a que se presione "Guardar".
+  const configVistaPrevia = previewValores
+    ? { ...config, ...previewValores }
+    : config;
 
   return (
     <DashboardShell Guard={RequireTenantAccess}>
@@ -129,10 +144,18 @@ function MarcaPage() {
               ) : (
                 <>
                   {tab === "identidad" ? (
-                    <MarcaIdentidadTab config={config} tenantId={tenantId} />
+                    <MarcaIdentidadTab
+                      config={config}
+                      tenantId={tenantId}
+                      onValoresChange={setPreviewValores}
+                    />
                   ) : null}
                   {tab === "secciones" ? (
-                    <MarcaSeccionesTab config={config} tenantId={tenantId} />
+                    <MarcaSeccionesTab
+                      config={config}
+                      tenantId={tenantId}
+                      onValoresChange={setPreviewValores}
+                    />
                   ) : null}
                   {tab === "servicios" ? <MarcaServiciosTab /> : null}
                   {tab === "testimonios" ? <MarcaTestimoniosTab /> : null}
@@ -143,9 +166,9 @@ function MarcaPage() {
           </div>
 
           <div className="xl:sticky xl:top-6 xl:self-start">
-            {config ? (
+            {configVistaPrevia ? (
               <MarcaPreview
-                config={config}
+                config={configVistaPrevia}
                 servicios={servicios}
                 testimonios={testimonios}
                 nombreConsultorio={slugInfo?.nombre_comercial ?? "Tu consultorio"}

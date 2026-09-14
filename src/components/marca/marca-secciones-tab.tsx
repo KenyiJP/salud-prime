@@ -60,9 +60,11 @@ function FilaToggle({
 export function MarcaSeccionesTab({
   config,
   tenantId,
+  onValoresChange,
 }: {
   config: LandingConfigRow;
   tenantId: string;
+  onValoresChange?: (valores: LandingConfigInput) => void;
 }) {
   const actualizar = useActualizarLandingConfig();
   const [subiendoGaleria, setSubiendoGaleria] = useState(false);
@@ -81,6 +83,13 @@ export function MarcaSeccionesTab({
 
   const valores = form.watch();
   const galeria = valores.galeria_fotos_urls ?? [];
+
+  // Refleja cada cambio en la vista previa en vivo, sin esperar a que el
+  // médico presione "Guardar secciones y visibilidad".
+  useEffect(() => {
+    onValoresChange?.(valores);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(valores)]);
 
   async function agregarFotoGaleria(e: ChangeEvent<HTMLInputElement>) {
     const archivo = e.target.files?.[0];
