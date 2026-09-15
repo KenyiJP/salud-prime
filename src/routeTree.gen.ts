@@ -18,6 +18,7 @@ import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as ImagenologiaRouteImport } from './routes/imagenologia'
 import { Route as LaboratoriosRouteImport } from './routes/laboratorios'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MarcaRouteImport } from './routes/marca'
 import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
 import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultorio'
 import { Route as PerfilMedicoRouteImport } from './routes/perfil-medico'
@@ -74,6 +75,11 @@ const LaboratoriosRoute = LaboratoriosRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarcaRoute = MarcaRouteImport.update({
+  id: '/marca',
+  path: '/marca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PendienteActivacionRoute = PendienteActivacionRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
+  '/marca': typeof MarcaRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/perfil-medico': typeof PerfilMedicoRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByTo {
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
+  '/marca': typeof MarcaRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/perfil-medico': typeof PerfilMedicoRoute
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
   '/login': typeof LoginRoute
+  '/marca': typeof MarcaRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
   '/perfil-consultorio': typeof PerfilConsultorioRoute
   '/perfil-medico': typeof PerfilMedicoRoute
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/imagenologia'
     | '/laboratorios'
     | '/login'
+    | '/marca'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
     | '/perfil-medico'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/imagenologia'
     | '/laboratorios'
     | '/login'
+    | '/marca'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
     | '/perfil-medico'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/imagenologia'
     | '/laboratorios'
     | '/login'
+    | '/marca'
     | '/pendiente-activacion'
     | '/perfil-consultorio'
     | '/perfil-medico'
@@ -289,6 +301,7 @@ export interface RootRouteChildren {
   ImagenologiaRoute: typeof ImagenologiaRoute
   LaboratoriosRoute: typeof LaboratoriosRoute
   LoginRoute: typeof LoginRoute
+  MarcaRoute: typeof MarcaRoute
   PendienteActivacionRoute: typeof PendienteActivacionRoute
   PerfilConsultorioRoute: typeof PerfilConsultorioRoute
   PerfilMedicoRoute: typeof PerfilMedicoRoute
@@ -366,6 +379,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marca': {
+      id: '/marca'
+      path: '/marca'
+      fullPath: '/marca'
+      preLoaderRoute: typeof MarcaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pendiente-activacion': {
@@ -465,6 +485,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImagenologiaRoute: ImagenologiaRoute,
   LaboratoriosRoute: LaboratoriosRoute,
   LoginRoute: LoginRoute,
+  MarcaRoute: MarcaRoute,
   PendienteActivacionRoute: PendienteActivacionRoute,
   PerfilConsultorioRoute: PerfilConsultorioRoute,
   PerfilMedicoRoute: PerfilMedicoRoute,

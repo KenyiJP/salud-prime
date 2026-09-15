@@ -895,6 +895,209 @@ export type Database = {
           },
         ]
       }
+      landing_config: {
+        Row: {
+          animaciones_activas: boolean
+          biografia: string | null
+          color_fondo: string
+          color_primario: string
+          color_secundario: string
+          created_at: string
+          formacion_academica: string | null
+          foto_medico_url: string | null
+          galeria_fotos_urls: string[]
+          id: string
+          logo_url: string | null
+          mapa_direccion: string | null
+          mapa_lat: number | null
+          mapa_lng: number | null
+          mostrar_boton_reserva: boolean
+          mostrar_boton_whatsapp: boolean
+          mostrar_cmp: boolean
+          mostrar_rne: boolean
+          publicado: boolean
+          tenant_id: string
+          tipografia: string
+          updated_at: string
+          video_url: string | null
+          whatsapp_numero: string | null
+        }
+        Insert: {
+          animaciones_activas?: boolean
+          biografia?: string | null
+          color_fondo?: string
+          color_primario?: string
+          color_secundario?: string
+          created_at?: string
+          formacion_academica?: string | null
+          foto_medico_url?: string | null
+          galeria_fotos_urls?: string[]
+          id?: string
+          logo_url?: string | null
+          mapa_direccion?: string | null
+          mapa_lat?: number | null
+          mapa_lng?: number | null
+          mostrar_boton_reserva?: boolean
+          mostrar_boton_whatsapp?: boolean
+          mostrar_cmp?: boolean
+          mostrar_rne?: boolean
+          publicado?: boolean
+          tenant_id: string
+          tipografia?: string
+          updated_at?: string
+          video_url?: string | null
+          whatsapp_numero?: string | null
+        }
+        Update: {
+          animaciones_activas?: boolean
+          biografia?: string | null
+          color_fondo?: string
+          color_primario?: string
+          color_secundario?: string
+          created_at?: string
+          formacion_academica?: string | null
+          foto_medico_url?: string | null
+          galeria_fotos_urls?: string[]
+          id?: string
+          logo_url?: string | null
+          mapa_direccion?: string | null
+          mapa_lat?: number | null
+          mapa_lng?: number | null
+          mostrar_boton_reserva?: boolean
+          mostrar_boton_whatsapp?: boolean
+          mostrar_cmp?: boolean
+          mostrar_rne?: boolean
+          publicado?: boolean
+          tenant_id?: string
+          tipografia?: string
+          updated_at?: string
+          video_url?: string | null
+          whatsapp_numero?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      landing_servicios: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string | null
+          duracion_minutos: number | null
+          id: string
+          landing_config_id: string
+          nombre: string
+          orden: number
+          precio: number | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          duracion_minutos?: number | null
+          id?: string
+          landing_config_id: string
+          nombre: string
+          orden?: number
+          precio?: number | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string | null
+          duracion_minutos?: number | null
+          id?: string
+          landing_config_id?: string
+          nombre?: string
+          orden?: number
+          precio?: number | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_servicios_landing_config_id_fkey"
+            columns: ["landing_config_id"]
+            isOneToOne: false
+            referencedRelation: "landing_config"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "landing_servicios_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      landing_testimonios: {
+        Row: {
+          aprobado: boolean
+          calificacion: number | null
+          contenido: string
+          created_at: string
+          id: string
+          landing_config_id: string
+          nombre_paciente: string
+          orden: number
+          origen: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          aprobado?: boolean
+          calificacion?: number | null
+          contenido: string
+          created_at?: string
+          id?: string
+          landing_config_id: string
+          nombre_paciente: string
+          orden?: number
+          origen?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          aprobado?: boolean
+          calificacion?: number | null
+          contenido?: string
+          created_at?: string
+          id?: string
+          landing_config_id?: string
+          nombre_paciente?: string
+          orden?: number
+          origen?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_testimonios_landing_config_id_fkey"
+            columns: ["landing_config_id"]
+            isOneToOne: false
+            referencedRelation: "landing_config"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "landing_testimonios_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medicamento_principios_activos: {
         Row: {
           concentracion: string | null
@@ -1679,6 +1882,7 @@ export type Database = {
           id: string
           nombre_comercial: string
           plan_suscripcion: string
+          slug: string | null
         }
         Insert: {
           dominio_personalizado?: string | null
@@ -1687,6 +1891,7 @@ export type Database = {
           id?: string
           nombre_comercial: string
           plan_suscripcion?: string
+          slug?: string | null
         }
         Update: {
           dominio_personalizado?: string | null
@@ -1695,6 +1900,7 @@ export type Database = {
           id?: string
           nombre_comercial?: string
           plan_suscripcion?: string
+          slug?: string | null
         }
         Relationships: []
       }
@@ -1760,6 +1966,81 @@ export type Database = {
           presentacion: string | null
         }
         Relationships: []
+      }
+      landing_publica: {
+        Row: {
+          animaciones_activas: boolean | null
+          apellidos: string | null
+          biografia: string | null
+          cmp: string | null
+          color_fondo: string | null
+          color_primario: string | null
+          color_secundario: string | null
+          dominio_personalizado: string | null
+          especialidad: string | null
+          formacion_academica: string | null
+          foto_medico_url: string | null
+          galeria_fotos_urls: string[] | null
+          logo_url: string | null
+          mapa_direccion: string | null
+          mapa_lat: number | null
+          mapa_lng: number | null
+          mostrar_boton_reserva: boolean | null
+          mostrar_boton_whatsapp: boolean | null
+          nombres: string | null
+          rne: string | null
+          slug: string | null
+          tenant_id: string | null
+          tipografia: string | null
+          video_url: string | null
+          whatsapp_numero: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      landing_servicios_publica: {
+        Row: {
+          descripcion: string | null
+          duracion_minutos: number | null
+          nombre: string | null
+          orden: number | null
+          precio: number | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_servicios_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      landing_testimonios_publica: {
+        Row: {
+          calificacion: number | null
+          contenido: string | null
+          nombre_paciente: string | null
+          orden: number | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_testimonios_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
