@@ -9,102 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as CalendarioRouteImport } from './routes/calendario'
-import { Route as FacturacionRouteImport } from './routes/facturacion'
-import { Route as FichasRouteImport } from './routes/fichas'
-import { Route as HistoriasRouteImport } from './routes/historias'
-import { Route as HorariosRouteImport } from './routes/horarios'
-import { Route as ImagenologiaRouteImport } from './routes/imagenologia'
-import { Route as LaboratoriosRouteImport } from './routes/laboratorios'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as MarcaRouteImport } from './routes/marca'
-import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
-import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultorio'
-import { Route as PerfilMedicoRouteImport } from './routes/perfil-medico'
-import { Route as PrivacidadRouteImport } from './routes/privacidad'
-import { Route as RecetarioRouteImport } from './routes/recetario'
-import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as TerminosRouteImport } from './routes/terminos'
-import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
-import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
-import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
-import { Route as OrdenLaboratorioOrdenIdRouteImport } from './routes/orden-laboratorio.$ordenId'
+import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as RecetarioRouteImport } from './routes/recetario'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as PerfilMedicoRouteImport } from './routes/perfil-medico'
+import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultorio'
+import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
+import { Route as MarcaRouteImport } from './routes/marca'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as LaboratoriosRouteImport } from './routes/laboratorios'
+import { Route as ImagenologiaRouteImport } from './routes/imagenologia'
+import { Route as HorariosRouteImport } from './routes/horarios'
+import { Route as HistoriasRouteImport } from './routes/historias'
+import { Route as FichasRouteImport } from './routes/fichas'
+import { Route as FacturacionRouteImport } from './routes/facturacion'
+import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecetaRecetaIdRouteImport } from './routes/receta.$recetaId'
+import { Route as OrdenLaboratorioOrdenIdRouteImport } from './routes/orden-laboratorio.$ordenId'
+import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
+import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
+import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CalendarioRoute = CalendarioRouteImport.update({
-  id: '/calendario',
-  path: '/calendario',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FacturacionRoute = FacturacionRouteImport.update({
-  id: '/facturacion',
-  path: '/facturacion',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FichasRoute = FichasRouteImport.update({
-  id: '/fichas',
-  path: '/fichas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoriasRoute = HistoriasRouteImport.update({
-  id: '/historias',
-  path: '/historias',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HorariosRoute = HorariosRouteImport.update({
-  id: '/horarios',
-  path: '/horarios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImagenologiaRoute = ImagenologiaRouteImport.update({
-  id: '/imagenologia',
-  path: '/imagenologia',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LaboratoriosRoute = LaboratoriosRouteImport.update({
-  id: '/laboratorios',
-  path: '/laboratorios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarcaRoute = MarcaRouteImport.update({
-  id: '/marca',
-  path: '/marca',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PendienteActivacionRoute = PendienteActivacionRouteImport.update({
-  id: '/pendiente-activacion',
-  path: '/pendiente-activacion',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PerfilConsultorioRoute = PerfilConsultorioRouteImport.update({
-  id: '/perfil-consultorio',
-  path: '/perfil-consultorio',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PerfilMedicoRoute = PerfilMedicoRouteImport.update({
-  id: '/perfil-medico',
-  path: '/perfil-medico',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadRoute = PrivacidadRouteImport.update({
-  id: '/privacidad',
-  path: '/privacidad',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecetarioRoute = RecetarioRouteImport.update({
-  id: '/recetario',
-  path: '/recetario',
+const TerminosRoute = TerminosRouteImport.update({
+  id: '/terminos',
+  path: '/terminos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -112,24 +42,84 @@ const RegistroRoute = RegistroRouteImport.update({
   path: '/registro',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TerminosRoute = TerminosRouteImport.update({
-  id: '/terminos',
-  path: '/terminos',
+const RecetarioRoute = RecetarioRouteImport.update({
+  id: '/recetario',
+  path: '/recetario',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AtencionAtencionIdRoute = AtencionAtencionIdRouteImport.update({
-  id: '/atencion/$atencionId',
-  path: '/atencion/$atencionId',
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConfiguracionCalendarioRoute = ConfiguracionCalendarioRouteImport.update({
-  id: '/configuracion/calendario',
-  path: '/configuracion/calendario',
+const PerfilMedicoRoute = PerfilMedicoRouteImport.update({
+  id: '/perfil-medico',
+  path: '/perfil-medico',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrdenImagenOrdenIdRoute = OrdenImagenOrdenIdRouteImport.update({
-  id: '/orden-imagen/$ordenId',
-  path: '/orden-imagen/$ordenId',
+const PerfilConsultorioRoute = PerfilConsultorioRouteImport.update({
+  id: '/perfil-consultorio',
+  path: '/perfil-consultorio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PendienteActivacionRoute = PendienteActivacionRouteImport.update({
+  id: '/pendiente-activacion',
+  path: '/pendiente-activacion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarcaRoute = MarcaRouteImport.update({
+  id: '/marca',
+  path: '/marca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LaboratoriosRoute = LaboratoriosRouteImport.update({
+  id: '/laboratorios',
+  path: '/laboratorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImagenologiaRoute = ImagenologiaRouteImport.update({
+  id: '/imagenologia',
+  path: '/imagenologia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HorariosRoute = HorariosRouteImport.update({
+  id: '/horarios',
+  path: '/horarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoriasRoute = HistoriasRouteImport.update({
+  id: '/historias',
+  path: '/historias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FichasRoute = FichasRouteImport.update({
+  id: '/fichas',
+  path: '/fichas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FacturacionRoute = FacturacionRouteImport.update({
+  id: '/facturacion',
+  path: '/facturacion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarioRoute = CalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecetaRecetaIdRoute = RecetaRecetaIdRouteImport.update({
+  id: '/receta/$recetaId',
+  path: '/receta/$recetaId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrdenLaboratorioOrdenIdRoute = OrdenLaboratorioOrdenIdRouteImport.update({
@@ -137,9 +127,19 @@ const OrdenLaboratorioOrdenIdRoute = OrdenLaboratorioOrdenIdRouteImport.update({
   path: '/orden-laboratorio/$ordenId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RecetaRecetaIdRoute = RecetaRecetaIdRouteImport.update({
-  id: '/receta/$recetaId',
-  path: '/receta/$recetaId',
+const OrdenImagenOrdenIdRoute = OrdenImagenOrdenIdRouteImport.update({
+  id: '/orden-imagen/$ordenId',
+  path: '/orden-imagen/$ordenId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracionCalendarioRoute = ConfiguracionCalendarioRouteImport.update({
+  id: '/configuracion/calendario',
+  path: '/configuracion/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtencionAtencionIdRoute = AtencionAtencionIdRouteImport.update({
+  id: '/atencion/$atencionId',
+  path: '/atencion/$atencionId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -318,109 +318,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/calendario': {
-      id: '/calendario'
-      path: '/calendario'
-      fullPath: '/calendario'
-      preLoaderRoute: typeof CalendarioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/facturacion': {
-      id: '/facturacion'
-      path: '/facturacion'
-      fullPath: '/facturacion'
-      preLoaderRoute: typeof FacturacionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fichas': {
-      id: '/fichas'
-      path: '/fichas'
-      fullPath: '/fichas'
-      preLoaderRoute: typeof FichasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historias': {
-      id: '/historias'
-      path: '/historias'
-      fullPath: '/historias'
-      preLoaderRoute: typeof HistoriasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/horarios': {
-      id: '/horarios'
-      path: '/horarios'
-      fullPath: '/horarios'
-      preLoaderRoute: typeof HorariosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/imagenologia': {
-      id: '/imagenologia'
-      path: '/imagenologia'
-      fullPath: '/imagenologia'
-      preLoaderRoute: typeof ImagenologiaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/laboratorios': {
-      id: '/laboratorios'
-      path: '/laboratorios'
-      fullPath: '/laboratorios'
-      preLoaderRoute: typeof LaboratoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marca': {
-      id: '/marca'
-      path: '/marca'
-      fullPath: '/marca'
-      preLoaderRoute: typeof MarcaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pendiente-activacion': {
-      id: '/pendiente-activacion'
-      path: '/pendiente-activacion'
-      fullPath: '/pendiente-activacion'
-      preLoaderRoute: typeof PendienteActivacionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/perfil-consultorio': {
-      id: '/perfil-consultorio'
-      path: '/perfil-consultorio'
-      fullPath: '/perfil-consultorio'
-      preLoaderRoute: typeof PerfilConsultorioRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/perfil-medico': {
-      id: '/perfil-medico'
-      path: '/perfil-medico'
-      fullPath: '/perfil-medico'
-      preLoaderRoute: typeof PerfilMedicoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidad': {
-      id: '/privacidad'
-      path: '/privacidad'
-      fullPath: '/privacidad'
-      preLoaderRoute: typeof PrivacidadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recetario': {
-      id: '/recetario'
-      path: '/recetario'
-      fullPath: '/recetario'
-      preLoaderRoute: typeof RecetarioRouteImport
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -430,32 +332,116 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistroRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/terminos': {
-      id: '/terminos'
-      path: '/terminos'
-      fullPath: '/terminos'
-      preLoaderRoute: typeof TerminosRouteImport
+    '/recetario': {
+      id: '/recetario'
+      path: '/recetario'
+      fullPath: '/recetario'
+      preLoaderRoute: typeof RecetarioRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/atencion/$atencionId': {
-      id: '/atencion/$atencionId'
-      path: '/atencion/$atencionId'
-      fullPath: '/atencion/$atencionId'
-      preLoaderRoute: typeof AtencionAtencionIdRouteImport
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/configuracion/calendario': {
-      id: '/configuracion/calendario'
-      path: '/configuracion/calendario'
-      fullPath: '/configuracion/calendario'
-      preLoaderRoute: typeof ConfiguracionCalendarioRouteImport
+    '/perfil-medico': {
+      id: '/perfil-medico'
+      path: '/perfil-medico'
+      fullPath: '/perfil-medico'
+      preLoaderRoute: typeof PerfilMedicoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orden-imagen/$ordenId': {
-      id: '/orden-imagen/$ordenId'
-      path: '/orden-imagen/$ordenId'
-      fullPath: '/orden-imagen/$ordenId'
-      preLoaderRoute: typeof OrdenImagenOrdenIdRouteImport
+    '/perfil-consultorio': {
+      id: '/perfil-consultorio'
+      path: '/perfil-consultorio'
+      fullPath: '/perfil-consultorio'
+      preLoaderRoute: typeof PerfilConsultorioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pendiente-activacion': {
+      id: '/pendiente-activacion'
+      path: '/pendiente-activacion'
+      fullPath: '/pendiente-activacion'
+      preLoaderRoute: typeof PendienteActivacionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marca': {
+      id: '/marca'
+      path: '/marca'
+      fullPath: '/marca'
+      preLoaderRoute: typeof MarcaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/laboratorios': {
+      id: '/laboratorios'
+      path: '/laboratorios'
+      fullPath: '/laboratorios'
+      preLoaderRoute: typeof LaboratoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imagenologia': {
+      id: '/imagenologia'
+      path: '/imagenologia'
+      fullPath: '/imagenologia'
+      preLoaderRoute: typeof ImagenologiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/horarios': {
+      id: '/horarios'
+      path: '/horarios'
+      fullPath: '/horarios'
+      preLoaderRoute: typeof HorariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historias': {
+      id: '/historias'
+      path: '/historias'
+      fullPath: '/historias'
+      preLoaderRoute: typeof HistoriasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fichas': {
+      id: '/fichas'
+      path: '/fichas'
+      fullPath: '/fichas'
+      preLoaderRoute: typeof FichasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/facturacion': {
+      id: '/facturacion'
+      path: '/facturacion'
+      fullPath: '/facturacion'
+      preLoaderRoute: typeof FacturacionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendario': {
+      id: '/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof CalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/receta/$recetaId': {
+      id: '/receta/$recetaId'
+      path: '/receta/$recetaId'
+      fullPath: '/receta/$recetaId'
+      preLoaderRoute: typeof RecetaRecetaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orden-laboratorio/$ordenId': {
@@ -465,11 +451,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdenLaboratorioOrdenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/receta/$recetaId': {
-      id: '/receta/$recetaId'
-      path: '/receta/$recetaId'
-      fullPath: '/receta/$recetaId'
-      preLoaderRoute: typeof RecetaRecetaIdRouteImport
+    '/orden-imagen/$ordenId': {
+      id: '/orden-imagen/$ordenId'
+      path: '/orden-imagen/$ordenId'
+      fullPath: '/orden-imagen/$ordenId'
+      preLoaderRoute: typeof OrdenImagenOrdenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion/calendario': {
+      id: '/configuracion/calendario'
+      path: '/configuracion/calendario'
+      fullPath: '/configuracion/calendario'
+      preLoaderRoute: typeof ConfiguracionCalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/atencion/$atencionId': {
+      id: '/atencion/$atencionId'
+      path: '/atencion/$atencionId'
+      fullPath: '/atencion/$atencionId'
+      preLoaderRoute: typeof AtencionAtencionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
