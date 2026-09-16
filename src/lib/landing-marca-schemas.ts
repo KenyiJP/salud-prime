@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Database } from "@/integrations/supabase/types";
 
 export const TIPOGRAFIAS_PERMITIDAS = [
   "inter",
@@ -70,11 +71,7 @@ export const landingConfigSchema = z.object({
   formacion_academica: z.string().trim().max(2000, "Máximo 2000 caracteres.").nullable(),
   mostrar_cmp: z.boolean(),
   mostrar_rne: z.boolean(),
-  video_url: z
-    .string()
-    .trim()
-    .url("Ingresa una URL válida (YouTube, Vimeo, etc.).")
-    .nullable(),
+  video_url: z.string().trim().url("Ingresa una URL válida (YouTube, Vimeo, etc.).").nullable(),
   animaciones_activas: z.boolean(),
   mostrar_boton_reserva: z.boolean(),
   mostrar_boton_whatsapp: z.boolean(),
@@ -112,11 +109,7 @@ export const landingServicioSchema = z.object({
     .number({ invalid_type_error: "Ingresa un precio válido." })
     .min(0, "El precio no puede ser negativo.")
     .nullable(),
-  duracion_minutos: z
-    .number()
-    .int()
-    .positive("La duración debe ser mayor a 0 minutos.")
-    .nullable(),
+  duracion_minutos: z.number().int().positive("La duración debe ser mayor a 0 minutos.").nullable(),
   activo: z.boolean(),
 });
 export type LandingServicioInput = z.infer<typeof landingServicioSchema>;
@@ -163,3 +156,36 @@ export const slugSchema = z
 
 export const MAX_ARCHIVO_BYTES = 5 * 1024 * 1024; // 5 MB
 export const TIPOS_IMAGEN_PERMITIDOS = ["image/png", "image/jpeg", "image/webp"] as const;
+
+// ---------------------------------------------------------------------------
+// Landing pública (Día 17) — filas devueltas por las vistas `landing_publica`,
+// `landing_servicios_publica` y `landing_testimonios_publica` (Día 15). Son de
+// solo lectura (anon): ya filtran `publicado = true` / `activo = true` /
+// `aprobado = true` en su propia definición SQL, así que basta con leerlas.
+// Se derivan directamente de `Database["public"]["Views"]` — nunca a mano —
+// para no desincronizarse si Supabase regenera `types.ts`.
+// ---------------------------------------------------------------------------
+export type LandingPublicaRow = Database["public"]["Views"]["landing_publica"]["Row"];
+export type LandingServicioPublicoRow =
+  Database["public"]["Views"]["landing_servicios_publica"]["Row"];
+export type LandingTestimonioPublicoRow =
+  Database["public"]["Views"]["landing_testimonios_publica"]["Row"];
+
+export type LandingMedicaPublica = {
+  config: LandingPublicaRow;
+  servicios: LandingServicioPublicoRow[];
+  testimonios: LandingTestimonioPublicoRow[];
+};
+
+/**
+ * Enlace de WhatsApp con mensaje precompletado para el CTA de agendamiento
+ * de la landing pública. Acepta números con o sin "+"/espacios (el médico
+ * los captura libremente en el Panel de Marca); wa.me exige solo dígitos.
+ * Devuelve `null` si no queda ningún dígito (fallback sin romper el layout).
+ */
+export function construirUrlWhatsapp(numero: string, nombreMedico: string): string | null {
+  const soloDigitos = numero.replace(/[^0-9]/g, "");
+  if (!soloDigitos) return null;
+  const mensaje = `Hola Dr(a). ${nombreMedico}, deseo agendar una consulta médica.`;
+  return `https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`;
+}
