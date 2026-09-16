@@ -12,6 +12,8 @@ import {
   getLandingConfig,
   getLandingServicios,
   getLandingTestimonios,
+  getPlanesSuscripcion,
+  getSuscripcionActual,
   getTenantSlug,
   reordenarLandingServicios,
   reordenarLandingTestimonios,
@@ -28,6 +30,8 @@ const KEYS = {
   servicios: ["landing-servicios"] as const,
   testimonios: ["landing-testimonios"] as const,
   slug: ["tenant-slug"] as const,
+  planes: ["planes-suscripcion"] as const,
+  suscripcion: ["suscripcion-actual"] as const,
 };
 
 export function landingConfigQuery() {
@@ -182,4 +186,22 @@ export function useActualizarTenantSlug() {
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo actualizar el slug."),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Plan y suscripción (Día 19)
+// ---------------------------------------------------------------------------
+
+export function planesSuscripcionQuery() {
+  return { queryKey: KEYS.planes, queryFn: () => getPlanesSuscripcion() };
+}
+export function usePlanesSuscripcionQuery() {
+  return useQuery(planesSuscripcionQuery());
+}
+
+export function suscripcionActualQuery() {
+  return { queryKey: KEYS.suscripcion, queryFn: () => getSuscripcionActual() };
+}
+export function useSuscripcionActualQuery() {
+  return useQuery(suscripcionActualQuery());
 }

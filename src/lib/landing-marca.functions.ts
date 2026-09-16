@@ -9,6 +9,9 @@ import {
   type LandingConfigRow,
   type LandingServicioRow,
   type LandingTestimonioRow,
+  type PlanSuscripcionRow,
+  type SuscripcionRow,
+  type SuscripcionActualInfo,
 } from "./landing-marca-schemas";
 import { z } from "zod";
 
@@ -96,7 +99,7 @@ export const actualizarLandingConfig = createServerFn({ method: "POST" })
 // ---------------------------------------------------------------------------
 
 const SELECT_SERVICIO =
-  "id, tenant_id, landing_config_id, nombre, descripcion, precio, duracion_minutos, activo, orden, created_at, updated_at";
+  "id, tenant_id, landing_config_id, nombre, descripcion, precio, duracion_minutos, activo, visible_en_landing, orden, created_at, updated_at";
 
 export const getLandingServicios = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -366,4 +369,73 @@ export const actualizarTenantSlug = createServerFn({ method: "POST" })
       throw new Error(error.message);
     }
     return { slug: data.slug };
+  });
+
+// ---------------------------------------------------------------------------
+// Plan y suscripción (Día 19)
+// ---------------------------------------------------------------------------
+
+const SELECT_PLAN =
+  "id, codigo, nombre, precio_mensual, moneda, max_usuarios, incluye_agente_whatsapp_ia, incluye_voice_scribe, incluye_facturacion_sunat, incluye_landing_personalizable, permite_addon_marca_personal, precio_addon_marca_personal, activo, orden";
+
+const SELECT_SUSCRIPCION =
+  "id, tenant_id, plan_id, addon_marca_personal, estado, fecha_inicio, fecha_fin, metodo_pago, created_at, updated_at";
+
+/**
+ * Solo lectura: catálogo completo de planes activos, para mostrar la
+ * comparativa (ej. invitar a migrar de Esencial a Profesional). El panel no
+ * permite cambiar de plan todavía — eso llega con el checkout de pago
+ * (Semana 4, Días 20-21) — pero sí sirve para que el médico vea qué gana.
+ */
+export const getPlanesSuscripcion = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await untyped(context.supabase)
+      .from("planes_suscripcion")
+      .select(SELECT_PLAN)
+      .eq("activo", true)
+      .order("orden", { ascending: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as PlanSuscripcionRow[];
+  });
+
+/**
+ * Suscripción vigente del tenant actual (trial o activa — el índice único
+ * `suscripciones_tenant_vigente_uidx`, Día 19, garantiza que hay a lo sumo
+ * una) junto con el plan asociado y el conteo de usuarios activos, para que
+ * el panel pueda mostrar "2 de 3 usuarios usados" sin otra ida y vuelta.
+ * Un tenant sin fila en `suscripciones` (caso legado, ver comentario del
+ * Día 19 en la migración) devuelve `null` en vez de lanzar error.
+ */
+export const getSuscripcionActual = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { resolveTenantContext } = await import("./landing-marca.server");
+    const { tenantId } = await resolveTenantContext(context.supabase, context.userId);
+    const db = untyped(context.supabase);
+
+    const { data: suscripcion, error: errorSuscripcion } = await db
+      .from("suscripciones")
+      .select(SELECT_SUSCRIPCION)
+      .eq("tenant_id", tenantId)
+      .in("estado", ["trial", "activa"])
+      .maybeSingle();
+    if (errorSuscripcion) throw new Error(errorSuscripcion.message);
+    if (!suscripcion) return null;
+
+    const [{ data: plan, error: errorPlan }, { count, error: errorConteo }] = await Promise.all([
+      db.from("planes_suscripcion").select(SELECT_PLAN).eq("id", suscripcion.plan_id).single(),
+      db
+        .from("roles_usuario")
+        .select("user_id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId),
+    ]);
+    if (errorPlan) throw new Error(errorPlan.message);
+    if (errorConteo) throw new Error(errorConteo.message);
+
+    return {
+      suscripcion: suscripcion as SuscripcionRow,
+      plan: plan as PlanSuscripcionRow,
+      usuarios_actuales: count ?? 0,
+    } satisfies SuscripcionActualInfo;
   });

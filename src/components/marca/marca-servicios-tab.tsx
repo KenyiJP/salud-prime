@@ -42,6 +42,7 @@ const VALORES_VACIOS: LandingServicioInput = {
   precio: null,
   duracion_minutos: null,
   activo: true,
+  visible_en_landing: true,
 };
 
 function ServicioFormDialog({
@@ -182,7 +183,27 @@ function ServicioFormDialog({
               name="activo"
               render={({ field }) => (
                 <div className="flex items-center justify-between rounded-lg border border-border/60 px-4 py-3">
-                  <p className="text-sm font-medium">Visible en la landing</p>
+                  <div>
+                    <p className="text-sm font-medium">Servicio activo</p>
+                    <p className="text-xs text-muted-foreground">
+                      Si lo desactivas, deja de cobrarse y desaparece de todas partes.
+                    </p>
+                  </div>
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                </div>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="visible_en_landing"
+              render={({ field }) => (
+                <div className="flex items-center justify-between rounded-lg border border-border/60 px-4 py-3">
+                  <div>
+                    <p className="text-sm font-medium">Visible en la landing pública</p>
+                    <p className="text-xs text-muted-foreground">
+                      Desactívalo para mantenerlo en tu tarifario interno sin anunciarlo en tu web.
+                    </p>
+                  </div>
                   <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </div>
               )}
@@ -234,7 +255,8 @@ export function MarcaServiciosTab() {
             Servicios de la landing
           </h3>
           <p className="text-sm text-muted-foreground">
-            Se muestran en el orden definido aquí. Solo los activos aparecen al público.
+            Se muestran en el orden definido aquí. Solo los activos y marcados como visibles en
+            la landing aparecen al público.
           </p>
         </div>
         <Button size="sm" className="gap-2" onClick={abrirNuevo}>
@@ -282,6 +304,10 @@ export function MarcaServiciosTab() {
                   {!servicio.activo ? (
                     <Badge variant="outline" className="text-xs text-muted-foreground">
                       Oculto
+                    </Badge>
+                  ) : !servicio.visible_en_landing ? (
+                    <Badge variant="outline" className="text-xs text-muted-foreground">
+                      Solo tarifario interno
                     </Badge>
                   ) : null}
                 </div>

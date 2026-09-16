@@ -111,6 +111,11 @@ export const landingServicioSchema = z.object({
     .nullable(),
   duracion_minutos: z.number().int().positive("La duración debe ser mayor a 0 minutos.").nullable(),
   activo: z.boolean(),
+  // Día 19: desacopla el tarifario interno (todo lo que cobra el médico) de
+  // lo que decide anunciar en su landing pública. `activo = false` saca el
+  // servicio de todas partes; `visible_en_landing = false` con `activo = true`
+  // lo mantiene cobrable/interno pero fuera de /dr-{slug}.
+  visible_en_landing: z.boolean(),
 });
 export type LandingServicioInput = z.infer<typeof landingServicioSchema>;
 
@@ -264,3 +269,30 @@ export const obtenerSlotsInputSchema = z.object({
   tipo_consulta_id: z.string().uuid().nullable().optional(),
 });
 export type ObtenerSlotsInput = z.infer<typeof obtenerSlotsInputSchema>;
+
+// ---------------------------------------------------------------------------
+// Plan y suscripción (Día 19) — `planes_suscripcion` es un catálogo global de
+// solo lectura (mantenimiento vía migración versionada, nunca desde el panel);
+// `suscripciones` es el estado de suscripción del tenant, también de solo
+// lectura para el usuario hasta que exista checkout de pago (Semana 4,
+// Cobrana/Culqi). El panel de este día es informativo: qué plan tiene, qué
+// incluye y cuántos usuarios lleva usados de su límite.
+// ---------------------------------------------------------------------------
+export type PlanSuscripcionRow = Database["public"]["Tables"]["planes_suscripcion"]["Row"];
+export type SuscripcionRow = Database["public"]["Tables"]["suscripciones"]["Row"];
+
+export const ESTADOS_SUSCRIPCION = ["trial", "activa", "vencida", "cancelada"] as const;
+export type EstadoSuscripcion = (typeof ESTADOS_SUSCRIPCION)[number];
+
+export const ETIQUETA_ESTADO_SUSCRIPCION: Record<EstadoSuscripcion, string> = {
+  trial: "Periodo de prueba",
+  activa: "Activa",
+  vencida: "Vencida",
+  cancelada: "Cancelada",
+};
+
+export type SuscripcionActualInfo = {
+  suscripcion: SuscripcionRow;
+  plan: PlanSuscripcionRow;
+  usuarios_actuales: number;
+};

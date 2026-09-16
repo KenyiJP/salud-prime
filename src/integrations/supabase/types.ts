@@ -1012,6 +1012,7 @@ export type Database = {
           precio: number | null
           tenant_id: string
           updated_at: string
+          visible_en_landing: boolean
         }
         Insert: {
           activo?: boolean
@@ -1025,6 +1026,7 @@ export type Database = {
           precio?: number | null
           tenant_id: string
           updated_at?: string
+          visible_en_landing?: boolean
         }
         Update: {
           activo?: boolean
@@ -1038,6 +1040,7 @@ export type Database = {
           precio?: number | null
           tenant_id?: string
           updated_at?: string
+          visible_en_landing?: boolean
         }
         Relationships: [
           {
@@ -1615,6 +1618,63 @@ export type Database = {
           },
         ]
       }
+      planes_suscripcion: {
+        Row: {
+          activo: boolean
+          codigo: string
+          created_at: string
+          id: string
+          incluye_agente_whatsapp_ia: boolean
+          incluye_facturacion_sunat: boolean
+          incluye_landing_personalizable: boolean
+          incluye_voice_scribe: boolean
+          max_usuarios: number | null
+          moneda: string
+          nombre: string
+          orden: number
+          permite_addon_marca_personal: boolean
+          precio_addon_marca_personal: number | null
+          precio_mensual: number
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          codigo: string
+          created_at?: string
+          id?: string
+          incluye_agente_whatsapp_ia?: boolean
+          incluye_facturacion_sunat?: boolean
+          incluye_landing_personalizable?: boolean
+          incluye_voice_scribe?: boolean
+          max_usuarios?: number | null
+          moneda?: string
+          nombre: string
+          orden?: number
+          permite_addon_marca_personal?: boolean
+          precio_addon_marca_personal?: number | null
+          precio_mensual: number
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          codigo?: string
+          created_at?: string
+          id?: string
+          incluye_agente_whatsapp_ia?: boolean
+          incluye_facturacion_sunat?: boolean
+          incluye_landing_personalizable?: boolean
+          incluye_voice_scribe?: boolean
+          max_usuarios?: number | null
+          moneda?: string
+          nombre?: string
+          orden?: number
+          permite_addon_marca_personal?: boolean
+          precio_addon_marca_personal?: number | null
+          precio_mensual?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plantillas_especialidad: {
         Row: {
           activo: boolean
@@ -1914,6 +1974,60 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "roles_usuario_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suscripciones: {
+        Row: {
+          addon_marca_personal: boolean
+          created_at: string
+          estado: string
+          fecha_fin: string | null
+          fecha_inicio: string
+          id: string
+          metodo_pago: string | null
+          plan_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          addon_marca_personal?: boolean
+          created_at?: string
+          estado?: string
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          id?: string
+          metodo_pago?: string | null
+          plan_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          addon_marca_personal?: boolean
+          created_at?: string
+          estado?: string
+          fecha_fin?: string | null
+          fecha_inicio?: string
+          id?: string
+          metodo_pago?: string | null
+          plan_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suscripciones_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "planes_suscripcion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "suscripciones_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

@@ -24,7 +24,7 @@ export function MarcaPreview({
 }) {
   const [modo, setModo] = useState<"desktop" | "mobile">("desktop");
 
-  const serviciosActivos = servicios.filter((s) => s.activo);
+  const serviciosActivos = servicios.filter((s) => s.activo && s.visible_en_landing);
   const testimoniosAprobados = testimonios.filter((t) => t.aprobado);
 
   return (

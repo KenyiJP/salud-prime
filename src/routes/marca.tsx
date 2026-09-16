@@ -9,6 +9,7 @@ import { MarcaSeccionesTab } from "@/components/marca/marca-secciones-tab";
 import { MarcaServiciosTab } from "@/components/marca/marca-servicios-tab";
 import { MarcaTestimoniosTab } from "@/components/marca/marca-testimonios-tab";
 import { MarcaSlugTab } from "@/components/marca/marca-slug-tab";
+import { MarcaSuscripcionTab } from "@/components/marca/marca-suscripcion-tab";
 import { MarcaPreview } from "@/components/marca/marca-preview";
 import { cn } from "@/lib/utils";
 import type { LandingConfigInput } from "@/lib/landing-marca-schemas";
@@ -16,6 +17,8 @@ import {
   landingConfigQuery,
   landingServiciosQuery,
   landingTestimoniosQuery,
+  planesSuscripcionQuery,
+  suscripcionActualQuery,
   tenantSlugQuery,
   useLandingConfigQuery,
   useLandingServiciosQuery,
@@ -48,6 +51,8 @@ export const Route = createFileRoute("/marca")({
     context.queryClient.ensureQueryData(landingServiciosQuery());
     context.queryClient.ensureQueryData(landingTestimoniosQuery());
     context.queryClient.ensureQueryData(tenantSlugQuery());
+    context.queryClient.ensureQueryData(planesSuscripcionQuery());
+    context.queryClient.ensureQueryData(suscripcionActualQuery());
   },
   component: MarcaPage,
   errorComponent: ({ error }: { error: unknown }) => (
@@ -67,7 +72,7 @@ export const Route = createFileRoute("/marca")({
   ),
 });
 
-type TabId = "identidad" | "secciones" | "servicios" | "testimonios" | "slug";
+type TabId = "identidad" | "secciones" | "servicios" | "testimonios" | "slug" | "suscripcion";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "identidad", label: "Identidad" },
@@ -75,6 +80,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "servicios", label: "Servicios" },
   { id: "testimonios", label: "Testimonios" },
   { id: "slug", label: "Subdominio" },
+  { id: "suscripcion", label: "Plan y suscripción" },
 ];
 
 function MarcaPage() {
@@ -160,6 +166,7 @@ function MarcaPage() {
                   {tab === "servicios" ? <MarcaServiciosTab /> : null}
                   {tab === "testimonios" ? <MarcaTestimoniosTab /> : null}
                   {tab === "slug" ? <MarcaSlugTab /> : null}
+                  {tab === "suscripcion" ? <MarcaSuscripcionTab /> : null}
                 </>
               )}
             </div>
