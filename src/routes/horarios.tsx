@@ -3,7 +3,7 @@ import { requireSession } from "@/lib/auth-guard";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader } from "@/components/page-primitives";
 import { HorariosPanel } from "@/components/horarios-panel";
-import { bloqueosQuery, horariosQuery } from "@/lib/agenda.queries";
+import { bloqueosQuery, horariosQuery, tiposConsultaAdminQuery } from "@/lib/agenda.queries";
 
 export const Route = createFileRoute("/horarios")({
   beforeLoad: () => requireSession(),
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/horarios")({
     ],
   }),
   loader: ({ context }) => {
+    context.queryClient.ensureQueryData(tiposConsultaAdminQuery());
     context.queryClient.ensureQueryData(horariosQuery());
     context.queryClient.ensureQueryData(bloqueosQuery());
   },
@@ -33,7 +34,8 @@ export const Route = createFileRoute("/horarios")({
   errorComponent: ({ error }: { error: unknown }) => (
     <DashboardShell>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
-        No se pudo cargar la configuración de horarios: {error instanceof Error ? error.message : String(error)}
+        No se pudo cargar la configuración de horarios:{" "}
+        {error instanceof Error ? error.message : String(error)}
       </div>
     </DashboardShell>
   ),

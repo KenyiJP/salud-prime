@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ReservaPublicaDialog } from "@/components/marca/reserva-publica-dialog";
 import {
   construirUrlGoogleMaps,
   construirUrlWhatsapp,
@@ -130,15 +131,19 @@ export function LandingPublicaView({ data }: { data: LandingMedicaPublica }) {
           </div>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
             {mostrarReserva ? (
-              <Button
-                asChild
-                style={{ backgroundColor: colorPrimario }}
-                className="gap-2 text-white hover:opacity-90"
-              >
-                <a href={mostrarWhatsapp && urlWhatsapp ? urlWhatsapp : "#faq"}>
-                  <CalendarCheck className="h-4 w-4" /> Reservar cita
-                </a>
-              </Button>
+              <ReservaPublicaDialog
+                slug={config.slug ?? ""}
+                nombreMedico={nombreMedico}
+                colorPrimario={colorPrimario}
+                trigger={
+                  <Button
+                    style={{ backgroundColor: colorPrimario }}
+                    className="gap-2 text-white hover:opacity-90"
+                  >
+                    <CalendarCheck className="h-4 w-4" /> Reservar cita
+                  </Button>
+                }
+              />
             ) : null}
             {mostrarWhatsapp && urlWhatsapp ? (
               <Button

@@ -1,27 +1,38 @@
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
+  actualizarTipoConsulta,
   crearBloqueo,
   crearHorario,
+  crearTipoConsulta,
   eliminarBloqueo,
   getBloqueos,
   getHorarios,
   getTiposConsulta,
+  getTiposConsultaAdmin,
   toggleHorario,
+  toggleTipoConsulta,
 } from "./agenda.functions";
 import type {
+  ActualizarTipoConsultaInput,
   EliminarBloqueoInput,
   NuevoBloqueoInput,
   NuevoHorarioInput,
+  NuevoTipoConsultaInput,
   ToggleHorarioInput,
+  ToggleTipoConsultaInput,
 } from "./agenda-schemas";
 
 export const tiposConsultaQueryKey = ["tipos-consulta"] as const;
+export const tiposConsultaAdminQueryKey = ["tipos-consulta", "admin"] as const;
 export const horariosQueryKey = ["horarios-atencion"] as const;
 export const bloqueosQueryKey = ["bloqueos-horario"] as const;
 
 export const tiposConsultaQuery = () =>
   queryOptions({ queryKey: tiposConsultaQueryKey, queryFn: () => getTiposConsulta() });
+
+export const tiposConsultaAdminQuery = () =>
+  queryOptions({ queryKey: tiposConsultaAdminQueryKey, queryFn: () => getTiposConsultaAdmin() });
 
 export const horariosQuery = () =>
   queryOptions({ queryKey: horariosQueryKey, queryFn: () => getHorarios() });
@@ -33,12 +44,60 @@ export function useTiposConsulta() {
   return useSuspenseQuery(tiposConsultaQuery());
 }
 
+export function useTiposConsultaAdmin() {
+  return useSuspenseQuery(tiposConsultaAdminQuery());
+}
+
 export function useHorarios() {
   return useSuspenseQuery(horariosQuery());
 }
 
 export function useBloqueos() {
   return useSuspenseQuery(bloqueosQuery());
+}
+
+function invalidateTiposConsulta(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: tiposConsultaQueryKey });
+  queryClient.invalidateQueries({ queryKey: tiposConsultaAdminQueryKey });
+}
+
+export function useCrearTipoConsulta() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: NuevoTipoConsultaInput) => crearTipoConsulta({ data: input }),
+    onSuccess: () => {
+      invalidateTiposConsulta(queryClient);
+      toast.success("Tipo de consulta agregado.");
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "No se pudo agregar el tipo de consulta."),
+  });
+}
+
+export function useActualizarTipoConsulta() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ActualizarTipoConsultaInput) => actualizarTipoConsulta({ data: input }),
+    onSuccess: () => {
+      invalidateTiposConsulta(queryClient);
+      toast.success("Tipo de consulta actualizado.");
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "No se pudo actualizar el tipo de consulta."),
+  });
+}
+
+export function useToggleTipoConsulta() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ToggleTipoConsultaInput) => toggleTipoConsulta({ data: input }),
+    onSuccess: (row) => {
+      invalidateTiposConsulta(queryClient);
+      toast.success(row.activo ? "Tipo de consulta activado." : "Tipo de consulta desactivado.");
+    },
+    onError: (error: Error) =>
+      toast.error(error.message || "No se pudo actualizar el tipo de consulta."),
+  });
 }
 
 export function useCrearHorario() {

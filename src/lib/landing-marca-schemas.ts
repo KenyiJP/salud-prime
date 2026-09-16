@@ -189,3 +189,78 @@ export function construirUrlWhatsapp(numero: string, nombreMedico: string): stri
   const mensaje = `Hola Dr(a). ${nombreMedico}, deseo agendar una consulta médica.`;
   return `https://wa.me/${soloDigitos}?text=${encodeURIComponent(mensaje)}`;
 }
+
+// ---------------------------------------------------------------------------
+// Reserva pública (Día 18) — un visitante anónimo agenda su propia cita desde
+// `/dr-{slug}` sin cuenta ni sesión. Todo pasa por las RPCs `security definer`
+// `obtener_tipos_consulta_publicos`, `obtener_slots_disponibles` y
+// `registrar_reserva_web`: nunca se lee `citas`/`pacientes` directo con anon.
+// ---------------------------------------------------------------------------
+
+export const ASEGURADORA_TIPOS = [
+  "particular",
+  "sis",
+  "essalud",
+  "eps",
+  "fuerzas_armadas",
+  "otro",
+] as const;
+export type AseguradoraTipo = (typeof ASEGURADORA_TIPOS)[number];
+
+export const ETIQUETA_ASEGURADORA: Record<AseguradoraTipo, string> = {
+  particular: "Particular",
+  sis: "SIS",
+  essalud: "EsSalud",
+  eps: "EPS",
+  fuerzas_armadas: "Fuerzas Armadas / PNP",
+  otro: "Otro",
+};
+
+export type TipoConsultaPublico =
+  Database["public"]["Functions"]["obtener_tipos_consulta_publicos"]["Returns"][number];
+
+export type SlotDisponible =
+  Database["public"]["Functions"]["obtener_slots_disponibles"]["Returns"][number];
+
+export type ResultadoReservaWeb =
+  Database["public"]["Functions"]["registrar_reserva_web"]["Returns"][number];
+
+/**
+ * Documento peruano opcional (DNI 8 dígitos o carné de extranjería
+ * alfanumérico); el paciente puede reservar sin documento y completarlo
+ * presencialmente, por eso `nullable` en vez de obligatorio.
+ */
+const documentoIdentidadSchema = z.string().trim().max(20, "Máximo 20 caracteres.").nullable();
+
+export const reservaPublicaFormSchema = z
+  .object({
+    nombres: z.string().trim().min(2, "Ingresa tus nombres.").max(120),
+    apellidos: z.string().trim().min(2, "Ingresa tus apellidos.").max(120),
+    telefono: z
+      .string()
+      .trim()
+      .regex(/^\+?[0-9]{9,15}$/, "Ingresa un celular válido, ej. 987654321."),
+    email: z.string().trim().toLowerCase().email("Ingresa un correo válido.").nullable(),
+    documento_identidad: documentoIdentidadSchema,
+    aseguradora_tipo: z.enum(ASEGURADORA_TIPOS),
+    aseguradora_nombre: z.string().trim().max(120).nullable(),
+    comentario: z.string().trim().max(500, "Máximo 500 caracteres.").nullable(),
+    tipo_consulta_id: z.string().uuid().nullable(),
+  })
+  .refine((datos) => datos.aseguradora_tipo !== "eps" || !!datos.aseguradora_nombre, {
+    message: "Indica el nombre de tu EPS.",
+    path: ["aseguradora_nombre"],
+  });
+export type ReservaPublicaFormInput = z.infer<typeof reservaPublicaFormSchema>;
+
+export const registrarReservaWebInputSchema = reservaPublicaFormSchema.and(
+  z.object({ slug: slugSchema, inicio: z.string().datetime({ offset: true }) }),
+);
+export type RegistrarReservaWebInput = z.infer<typeof registrarReservaWebInputSchema>;
+
+export const obtenerSlotsInputSchema = z.object({
+  slug: slugSchema,
+  fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida."),
+  tipo_consulta_id: z.string().uuid().nullable().optional(),
+});
+export type ObtenerSlotsInput = z.infer<typeof obtenerSlotsInputSchema>;

@@ -25,9 +25,7 @@ export function horaCortaTexto(hora: string) {
   return hora.slice(0, 5);
 }
 
-const horaField = z
-  .string()
-  .regex(/^\d{2}:\d{2}(:\d{2})?$/, "Formato de hora inválido (HH:MM).");
+const horaField = z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Formato de hora inválido (HH:MM).");
 
 export const nuevoHorarioSchema = z
   .object({
@@ -68,3 +66,24 @@ export type NuevoBloqueoInput = z.infer<typeof nuevoBloqueoSchema>;
 
 export const eliminarBloqueoSchema = z.object({ id: z.string().uuid() });
 export type EliminarBloqueoInput = z.infer<typeof eliminarBloqueoSchema>;
+
+export const nuevoTipoConsultaSchema = z.object({
+  nombre: z.string().trim().min(1, "Ponle un nombre, ej. Consulta general."),
+  duracion_minutos: z.coerce
+    .number()
+    .int()
+    .min(5, "La duración mínima es 5 minutos.")
+    .max(480, "La duración máxima es 480 minutos."),
+});
+export type NuevoTipoConsultaInput = z.infer<typeof nuevoTipoConsultaSchema>;
+
+export const actualizarTipoConsultaSchema = nuevoTipoConsultaSchema.extend({
+  id: z.string().uuid(),
+});
+export type ActualizarTipoConsultaInput = z.infer<typeof actualizarTipoConsultaSchema>;
+
+export const toggleTipoConsultaSchema = z.object({
+  id: z.string().uuid(),
+  activo: z.boolean(),
+});
+export type ToggleTipoConsultaInput = z.infer<typeof toggleTipoConsultaSchema>;

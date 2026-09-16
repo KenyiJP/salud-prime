@@ -1,7 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequestIP } from "@tanstack/react-start/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { slugSchema, type LandingMedicaPublica } from "./landing-marca-schemas";
+import {
+  slugSchema,
+  obtenerSlotsInputSchema,
+  registrarReservaWebInputSchema,
+  type LandingMedicaPublica,
+  type TipoConsultaPublico,
+  type SlotDisponible,
+  type ResultadoReservaWeb,
+} from "./landing-marca-schemas";
 import { z } from "zod";
 
 export type TenantContext = { tenantId: string };
@@ -85,4 +94,94 @@ export const getLandingMedicaPublicaServerFn = createServerFn({ method: "GET" })
       servicios: servicios ?? [],
       testimonios: testimonios ?? [],
     };
+  });
+
+/**
+ * Pepper del hash de IP en `reservas_web_intentos`/`registrar_reserva_web`:
+ * nunca guardamos la IP en claro (dato personal), solo un HMAC-SHA256 con una
+ * clave que solo vive en el servidor. Mismo patrón que `orden-token.server.ts`.
+ */
+async function hashearIp(ip: string): Promise<string> {
+  const secreto = process.env["RESERVA_WEB_IP_SECRET"] ?? process.env["SUPABASE_SERVICE_ROLE_KEY"];
+  if (!secreto) throw new Error("Falta la clave de hash de IP en el servidor.");
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secreto),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const firma = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(ip));
+  return [...new Uint8Array(firma)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Lista los tipos de consulta activos de un tenant para el selector de la
+ * reserva pública. RPC `security definer`: anon no tiene SELECT directo
+ * sobre `tipos_consulta` (podría filtrar precios/nombres internos de otros
+ * tenants si se expusiera sin filtrar), así que se pasa por
+ * `obtener_tipos_consulta_publicos`, que ya filtra `activo = true`.
+ */
+export const getTiposConsultaPublicosServerFn = createServerFn({ method: "GET" })
+  .inputValidator(slugInputPublico.parse)
+  .handler(async ({ data }): Promise<TipoConsultaPublico[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: tipos, error } = await supabaseAdmin.rpc("obtener_tipos_consulta_publicos", {
+      p_slug: data.slug,
+    });
+    if (error) throw new Error(error.message);
+    return tipos ?? [];
+  });
+
+/**
+ * Horas libres de un día para la landing pública. `p_tipo_consulta_id` es
+ * opcional: si el paciente aún no elige tipo de consulta, la RPC calcula los
+ * slots con la duración por defecto del turno (`horarios_atencion`).
+ */
+export const getSlotsDisponiblesServerFn = createServerFn({ method: "GET" })
+  .inputValidator(obtenerSlotsInputSchema.parse)
+  .handler(async ({ data }): Promise<SlotDisponible[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: slots, error } = await supabaseAdmin.rpc("obtener_slots_disponibles", {
+      p_slug: data.slug,
+      p_fecha: data.fecha,
+      p_tipo_consulta_id: data.tipo_consulta_id ?? undefined,
+    });
+    if (error) throw new Error(error.message);
+    return slots ?? [];
+  });
+
+/**
+ * Confirma la reserva del paciente anónimo. La IP se calcula en el servidor
+ * (nunca la envía el cliente, para que no pueda falsificarse el rate limit) y
+ * se hashea antes de llegar a la RPC — `reservas_web_intentos` jamás guarda
+ * la IP real. `registrar_reserva_web` ya devuelve `{ ok: false, error_codigo }`
+ * en vez de lanzar excepción SQL, así que aquí solo se relanzan errores de
+ * transporte/infraestructura reales.
+ */
+export const registrarReservaWebServerFn = createServerFn({ method: "POST" })
+  .inputValidator(registrarReservaWebInputSchema.parse)
+  .handler(async ({ data }): Promise<ResultadoReservaWeb> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ip = getRequestIP({ xForwardedFor: true }) ?? "0.0.0.0";
+    const ipHash = await hashearIp(ip);
+
+    const { data: filas, error } = await supabaseAdmin.rpc("registrar_reserva_web", {
+      p_slug: data.slug,
+      p_inicio: data.inicio,
+      p_nombres: data.nombres,
+      p_apellidos: data.apellidos,
+      p_telefono: data.telefono,
+      p_ip_hash: ipHash,
+      p_documento_identidad: data.documento_identidad ?? undefined,
+      p_email: data.email ?? undefined,
+      p_aseguradora_tipo: data.aseguradora_tipo,
+      p_aseguradora_nombre: data.aseguradora_nombre ?? undefined,
+      p_comentario: data.comentario ?? undefined,
+      p_tipo_consulta_id: data.tipo_consulta_id ?? undefined,
+    });
+    if (error) throw new Error(error.message);
+    const resultado = filas?.[0];
+    if (!resultado) throw new Error("La reserva no devolvió resultado.");
+    return resultado;
   });

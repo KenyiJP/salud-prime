@@ -1,14 +1,35 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
+  actualizarTipoConsultaSchema,
   eliminarBloqueoSchema,
   nuevoBloqueoSchema,
   nuevoHorarioSchema,
+  nuevoTipoConsultaSchema,
   toggleHorarioSchema,
+  toggleTipoConsultaSchema,
   type BloqueoHorarioRow,
   type HorarioAtencionRow,
   type TipoConsultaRow,
 } from "./agenda-schemas";
+
+// Lista completa (activos e inactivos): el panel de gestión necesita mostrar
+// también los desactivados para poder reactivarlos. `getTiposConsulta` (solo
+// activos) sigue existiendo para los consumidores que arman formularios de
+// citas, donde no tiene sentido ofrecer un tipo apagado.
+export const getTiposConsultaAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { resolveMedicoContext } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { data, error } = await context.supabase
+      .from("tipos_consulta")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .order("nombre");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as TipoConsultaRow[];
+  });
 
 export const getTiposConsulta = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -23,6 +44,63 @@ export const getTiposConsulta = createServerFn({ method: "GET" })
       .order("nombre");
     if (error) throw new Error(error.message);
     return (data ?? []) as TipoConsultaRow[];
+  });
+
+export const crearTipoConsulta = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(nuevoTipoConsultaSchema.parse)
+  .handler(async ({ context, data }) => {
+    const { resolveMedicoContext } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { data: row, error } = await context.supabase
+      .from("tipos_consulta")
+      .insert({
+        tenant_id: tenantId,
+        nombre: data.nombre,
+        duracion_minutos: data.duracion_minutos,
+        activo: true,
+      })
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return row as TipoConsultaRow;
+  });
+
+export const actualizarTipoConsulta = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(actualizarTipoConsultaSchema.parse)
+  .handler(async ({ context, data }) => {
+    const { resolveMedicoContext } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { data: row, error } = await context.supabase
+      .from("tipos_consulta")
+      .update({ nombre: data.nombre, duracion_minutos: data.duracion_minutos })
+      .eq("id", data.id)
+      .eq("tenant_id", tenantId)
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return row as TipoConsultaRow;
+  });
+
+// Sin DELETE: `citas.tipo_consulta_id` puede referenciar filas históricas
+// (Día 18). Desactivar retira el tipo de los formularios sin romper citas
+// ya agendadas ni el historial clínico.
+export const toggleTipoConsulta = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(toggleTipoConsultaSchema.parse)
+  .handler(async ({ context, data }) => {
+    const { resolveMedicoContext } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { data: row, error } = await context.supabase
+      .from("tipos_consulta")
+      .update({ activo: data.activo })
+      .eq("id", data.id)
+      .eq("tenant_id", tenantId)
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+    return row as TipoConsultaRow;
   });
 
 export const getHorarios = createServerFn({ method: "GET" })
@@ -45,10 +123,7 @@ export const crearHorario = createServerFn({ method: "POST" })
   .inputValidator(nuevoHorarioSchema.parse)
   .handler(async ({ context, data }) => {
     const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId, tenantId } = await resolveMedicoContext(
-      context.supabase,
-      context.userId,
-    );
+    const { medicoId, tenantId } = await resolveMedicoContext(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("horarios_atencion")
       .insert({
@@ -102,10 +177,7 @@ export const crearBloqueo = createServerFn({ method: "POST" })
   .inputValidator(nuevoBloqueoSchema.parse)
   .handler(async ({ context, data }) => {
     const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId, tenantId } = await resolveMedicoContext(
-      context.supabase,
-      context.userId,
-    );
+    const { medicoId, tenantId } = await resolveMedicoContext(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("bloqueos_horario")
       .insert({

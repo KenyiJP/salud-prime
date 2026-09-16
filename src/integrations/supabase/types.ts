@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       atencion_adendas: {
@@ -395,40 +420,55 @@ export type Database = {
       }
       citas: {
         Row: {
+          aseguradora_nombre: string | null
+          aseguradora_tipo: string | null
           created_at: string
           estado: string
+          estado_pago_reserva: string
           fecha_hora: string
           google_event_id: string | null
           id: string
           medico_id: string
           motivo: string | null
+          origen_reserva: string
           paciente_id: string
+          reserva_comentario: string | null
           tenant_id: string
           tipo_consulta_id: string | null
           updated_at: string
         }
         Insert: {
+          aseguradora_nombre?: string | null
+          aseguradora_tipo?: string | null
           created_at?: string
           estado?: string
+          estado_pago_reserva?: string
           fecha_hora: string
           google_event_id?: string | null
           id?: string
           medico_id: string
           motivo?: string | null
+          origen_reserva?: string
           paciente_id: string
+          reserva_comentario?: string | null
           tenant_id: string
           tipo_consulta_id?: string | null
           updated_at?: string
         }
         Update: {
+          aseguradora_nombre?: string | null
+          aseguradora_tipo?: string | null
           created_at?: string
           estado?: string
+          estado_pago_reserva?: string
           fecha_hora?: string
           google_event_id?: string | null
           id?: string
           medico_id?: string
           motivo?: string | null
+          origen_reserva?: string
           paciente_id?: string
+          reserva_comentario?: string | null
           tenant_id?: string
           tipo_consulta_id?: string | null
           updated_at?: string
@@ -1817,6 +1857,38 @@ export type Database = {
           },
         ]
       }
+      reservas_web_intentos: {
+        Row: {
+          creado_en: string
+          exitoso: boolean
+          id: string
+          ip_hash: string
+          tenant_id: string | null
+        }
+        Insert: {
+          creado_en?: string
+          exitoso?: boolean
+          id?: string
+          ip_hash: string
+          tenant_id?: string | null
+        }
+        Update: {
+          creado_en?: string
+          exitoso?: boolean
+          id?: string
+          ip_hash?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservas_web_intentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roles_usuario: {
         Row: {
           created_at: string
@@ -2019,6 +2091,40 @@ export type Database = {
       }
     }
     Functions: {
+      dblink: { Args: { "": string }; Returns: Record<string, unknown>[] }
+      dblink_cancel_query: { Args: { "": string }; Returns: string }
+      dblink_close: { Args: { "": string }; Returns: string }
+      dblink_connect: { Args: { "": string }; Returns: string }
+      dblink_connect_u: { Args: { "": string }; Returns: string }
+      dblink_current_query: { Args: never; Returns: string }
+      dblink_disconnect:
+        | { Args: never; Returns: string }
+        | { Args: { "": string }; Returns: string }
+      dblink_error_message: { Args: { "": string }; Returns: string }
+      dblink_exec: { Args: { "": string }; Returns: string }
+      dblink_fdw_validator: {
+        Args: { catalog: unknown; options: string[] }
+        Returns: undefined
+      }
+      dblink_get_connections: { Args: never; Returns: string[] }
+      dblink_get_notify:
+        | { Args: { conname: string }; Returns: Record<string, unknown>[] }
+        | { Args: never; Returns: Record<string, unknown>[] }
+      dblink_get_pkey: {
+        Args: { "": string }
+        Returns: Database["public"]["CompositeTypes"]["dblink_pkey_results"][]
+        SetofOptions: {
+          from: "*"
+          to: "dblink_pkey_results"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      dblink_get_result: {
+        Args: { "": string }
+        Returns: Record<string, unknown>[]
+      }
+      dblink_is_busy: { Args: { "": string }; Returns: number }
       f_unaccent: { Args: { "": string }; Returns: string }
       gcal_guardar_credenciales: {
         Args: {
@@ -2043,6 +2149,55 @@ export type Database = {
         Args: { p_integracion_id: string }
         Returns: undefined
       }
+      obtener_slots_disponibles: {
+        Args: {
+          p_anticipacion_minutos?: number
+          p_fecha: string
+          p_slug: string
+          p_tipo_consulta_id?: string
+        }
+        Returns: {
+          fin: string
+          inicio: string
+        }[]
+      }
+      obtener_tipos_consulta_publicos: {
+        Args: { p_slug: string }
+        Returns: {
+          duracion_minutos: number
+          id: string
+          nombre: string
+        }[]
+      }
+      registrar_intento_reserva: {
+        Args: { p_exitoso: boolean; p_ip_hash: string; p_tenant_id: string }
+        Returns: undefined
+      }
+      registrar_reserva_web: {
+        Args: {
+          p_apellidos: string
+          p_aseguradora_nombre?: string
+          p_aseguradora_tipo?: string
+          p_comentario?: string
+          p_documento_identidad?: string
+          p_email?: string
+          p_inicio: string
+          p_ip_hash: string
+          p_nombres: string
+          p_slug: string
+          p_telefono: string
+          p_tipo_consulta_id?: string
+        }
+        Returns: {
+          cita_id: string
+          error_codigo: string
+          error_mensaje: string
+          estado: string
+          fecha_hora: string
+          medico_nombre: string
+          ok: boolean
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       unaccent: { Args: { "": string }; Returns: string }
@@ -2051,7 +2206,10 @@ export type Database = {
       rol_usuario: "founder" | "medico" | "community_manager" | "asistente"
     }
     CompositeTypes: {
-      [_ in never]: never
+      dblink_pkey_results: {
+        position: number | null
+        colname: string | null
+      }
     }
   }
 }
@@ -2174,6 +2332,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       rol_usuario: ["founder", "medico", "community_manager", "asistente"],
