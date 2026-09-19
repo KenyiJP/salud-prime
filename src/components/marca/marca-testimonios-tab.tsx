@@ -305,7 +305,11 @@ export function MarcaTestimoniosTab() {
                   </Badge>
                   <Badge
                     variant={testimonio.aprobado ? "default" : "outline"}
-                    className="text-xs"
+                    className={
+                      testimonio.aprobado
+                        ? "text-xs"
+                        : "text-xs border-amber-500/40 bg-amber-500/10 text-amber-600"
+                    }
                   >
                     {testimonio.aprobado ? "Aprobado" : "Pendiente"}
                   </Badge>
