@@ -29,6 +29,7 @@ import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
 import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
+import { Route as ConfiguracionWhatsappRouteImport } from './routes/configuracion.whatsapp'
 import { Route as ConfiguracionWhatsappEventosRouteImport } from './routes/configuracion.whatsapp-eventos'
 import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
 import { Route as OrdenLaboratorioOrdenIdRouteImport } from './routes/orden-laboratorio.$ordenId'
@@ -134,6 +135,11 @@ const ConfiguracionCalendarioRoute = ConfiguracionCalendarioRouteImport.update({
   path: '/configuracion/calendario',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfiguracionWhatsappRoute = ConfiguracionWhatsappRouteImport.update({
+  id: '/configuracion/whatsapp',
+  path: '/configuracion/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracionWhatsappEventosRoute =
   ConfiguracionWhatsappEventosRouteImport.update({
     id: '/configuracion/whatsapp-eventos',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/terminos': typeof TerminosRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
+  '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
@@ -203,6 +210,7 @@ export interface FileRoutesByTo {
   '/terminos': typeof TerminosRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
+  '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/terminos': typeof TerminosRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
+  '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
   '/orden-laboratorio/$ordenId': typeof OrdenLaboratorioOrdenIdRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
+    | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
+    | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/terminos'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
+    | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
     | '/orden-laboratorio/$ordenId'
@@ -337,6 +349,7 @@ export interface RootRouteChildren {
   TerminosRoute: typeof TerminosRoute
   AtencionAtencionIdRoute: typeof AtencionAtencionIdRoute
   ConfiguracionCalendarioRoute: typeof ConfiguracionCalendarioRoute
+  ConfiguracionWhatsappRoute: typeof ConfiguracionWhatsappRoute
   ConfiguracionWhatsappEventosRoute: typeof ConfiguracionWhatsappEventosRoute
   OrdenImagenOrdenIdRoute: typeof OrdenImagenOrdenIdRoute
   OrdenLaboratorioOrdenIdRoute: typeof OrdenLaboratorioOrdenIdRoute
@@ -485,6 +498,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfiguracionCalendarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracion/whatsapp': {
+      id: '/configuracion/whatsapp'
+      path: '/configuracion/whatsapp'
+      fullPath: '/configuracion/whatsapp'
+      preLoaderRoute: typeof ConfiguracionWhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracion/whatsapp-eventos': {
       id: '/configuracion/whatsapp-eventos'
       path: '/configuracion/whatsapp-eventos'
@@ -537,6 +557,7 @@ const rootRouteChildren: RootRouteChildren = {
   TerminosRoute: TerminosRoute,
   AtencionAtencionIdRoute: AtencionAtencionIdRoute,
   ConfiguracionCalendarioRoute: ConfiguracionCalendarioRoute,
+  ConfiguracionWhatsappRoute: ConfiguracionWhatsappRoute,
   ConfiguracionWhatsappEventosRoute: ConfiguracionWhatsappEventosRoute,
   OrdenImagenOrdenIdRoute: OrdenImagenOrdenIdRoute,
   OrdenLaboratorioOrdenIdRoute: OrdenLaboratorioOrdenIdRoute,
