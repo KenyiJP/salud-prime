@@ -2115,6 +2115,146 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_credenciales: {
+        Row: {
+          access_token_expira_en: string | null
+          access_token_secret_id: string
+          created_at: string
+          integracion_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_token_expira_en?: string | null
+          access_token_secret_id: string
+          created_at?: string
+          integracion_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_token_expira_en?: string | null
+          access_token_secret_id?: string
+          created_at?: string
+          integracion_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_credenciales_integracion_id_fkey"
+            columns: ["integracion_id"]
+            isOneToOne: true
+            referencedRelation: "whatsapp_integraciones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_integraciones: {
+        Row: {
+          created_at: string
+          estado: string
+          id: string
+          medico_id: string
+          numero_visible: string | null
+          phone_number_id: string
+          tenant_id: string
+          ultimo_error: string | null
+          updated_at: string
+          waba_id: string
+        }
+        Insert: {
+          created_at?: string
+          estado?: string
+          id?: string
+          medico_id: string
+          numero_visible?: string | null
+          phone_number_id: string
+          tenant_id: string
+          ultimo_error?: string | null
+          updated_at?: string
+          waba_id: string
+        }
+        Update: {
+          created_at?: string
+          estado?: string
+          id?: string
+          medico_id?: string
+          numero_visible?: string | null
+          phone_number_id?: string
+          tenant_id?: string
+          ultimo_error?: string | null
+          updated_at?: string
+          waba_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_integraciones_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: true
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_integraciones_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_webhook_events: {
+        Row: {
+          created_at: string
+          detalle_error: string | null
+          estado: string
+          id: string
+          medico_id: string | null
+          message_id: string
+          payload: Json
+          phone_number_id: string
+          procesado_en: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detalle_error?: string | null
+          estado?: string
+          id?: string
+          medico_id?: string | null
+          message_id: string
+          payload: Json
+          phone_number_id: string
+          procesado_en?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detalle_error?: string | null
+          estado?: string
+          id?: string
+          medico_id?: string | null
+          message_id?: string
+          payload?: Json
+          phone_number_id?: string
+          procesado_en?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_webhook_events_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_webhook_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       catalogo_busqueda_medicamentos: {
