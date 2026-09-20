@@ -30,6 +30,7 @@ import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
 import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
 import { Route as ConfiguracionGoogleCalendarColaRouteImport } from './routes/configuracion.google-calendar-cola'
+import { Route as ConfiguracionGoogleCalendarLogRouteImport } from './routes/configuracion.google-calendar-log'
 import { Route as ConfiguracionWhatsappRouteImport } from './routes/configuracion.whatsapp'
 import { Route as ConfiguracionWhatsappEventosRouteImport } from './routes/configuracion.whatsapp-eventos'
 import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
@@ -142,6 +143,12 @@ const ConfiguracionGoogleCalendarColaRoute =
     path: '/configuracion/google-calendar-cola',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ConfiguracionGoogleCalendarLogRoute =
+  ConfiguracionGoogleCalendarLogRouteImport.update({
+    id: '/configuracion/google-calendar-log',
+    path: '/configuracion/google-calendar-log',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ConfiguracionWhatsappRoute = ConfiguracionWhatsappRouteImport.update({
   id: '/configuracion/whatsapp',
   path: '/configuracion/whatsapp',
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
+  '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
   '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
@@ -219,6 +227,7 @@ export interface FileRoutesByTo {
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
+  '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
   '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
@@ -248,6 +257,7 @@ export interface FileRoutesById {
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
+  '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
   '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
     | '/configuracion/google-calendar-cola'
+    | '/configuracion/google-calendar-log'
     | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
     | '/configuracion/google-calendar-cola'
+    | '/configuracion/google-calendar-log'
     | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
@@ -334,6 +346,7 @@ export interface FileRouteTypes {
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
     | '/configuracion/google-calendar-cola'
+    | '/configuracion/google-calendar-log'
     | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
@@ -363,6 +376,7 @@ export interface RootRouteChildren {
   AtencionAtencionIdRoute: typeof AtencionAtencionIdRoute
   ConfiguracionCalendarioRoute: typeof ConfiguracionCalendarioRoute
   ConfiguracionGoogleCalendarColaRoute: typeof ConfiguracionGoogleCalendarColaRoute
+  ConfiguracionGoogleCalendarLogRoute: typeof ConfiguracionGoogleCalendarLogRoute
   ConfiguracionWhatsappRoute: typeof ConfiguracionWhatsappRoute
   ConfiguracionWhatsappEventosRoute: typeof ConfiguracionWhatsappEventosRoute
   OrdenImagenOrdenIdRoute: typeof OrdenImagenOrdenIdRoute
@@ -519,6 +533,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfiguracionGoogleCalendarColaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracion/google-calendar-log': {
+      id: '/configuracion/google-calendar-log'
+      path: '/configuracion/google-calendar-log'
+      fullPath: '/configuracion/google-calendar-log'
+      preLoaderRoute: typeof ConfiguracionGoogleCalendarLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracion/whatsapp': {
       id: '/configuracion/whatsapp'
       path: '/configuracion/whatsapp'
@@ -579,6 +600,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtencionAtencionIdRoute: AtencionAtencionIdRoute,
   ConfiguracionCalendarioRoute: ConfiguracionCalendarioRoute,
   ConfiguracionGoogleCalendarColaRoute: ConfiguracionGoogleCalendarColaRoute,
+  ConfiguracionGoogleCalendarLogRoute: ConfiguracionGoogleCalendarLogRoute,
   ConfiguracionWhatsappRoute: ConfiguracionWhatsappRoute,
   ConfiguracionWhatsappEventosRoute: ConfiguracionWhatsappEventosRoute,
   OrdenImagenOrdenIdRoute: OrdenImagenOrdenIdRoute,
