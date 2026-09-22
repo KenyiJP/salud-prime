@@ -429,9 +429,11 @@ export type Database = {
           google_event_id: string | null
           id: string
           medico_id: string
+          monto_esperado: number | null
           motivo: string | null
           origen_reserva: string
           paciente_id: string
+          pago_obligatorio: boolean
           reserva_comentario: string | null
           tenant_id: string
           tipo_consulta_id: string | null
@@ -447,9 +449,11 @@ export type Database = {
           google_event_id?: string | null
           id?: string
           medico_id: string
+          monto_esperado?: number | null
           motivo?: string | null
           origen_reserva?: string
           paciente_id: string
+          pago_obligatorio?: boolean
           reserva_comentario?: string | null
           tenant_id: string
           tipo_consulta_id?: string | null
@@ -465,9 +469,11 @@ export type Database = {
           google_event_id?: string | null
           id?: string
           medico_id?: string
+          monto_esperado?: number | null
           motivo?: string | null
           origen_reserva?: string
           paciente_id?: string
+          pago_obligatorio?: boolean
           reserva_comentario?: string | null
           tenant_id?: string
           tipo_consulta_id?: string | null
@@ -500,6 +506,62 @@ export type Database = {
             columns: ["tipo_consulta_id"]
             isOneToOne: false
             referencedRelation: "tipos_consulta"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      culqi_eventos_procesados: {
+        Row: {
+          charge_id: string | null
+          created_at: string
+          detalle_error: string | null
+          event_id: string
+          id: string
+          medico_id: string | null
+          order_id: string | null
+          payload: Json
+          procesado_en: string | null
+          referencia_id: string | null
+          referencia_tipo: string | null
+          resultado: string
+          tipo_evento: string
+        }
+        Insert: {
+          charge_id?: string | null
+          created_at?: string
+          detalle_error?: string | null
+          event_id: string
+          id?: string
+          medico_id?: string | null
+          order_id?: string | null
+          payload: Json
+          procesado_en?: string | null
+          referencia_id?: string | null
+          referencia_tipo?: string | null
+          resultado?: string
+          tipo_evento: string
+        }
+        Update: {
+          charge_id?: string | null
+          created_at?: string
+          detalle_error?: string | null
+          event_id?: string
+          id?: string
+          medico_id?: string | null
+          order_id?: string | null
+          payload?: Json
+          procesado_en?: string | null
+          referencia_id?: string | null
+          referencia_tipo?: string | null
+          resultado?: string
+          tipo_evento?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "culqi_eventos_procesados_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
             referencedColumns: ["id"]
           },
         ]
@@ -1205,6 +1267,60 @@ export type Database = {
             columns: ["via_administracion_id"]
             isOneToOne: false
             referencedRelation: "vias_administracion"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medico_pasarelas_config: {
+        Row: {
+          activo: boolean
+          created_at: string
+          id: string
+          llave_publica: string
+          llave_secreta_secret_id: string | null
+          medico_id: string
+          modo: string
+          proveedor: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          llave_publica: string
+          llave_secreta_secret_id?: string | null
+          medico_id: string
+          modo?: string
+          proveedor?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          id?: string
+          llave_publica?: string
+          llave_secreta_secret_id?: string | null
+          medico_id?: string
+          modo?: string
+          proveedor?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medico_pasarelas_config_medico_id_fkey"
+            columns: ["medico_id"]
+            isOneToOne: true
+            referencedRelation: "medicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medico_pasarelas_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -1917,6 +2033,101 @@ export type Database = {
           },
         ]
       }
+      reclamaciones_web: {
+        Row: {
+          bien_contratado: string
+          codigo: string
+          consumidor_apellidos: string
+          consumidor_documento: string
+          consumidor_domicilio: string
+          consumidor_email: string
+          consumidor_nombres: string
+          consumidor_telefono: string | null
+          creado_en: string
+          detalle: string
+          estado: string
+          id: string
+          ip_hash: string
+          monto_reclamado: number | null
+          pedido_consumidor: string
+          respondido_en: string | null
+          respuesta_proveedor: string | null
+          tenant_id: string | null
+          tipo: string
+        }
+        Insert: {
+          bien_contratado: string
+          codigo: string
+          consumidor_apellidos: string
+          consumidor_documento: string
+          consumidor_domicilio: string
+          consumidor_email: string
+          consumidor_nombres: string
+          consumidor_telefono?: string | null
+          creado_en?: string
+          detalle: string
+          estado?: string
+          id?: string
+          ip_hash: string
+          monto_reclamado?: number | null
+          pedido_consumidor: string
+          respondido_en?: string | null
+          respuesta_proveedor?: string | null
+          tenant_id?: string | null
+          tipo: string
+        }
+        Update: {
+          bien_contratado?: string
+          codigo?: string
+          consumidor_apellidos?: string
+          consumidor_documento?: string
+          consumidor_domicilio?: string
+          consumidor_email?: string
+          consumidor_nombres?: string
+          consumidor_telefono?: string | null
+          creado_en?: string
+          detalle?: string
+          estado?: string
+          id?: string
+          ip_hash?: string
+          monto_reclamado?: number | null
+          pedido_consumidor?: string
+          respondido_en?: string | null
+          respuesta_proveedor?: string | null
+          tenant_id?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reclamaciones_web_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reclamaciones_web_intentos: {
+        Row: {
+          creado_en: string
+          exitoso: boolean
+          id: string
+          ip_hash: string
+        }
+        Insert: {
+          creado_en?: string
+          exitoso?: boolean
+          id?: string
+          ip_hash: string
+        }
+        Update: {
+          creado_en?: string
+          exitoso?: boolean
+          id?: string
+          ip_hash?: string
+        }
+        Relationships: []
+      }
       reservas_web_intentos: {
         Row: {
           creado_en: string
@@ -2072,6 +2283,8 @@ export type Database = {
           duracion_minutos: number
           id: string
           nombre: string
+          precio_consulta: number | null
+          requiere_pago_adelantado: boolean
           tenant_id: string
         }
         Insert: {
@@ -2080,6 +2293,8 @@ export type Database = {
           duracion_minutos?: number
           id?: string
           nombre: string
+          precio_consulta?: number | null
+          requiere_pago_adelantado?: boolean
           tenant_id: string
         }
         Update: {
@@ -2088,11 +2303,79 @@ export type Database = {
           duracion_minutos?: number
           id?: string
           nombre?: string
+          precio_consulta?: number | null
+          requiere_pago_adelantado?: boolean
           tenant_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "tipos_consulta_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transacciones_suscripcion: {
+        Row: {
+          created_at: string
+          culqi_charge_id: string | null
+          culqi_order_id: string | null
+          estado: string
+          id: string
+          metadata: Json
+          metodo_pago: string | null
+          moneda: string
+          monto: number
+          periodo_fin: string | null
+          periodo_inicio: string | null
+          suscripcion_id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          culqi_charge_id?: string | null
+          culqi_order_id?: string | null
+          estado?: string
+          id?: string
+          metadata?: Json
+          metodo_pago?: string | null
+          moneda?: string
+          monto: number
+          periodo_fin?: string | null
+          periodo_inicio?: string | null
+          suscripcion_id: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          culqi_charge_id?: string | null
+          culqi_order_id?: string | null
+          estado?: string
+          id?: string
+          metadata?: Json
+          metodo_pago?: string | null
+          moneda?: string
+          monto?: number
+          periodo_fin?: string | null
+          periodo_inicio?: string | null
+          suscripcion_id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacciones_suscripcion_suscripcion_id_fkey"
+            columns: ["suscripcion_id"]
+            isOneToOne: false
+            referencedRelation: "suscripciones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_suscripcion_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -2345,6 +2628,41 @@ export type Database = {
       }
     }
     Functions: {
+      culqi_guardar_pasarela_config: {
+        Args: {
+          p_llave_publica: string
+          p_llave_secreta: string
+          p_medico_id: string
+          p_modo?: string
+          p_tenant_id: string
+        }
+        Returns: string
+      }
+      culqi_obtener_llave_secreta: {
+        Args: { p_medico_id: string }
+        Returns: string
+      }
+      culqi_procesar_evento_charge: {
+        Args: {
+          p_charge_id: string
+          p_event_id: string
+          p_exitoso: boolean
+          p_medico_id: string
+          p_metodo_pago: string
+          p_moneda: string
+          p_monto: number
+          p_order_id: string
+          p_payload: Json
+          p_referencia_id: string
+          p_referencia_tipo: string
+          p_tipo_evento: string
+        }
+        Returns: {
+          mensaje: string
+          ok: boolean
+          resultado: string
+        }[]
+      }
       dblink: { Args: { "": string }; Returns: Record<string, unknown>[] }
       dblink_cancel_query: { Args: { "": string }; Returns: string }
       dblink_close: { Args: { "": string }; Returns: string }
@@ -2423,9 +2741,36 @@ export type Database = {
           nombre: string
         }[]
       }
+      registrar_intento_reclamacion: {
+        Args: { p_exitoso: boolean; p_ip_hash: string }
+        Returns: undefined
+      }
       registrar_intento_reserva: {
         Args: { p_exitoso: boolean; p_ip_hash: string; p_tenant_id: string }
         Returns: undefined
+      }
+      registrar_reclamacion_web: {
+        Args: {
+          p_bien_contratado: string
+          p_consumidor_apellidos: string
+          p_consumidor_documento: string
+          p_consumidor_domicilio: string
+          p_consumidor_email: string
+          p_consumidor_nombres: string
+          p_consumidor_telefono?: string
+          p_detalle: string
+          p_ip_hash: string
+          p_monto_reclamado?: number
+          p_pedido_consumidor: string
+          p_slug?: string
+          p_tipo: string
+        }
+        Returns: {
+          codigo: string
+          error_codigo: string
+          error_mensaje: string
+          ok: boolean
+        }[]
       }
       registrar_reserva_web: {
         Args: {
