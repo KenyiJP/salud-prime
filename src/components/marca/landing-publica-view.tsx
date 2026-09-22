@@ -1,4 +1,5 @@
-import { CalendarCheck, GraduationCap, MapPin, MessageCircle, Star } from "lucide-react";
+import { CalendarCheck, FileWarning, GraduationCap, MapPin, MessageCircle, Star } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -331,6 +332,12 @@ export function LandingPublicaView({ data }: { data: LandingMedicaPublica }) {
           {config.especialidad ? ` · ${config.especialidad}` : ""}
         </p>
         {credenciales ? <p className="mt-1">{credenciales}</p> : null}
+        <div className="mt-3 flex items-center justify-center gap-3 text-gray-400">
+          <Link to="/libro-reclamaciones" search={{ slug: config.slug ?? undefined }} className="inline-flex items-center gap-1 hover:underline">
+            <FileWarning className="h-3.5 w-3.5" />
+            Libro de Reclamaciones
+          </Link>
+        </div>
         <p className="mt-3 text-gray-400">Web publicada con MediSuite</p>
       </footer>
     </div>

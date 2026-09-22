@@ -18,6 +18,7 @@ import { Route as HistoriasRouteImport } from './routes/historias'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as ImagenologiaRouteImport } from './routes/imagenologia'
 import { Route as LaboratoriosRouteImport } from './routes/laboratorios'
+import { Route as LibroReclamacionesRouteImport } from './routes/libro-reclamaciones'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MarcaRouteImport } from './routes/marca'
 import { Route as PendienteActivacionRouteImport } from './routes/pendiente-activacion'
@@ -25,6 +26,7 @@ import { Route as PerfilConsultorioRouteImport } from './routes/perfil-consultor
 import { Route as PerfilMedicoRouteImport } from './routes/perfil-medico'
 import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as RecetarioRouteImport } from './routes/recetario'
+import { Route as ReembolsoRouteImport } from './routes/reembolso'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
@@ -82,6 +84,11 @@ const LaboratoriosRoute = LaboratoriosRouteImport.update({
   path: '/laboratorios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LibroReclamacionesRoute = LibroReclamacionesRouteImport.update({
+  id: '/libro-reclamaciones',
+  path: '/libro-reclamaciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -115,6 +122,11 @@ const PrivacidadRoute = PrivacidadRouteImport.update({
 const RecetarioRoute = RecetarioRouteImport.update({
   id: '/recetario',
   path: '/recetario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReembolsoRoute = ReembolsoRouteImport.update({
+  id: '/reembolso',
+  path: '/reembolso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegistroRoute = RegistroRouteImport.update({
@@ -186,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/horarios': typeof HorariosRoute
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
+  '/libro-reclamaciones': typeof LibroReclamacionesRoute
   '/login': typeof LoginRoute
   '/marca': typeof MarcaRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
@@ -193,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/perfil-medico': typeof PerfilMedicoRoute
   '/privacidad': typeof PrivacidadRoute
   '/recetario': typeof RecetarioRoute
+  '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
   '/terminos': typeof TerminosRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
@@ -215,6 +229,7 @@ export interface FileRoutesByTo {
   '/horarios': typeof HorariosRoute
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
+  '/libro-reclamaciones': typeof LibroReclamacionesRoute
   '/login': typeof LoginRoute
   '/marca': typeof MarcaRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
@@ -222,6 +237,7 @@ export interface FileRoutesByTo {
   '/perfil-medico': typeof PerfilMedicoRoute
   '/privacidad': typeof PrivacidadRoute
   '/recetario': typeof RecetarioRoute
+  '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
   '/terminos': typeof TerminosRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
@@ -245,6 +261,7 @@ export interface FileRoutesById {
   '/horarios': typeof HorariosRoute
   '/imagenologia': typeof ImagenologiaRoute
   '/laboratorios': typeof LaboratoriosRoute
+  '/libro-reclamaciones': typeof LibroReclamacionesRoute
   '/login': typeof LoginRoute
   '/marca': typeof MarcaRoute
   '/pendiente-activacion': typeof PendienteActivacionRoute
@@ -252,6 +269,7 @@ export interface FileRoutesById {
   '/perfil-medico': typeof PerfilMedicoRoute
   '/privacidad': typeof PrivacidadRoute
   '/recetario': typeof RecetarioRoute
+  '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
   '/terminos': typeof TerminosRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
@@ -276,6 +294,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/imagenologia'
     | '/laboratorios'
+    | '/libro-reclamaciones'
     | '/login'
     | '/marca'
     | '/pendiente-activacion'
@@ -283,6 +302,7 @@ export interface FileRouteTypes {
     | '/perfil-medico'
     | '/privacidad'
     | '/recetario'
+    | '/reembolso'
     | '/registro'
     | '/terminos'
     | '/atencion/$atencionId'
@@ -305,6 +325,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/imagenologia'
     | '/laboratorios'
+    | '/libro-reclamaciones'
     | '/login'
     | '/marca'
     | '/pendiente-activacion'
@@ -312,6 +333,7 @@ export interface FileRouteTypes {
     | '/perfil-medico'
     | '/privacidad'
     | '/recetario'
+    | '/reembolso'
     | '/registro'
     | '/terminos'
     | '/atencion/$atencionId'
@@ -334,6 +356,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/imagenologia'
     | '/laboratorios'
+    | '/libro-reclamaciones'
     | '/login'
     | '/marca'
     | '/pendiente-activacion'
@@ -341,6 +364,7 @@ export interface FileRouteTypes {
     | '/perfil-medico'
     | '/privacidad'
     | '/recetario'
+    | '/reembolso'
     | '/registro'
     | '/terminos'
     | '/atencion/$atencionId'
@@ -364,6 +388,7 @@ export interface RootRouteChildren {
   HorariosRoute: typeof HorariosRoute
   ImagenologiaRoute: typeof ImagenologiaRoute
   LaboratoriosRoute: typeof LaboratoriosRoute
+  LibroReclamacionesRoute: typeof LibroReclamacionesRoute
   LoginRoute: typeof LoginRoute
   MarcaRoute: typeof MarcaRoute
   PendienteActivacionRoute: typeof PendienteActivacionRoute
@@ -371,6 +396,7 @@ export interface RootRouteChildren {
   PerfilMedicoRoute: typeof PerfilMedicoRoute
   PrivacidadRoute: typeof PrivacidadRoute
   RecetarioRoute: typeof RecetarioRoute
+  ReembolsoRoute: typeof ReembolsoRoute
   RegistroRoute: typeof RegistroRoute
   TerminosRoute: typeof TerminosRoute
   AtencionAtencionIdRoute: typeof AtencionAtencionIdRoute
@@ -449,6 +475,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LaboratoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/libro-reclamaciones': {
+      id: '/libro-reclamaciones'
+      path: '/libro-reclamaciones'
+      fullPath: '/libro-reclamaciones'
+      preLoaderRoute: typeof LibroReclamacionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -496,6 +529,13 @@ declare module '@tanstack/react-router' {
       path: '/recetario'
       fullPath: '/recetario'
       preLoaderRoute: typeof RecetarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reembolso': {
+      id: '/reembolso'
+      path: '/reembolso'
+      fullPath: '/reembolso'
+      preLoaderRoute: typeof ReembolsoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/registro': {
@@ -588,6 +628,7 @@ const rootRouteChildren: RootRouteChildren = {
   HorariosRoute: HorariosRoute,
   ImagenologiaRoute: ImagenologiaRoute,
   LaboratoriosRoute: LaboratoriosRoute,
+  LibroReclamacionesRoute: LibroReclamacionesRoute,
   LoginRoute: LoginRoute,
   MarcaRoute: MarcaRoute,
   PendienteActivacionRoute: PendienteActivacionRoute,
@@ -595,6 +636,7 @@ const rootRouteChildren: RootRouteChildren = {
   PerfilMedicoRoute: PerfilMedicoRoute,
   PrivacidadRoute: PrivacidadRoute,
   RecetarioRoute: RecetarioRoute,
+  ReembolsoRoute: ReembolsoRoute,
   RegistroRoute: RegistroRoute,
   TerminosRoute: TerminosRoute,
   AtencionAtencionIdRoute: AtencionAtencionIdRoute,

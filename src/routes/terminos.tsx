@@ -108,7 +108,39 @@ function TerminosPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-foreground">7. Contacto</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              7. Política de Cancelación y Reembolso
+            </h2>
+            <p>
+              El Médico puede cancelar su suscripción a MediSuite en cualquier momento desde su
+              panel de Facturación. El detalle completo de plazos, condiciones de devolución
+              prorrateada y casos de no aplicabilidad tras el uso del periodo contratado se
+              encuentra en la{" "}
+              <Link to="/reembolso" className="text-primary underline-offset-4 hover:underline">
+                Política de Cancelación y Reembolsos
+              </Link>
+              , que forma parte integrante de estos Términos.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-foreground">8. Libro de Reclamaciones</h2>
+            <p>
+              Conforme a la Ley N.° 29571 (Código de Protección y Defensa del Consumidor), el
+              Médico o paciente que desee presentar un reclamo o queja sobre el servicio SaaS de
+              MediSuite puede hacerlo a través del{" "}
+              <Link
+                to="/libro-reclamaciones"
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                Libro de Reclamaciones Virtual
+              </Link>
+              .
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-foreground">9. Contacto</h2>
             <p>
               Para consultas sobre estos Términos, puede escribir a{" "}
               <a

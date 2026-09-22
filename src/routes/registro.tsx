@@ -137,6 +137,24 @@ function RegistroPage() {
             Iniciar sesión
           </Link>
         </p>
+
+        <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-muted-foreground/80">
+          <Link to="/terminos" className="hover:underline">
+            Términos
+          </Link>
+          <span>·</span>
+          <Link to="/privacidad" className="hover:underline">
+            Privacidad
+          </Link>
+          <span>·</span>
+          <Link to="/reembolso" className="hover:underline">
+            Reembolsos
+          </Link>
+          <span>·</span>
+          <Link to="/libro-reclamaciones" className="hover:underline">
+            Libro de Reclamaciones
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -6,10 +6,12 @@ import {
   slugSchema,
   obtenerSlotsInputSchema,
   registrarReservaWebInputSchema,
+  registrarReclamacionWebInputSchema,
   type LandingMedicaPublica,
   type TipoConsultaPublico,
   type SlotDisponible,
   type ResultadoReservaWeb,
+  type ResultadoReclamacionWeb,
 } from "./landing-marca-schemas";
 import { z } from "zod";
 
@@ -183,5 +185,39 @@ export const registrarReservaWebServerFn = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const resultado = filas?.[0];
     if (!resultado) throw new Error("La reserva no devolvió resultado.");
+    return resultado;
+  });
+
+/**
+ * Confirma un reclamo/queja del Libro de Reclamaciones Virtual (Día 21B,
+ * Indecopi). Mismo mecanismo de IP hasheada en servidor que la reserva
+ * pública; `slug` ausente = reclamo institucional contra MATEO, `slug`
+ * presente = reclamo contra el médico titular de esa landing.
+ */
+export const registrarReclamacionWebServerFn = createServerFn({ method: "POST" })
+  .inputValidator(registrarReclamacionWebInputSchema.parse)
+  .handler(async ({ data }): Promise<ResultadoReclamacionWeb> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ip = getRequestIP({ xForwardedFor: true }) ?? "0.0.0.0";
+    const ipHash = await hashearIp(ip);
+
+    const { data: filas, error } = await supabaseAdmin.rpc("registrar_reclamacion_web", {
+      p_tipo: data.tipo,
+      p_consumidor_nombres: data.consumidor_nombres,
+      p_consumidor_apellidos: data.consumidor_apellidos,
+      p_consumidor_documento: data.consumidor_documento,
+      p_consumidor_domicilio: data.consumidor_domicilio,
+      p_consumidor_email: data.consumidor_email,
+      p_consumidor_telefono: data.consumidor_telefono ?? undefined,
+      p_bien_contratado: data.bien_contratado,
+      p_monto_reclamado: data.monto_reclamado ?? undefined,
+      p_detalle: data.detalle,
+      p_pedido_consumidor: data.pedido_consumidor,
+      p_ip_hash: ipHash,
+      p_slug: data.slug ?? undefined,
+    });
+    if (error) throw new Error(error.message);
+    const resultado = filas?.[0];
+    if (!resultado) throw new Error("La reclamación no devolvió resultado.");
     return resultado;
   });

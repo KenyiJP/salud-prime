@@ -149,7 +149,20 @@ function PoliticaPrivacidadPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-foreground">6. Contacto</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              6. Banco de Datos Personales
+            </h2>
+            <p>
+              Los datos personales y de salud tratados por MediSuite en representación del
+              Médico se almacenan en bancos de datos de administración privada. El registro de
+              dichos bancos ante la Autoridad Nacional de Protección de Datos Personales
+              (ANPD, Ministerio de Justicia) se encuentra en trámite, conforme a lo exigido
+              por la Ley N.° 29733 y su Reglamento.
+            </p>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-foreground">7. Contacto</h2>
             <p>
               Ante cualquier consulta sobre esta Política de Privacidad, puede escribir a{" "}
               <a

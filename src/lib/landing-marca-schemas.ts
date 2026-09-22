@@ -296,3 +296,50 @@ export type SuscripcionActualInfo = {
   plan: PlanSuscripcionRow;
   usuarios_actuales: number;
 };
+
+// ---------------------------------------------------------------------------
+// Libro de Reclamaciones Virtual (Día 21B) — Indecopi, Ley 29571 /
+// D.S. 011-2011-PCM. Un consumidor anónimo registra un reclamo o queja
+// dirigido a MATEO (slug ausente) o al médico titular de una landing
+// (`/dr-{slug}`). Única vía de escritura: `registrar_reclamacion_web`,
+// security definer, mismo patrón anti-abuso que la reserva pública del
+// Día 18. Aislado por completo de las tablas/funciones de Culqi del Día 21.
+// ---------------------------------------------------------------------------
+
+export const TIPOS_RECLAMACION = ["reclamo", "queja"] as const;
+export type TipoReclamacion = (typeof TIPOS_RECLAMACION)[number];
+
+export const ETIQUETA_TIPO_RECLAMACION: Record<TipoReclamacion, string> = {
+  reclamo: "Reclamo",
+  queja: "Queja",
+};
+
+export const reclamacionWebFormSchema = z.object({
+  tipo: z.enum(TIPOS_RECLAMACION),
+  consumidor_nombres: z.string().trim().min(2, "Ingresa tus nombres.").max(120),
+  consumidor_apellidos: z.string().trim().min(2, "Ingresa tus apellidos.").max(120),
+  consumidor_documento: z.string().trim().min(6, "Ingresa un documento válido.").max(20),
+  consumidor_domicilio: z.string().trim().min(5, "Ingresa tu domicilio.").max(300),
+  consumidor_email: z.string().trim().toLowerCase().email("Ingresa un correo válido."),
+  consumidor_telefono: z
+    .string()
+    .trim()
+    .regex(/^\+?[0-9]{9,15}$/, "Ingresa un celular válido, ej. 987654321.")
+    .nullable(),
+  bien_contratado: z.string().trim().min(3, "Indica el servicio contratado.").max(200),
+  monto_reclamado: z
+    .number({ invalid_type_error: "Ingresa un monto válido." })
+    .min(0, "El monto no puede ser negativo.")
+    .nullable(),
+  detalle: z.string().trim().min(10, "Describe el reclamo con más detalle.").max(2000),
+  pedido_consumidor: z.string().trim().min(5, "Indica qué solución esperas.").max(1000),
+});
+export type ReclamacionWebFormInput = z.infer<typeof reclamacionWebFormSchema>;
+
+export const registrarReclamacionWebInputSchema = reclamacionWebFormSchema.and(
+  z.object({ slug: slugSchema.nullable() }),
+);
+export type RegistrarReclamacionWebInput = z.infer<typeof registrarReclamacionWebInputSchema>;
+
+export type ResultadoReclamacionWeb =
+  Database["public"]["Functions"]["registrar_reclamacion_web"]["Returns"][number];

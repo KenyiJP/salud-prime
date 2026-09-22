@@ -3,8 +3,13 @@ import {
   getSlotsDisponiblesServerFn,
   getTiposConsultaPublicosServerFn,
   registrarReservaWebServerFn,
+  registrarReclamacionWebServerFn,
 } from "./landing-marca.server";
-import type { ObtenerSlotsInput, RegistrarReservaWebInput } from "./landing-marca-schemas";
+import type {
+  ObtenerSlotsInput,
+  RegistrarReservaWebInput,
+  RegistrarReclamacionWebInput,
+} from "./landing-marca-schemas";
 
 /**
  * Hooks del flujo de reserva pública (Día 18b). Viven en un archivo propio
@@ -44,5 +49,13 @@ export function useSlotsDisponibles(input: ObtenerSlotsInput, enabled: boolean) 
 export function useRegistrarReservaWeb() {
   return useMutation({
     mutationFn: (input: RegistrarReservaWebInput) => registrarReservaWebServerFn({ data: input }),
+  });
+}
+
+/** Formulario público del Libro de Reclamaciones (Día 21B, Indecopi). */
+export function useRegistrarReclamacionWeb() {
+  return useMutation({
+    mutationFn: (input: RegistrarReclamacionWebInput) =>
+      registrarReclamacionWebServerFn({ data: input }),
   });
 }
