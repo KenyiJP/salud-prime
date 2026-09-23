@@ -429,6 +429,7 @@ export type Database = {
           google_event_id: string | null
           id: string
           medico_id: string
+          monto_adelanto_esperado: number | null
           monto_esperado: number | null
           motivo: string | null
           origen_reserva: string
@@ -449,6 +450,7 @@ export type Database = {
           google_event_id?: string | null
           id?: string
           medico_id: string
+          monto_adelanto_esperado?: number | null
           monto_esperado?: number | null
           motivo?: string | null
           origen_reserva?: string
@@ -469,6 +471,7 @@ export type Database = {
           google_event_id?: string | null
           id?: string
           medico_id?: string
+          monto_adelanto_esperado?: number | null
           monto_esperado?: number | null
           motivo?: string | null
           origen_reserva?: string
@@ -2283,6 +2286,7 @@ export type Database = {
           duracion_minutos: number
           id: string
           nombre: string
+          porcentaje_adelanto: number | null
           precio_consulta: number | null
           requiere_pago_adelantado: boolean
           tenant_id: string
@@ -2293,6 +2297,7 @@ export type Database = {
           duracion_minutos?: number
           id?: string
           nombre: string
+          porcentaje_adelanto?: number | null
           precio_consulta?: number | null
           requiere_pago_adelantado?: boolean
           tenant_id: string
@@ -2303,6 +2308,7 @@ export type Database = {
           duracion_minutos?: number
           id?: string
           nombre?: string
+          porcentaje_adelanto?: number | null
           precio_consulta?: number | null
           requiere_pago_adelantado?: boolean
           tenant_id?: string
