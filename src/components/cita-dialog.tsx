@@ -12,10 +12,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CitaCobroPanel } from "@/components/cita-cobro-panel";
 import { nombrePaciente, nuevaCitaSchema, type CitaRow } from "@/lib/clinica-schemas";
 import { usePacientes } from "@/lib/pacientes.queries";
 import { isoAInputLocal, useActualizarCita, useCrearCita } from "@/lib/citas.queries";
@@ -218,6 +232,9 @@ export function CitaDialog({
                 </FormItem>
               )}
             />
+
+            {cita ? <CitaCobroPanel cita={cita} /> : null}
+
             <DialogFooter>
               <Button type="submit" disabled={pendiente}>
                 {pendiente ? "Guardando…" : editando ? "Guardar cambios" : "Agendar cita"}

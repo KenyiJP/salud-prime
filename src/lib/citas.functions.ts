@@ -1,11 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   actualizarCitaSchema,
   cambiarEstadoCitaSchema,
   eliminarCitaSchema,
   nuevaCitaSchema,
+  registrarPagoPresencialSchema,
+  type CitaResumenPagoRow,
   type CitaRow,
+  type PagoCitaRow,
 } from "./clinica-schemas";
 
 const SELECT_CITA =
@@ -30,10 +34,7 @@ export const crearCita = createServerFn({ method: "POST" })
   .inputValidator(nuevaCitaSchema.parse)
   .handler(async ({ context, data }) => {
     const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId, tenantId } = await resolveMedicoContext(
-      context.supabase,
-      context.userId,
-    );
+    const { medicoId, tenantId } = await resolveMedicoContext(context.supabase, context.userId);
 
     // RLS on `citas` only checks tenant membership, not that paciente_id
     // belongs to this médico — verify ownership here.
@@ -129,4 +130,55 @@ export const eliminarCita = createServerFn({ method: "POST" })
       .eq("medico_id", medicoId);
     if (error) throw new Error(error.message);
     return { id: data.id };
+  });
+
+// Regla de oro financiera: el frontend jamás suma/resta montos de pagos por
+// su cuenta. `citas_resumen_pago` (security_invoker, hereda RLS de `citas`)
+// es la única fuente de `total_pagado` / `saldo_pendiente`.
+export const getResumenPagoCita = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ citaId: z.string().uuid() }).parse)
+  .handler(async ({ context, data }) => {
+    const { data: row, error } = await context.supabase
+      .from("citas_resumen_pago")
+      .select("*")
+      .eq("cita_id", data.citaId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return row as CitaResumenPagoRow | null;
+  });
+
+export const getMovimientosPagoCita = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ citaId: z.string().uuid() }).parse)
+  .handler(async ({ context, data }) => {
+    const { data: rows, error } = await context.supabase
+      .from("pagos_cita")
+      .select("*")
+      .eq("cita_id", data.citaId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as PagoCitaRow[];
+  });
+
+// La RPC es SECURITY DEFINER y nunca lanza RAISE: siempre responde
+// `{ ok, error_codigo, error_mensaje, pago_id, estado_pago }`. Un `ok: false`
+// NO es una excepción de red — es una regla de negocio rechazada
+// (método/concepto/monto inválido, cita ajena) que se muestra tal cual al
+// usuario vía `error_mensaje`.
+export const registrarPagoPresencial = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(registrarPagoPresencialSchema.parse)
+  .handler(async ({ context, data }) => {
+    const { data: rows, error } = await context.supabase.rpc("registrar_pago_presencial_cita", {
+      p_cita_id: data.cita_id,
+      p_monto: data.monto,
+      p_metodo: data.metodo,
+      p_concepto: data.concepto,
+      p_nota: data.nota || undefined,
+    });
+    if (error) throw new Error(error.message);
+    const resultado = rows?.[0];
+    if (!resultado) throw new Error("La función de cobro no devolvió resultado.");
+    return resultado;
   });

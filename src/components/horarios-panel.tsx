@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ConfirmarEliminar } from "@/components/confirmar-eliminar";
+import { formatearSoles } from "@/lib/clinica-schemas";
 import {
   DIAS_SEMANA,
   horaCortaTexto,
@@ -68,6 +69,9 @@ export function HorariosPanel() {
 const TIPO_CONSULTA_VALORES_VACIOS: NuevoTipoConsultaInput = {
   nombre: "",
   duracion_minutos: 30,
+  precio_consulta: null,
+  requiere_pago_adelantado: false,
+  porcentaje_adelanto: null,
 };
 
 function TiposConsulta() {
@@ -84,11 +88,21 @@ function TiposConsulta() {
     defaultValues: TIPO_CONSULTA_VALORES_VACIOS,
   });
 
+  const watchPrecio = form.watch("precio_consulta");
+  const watchRequierePago = form.watch("requiere_pago_adelantado");
+  const watchPorcentaje = form.watch("porcentaje_adelanto");
+
   useEffect(() => {
     if (dialogAbierto) {
       form.reset(
         editando
-          ? { nombre: editando.nombre, duracion_minutos: editando.duracion_minutos }
+          ? {
+              nombre: editando.nombre,
+              duracion_minutos: editando.duracion_minutos,
+              precio_consulta: editando.precio_consulta,
+              requiere_pago_adelantado: editando.requiere_pago_adelantado,
+              porcentaje_adelanto: editando.porcentaje_adelanto,
+            }
           : TIPO_CONSULTA_VALORES_VACIOS,
       );
     }
@@ -137,7 +151,19 @@ function TiposConsulta() {
           <li key={tipo.id} className="flex items-center justify-between gap-3 py-3 text-sm">
             <div>
               <p className="font-medium">{tipo.nombre}</p>
-              <p className="text-xs text-muted-foreground">{tipo.duracion_minutos} min</p>
+              <p className="text-xs text-muted-foreground">
+                {tipo.duracion_minutos} min
+                {tipo.precio_consulta != null ? ` · ${formatearSoles(tipo.precio_consulta)}` : ""}
+                {tipo.requiere_pago_adelantado && tipo.precio_consulta != null
+                  ? ` · Adelanto ${
+                      tipo.porcentaje_adelanto != null
+                        ? `${tipo.porcentaje_adelanto}% (${formatearSoles(
+                            (tipo.precio_consulta * tipo.porcentaje_adelanto) / 100,
+                          )})`
+                        : "100%"
+                    }`
+                  : ""}
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -209,6 +235,88 @@ function TiposConsulta() {
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="precio_consulta"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Precio (S/)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        step={0.5}
+                        placeholder="Sin tarifa publicada"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const valor = e.target.value;
+                          field.onChange(valor === "" ? null : Number(valor));
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="requiere_pago_adelantado"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-lg border border-border/60 p-3">
+                    <div>
+                      <FormLabel className="text-sm">Exigir pago adelantado</FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        El paciente debe pagar antes de confirmar la reserva.
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={(checked) => {
+                          field.onChange(checked);
+                          if (!checked) {
+                            form.setValue("porcentaje_adelanto", null, { shouldValidate: true });
+                          }
+                        }}
+                        disabled={watchPrecio == null}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              {watchRequierePago ? (
+                <FormField
+                  control={form.control}
+                  name="porcentaje_adelanto"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>% de adelanto</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={100}
+                          step={1}
+                          placeholder="Ej. 20 (déjalo vacío = 100%)"
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const valor = e.target.value;
+                            field.onChange(valor === "" ? null : Number(valor));
+                          }}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        {watchPrecio != null
+                          ? `${watchPorcentaje ?? 100}% de ${formatearSoles(watchPrecio)} = ${formatearSoles(
+                              (watchPrecio * (watchPorcentaje ?? 100)) / 100,
+                            )}`
+                          : "Define un precio para calcular el adelanto."}
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : null}
               <DialogFooter>
                 <Button type="submit" disabled={enviando}>
                   {enviando ? "Guardando…" : "Guardar"}

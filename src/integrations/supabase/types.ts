@@ -69,18 +69,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "atencion_adendas_atencion_id_fkey"
-            columns: ["atencion_id"]
+            foreignKeyName: "atencion_adendas_atencion_id_tenant_coherente_fkey"
+            columns: ["atencion_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "atenciones_medicas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "atencion_adendas_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "atencion_adendas_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "atencion_adendas_tenant_id_fkey"
@@ -250,25 +250,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "atenciones_medicas_cita_id_fkey"
-            columns: ["cita_id"]
+            foreignKeyName: "atenciones_medicas_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "citas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "atenciones_medicas_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "atenciones_medicas_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas_resumen_pago"
+            referencedColumns: ["cita_id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "atenciones_medicas_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "atenciones_medicas_paciente_id_fkey"
-            columns: ["paciente_id"]
+            foreignKeyName: "atenciones_medicas_paciente_id_tenant_coherente_fkey"
+            columns: ["paciente_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "pacientes"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "atenciones_medicas_plantilla_id_fkey"
@@ -403,11 +410,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "bloqueos_horario_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "bloqueos_horario_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "bloqueos_horario_tenant_id_fkey"
@@ -484,18 +491,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "citas_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "citas_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "citas_paciente_id_fkey"
-            columns: ["paciente_id"]
+            foreignKeyName: "citas_paciente_id_tenant_coherente_fkey"
+            columns: ["paciente_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "pacientes"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "citas_tenant_id_fkey"
@@ -505,11 +512,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "citas_tipo_consulta_id_fkey"
-            columns: ["tipo_consulta_id"]
+            foreignKeyName: "citas_tipo_consulta_id_tenant_coherente_fkey"
+            columns: ["tipo_consulta_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "tipos_consulta"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
         ]
       }
@@ -787,11 +794,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "google_calendar_integraciones_medico_id_fkey"
-            columns: ["medico_id"]
-            isOneToOne: true
+            foreignKeyName: "google_calendar_integraciones_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
+            isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "google_calendar_integraciones_tenant_id_fkey"
@@ -844,18 +851,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "google_calendar_sync_cola_cita_id_fkey"
-            columns: ["cita_id"]
+            foreignKeyName: "google_calendar_sync_cola_cita_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "citas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "google_calendar_sync_cola_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "google_calendar_sync_cola_cita_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas_resumen_pago"
+            referencedColumns: ["cita_id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "google_calendar_sync_cola_medico_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "google_calendar_sync_cola_tenant_id_fkey"
@@ -902,18 +916,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "google_calendar_sync_log_cita_id_fkey"
-            columns: ["cita_id"]
+            foreignKeyName: "google_calendar_sync_log_cita_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "citas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "google_calendar_sync_log_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "google_calendar_sync_log_cita_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas_resumen_pago"
+            referencedColumns: ["cita_id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "google_calendar_sync_log_medico_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "google_calendar_sync_log_tenant_id_fkey"
@@ -960,11 +981,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "horarios_atencion_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "horarios_atencion_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "horarios_atencion_tenant_id_fkey"
@@ -1109,11 +1130,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "landing_servicios_landing_config_id_fkey"
-            columns: ["landing_config_id"]
+            foreignKeyName: "landing_servicios_landing_config_id_tenant_coherente_fkey"
+            columns: ["landing_config_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "landing_config"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "landing_servicios_tenant_id_fkey"
@@ -1166,11 +1187,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "landing_testimonios_landing_config_id_fkey"
-            columns: ["landing_config_id"]
+            foreignKeyName: "landing_testimonios_landing_config_id_tenant_coherente_fkey"
+            columns: ["landing_config_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "landing_config"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "landing_testimonios_tenant_id_fkey"
@@ -1313,11 +1334,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "medico_pasarelas_config_medico_id_fkey"
-            columns: ["medico_id"]
-            isOneToOne: true
+            foreignKeyName: "medico_pasarelas_config_medico_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
+            isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "medico_pasarelas_config_tenant_id_fkey"
@@ -1421,11 +1442,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "orden_imagen_estudios_orden_id_fkey"
-            columns: ["orden_id"]
+            foreignKeyName: "orden_imagen_estudios_orden_id_tenant_coherente_fkey"
+            columns: ["orden_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "ordenes_imagen"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "orden_imagen_estudios_tenant_id_fkey"
@@ -1470,11 +1491,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "orden_laboratorio_examenes_orden_id_fkey"
-            columns: ["orden_id"]
+            foreignKeyName: "orden_laboratorio_examenes_orden_id_tenant_coherente_fkey"
+            columns: ["orden_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "ordenes_laboratorio"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "orden_laboratorio_examenes_tenant_id_fkey"
@@ -1533,32 +1554,39 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "ordenes_imagen_atencion_id_fkey"
-            columns: ["atencion_id"]
+            foreignKeyName: "ordenes_imagen_atencion_id_tenant_coherente_fkey"
+            columns: ["atencion_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "atenciones_medicas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "ordenes_imagen_cita_id_fkey"
-            columns: ["cita_id"]
+            foreignKeyName: "ordenes_imagen_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "citas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "ordenes_imagen_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "ordenes_imagen_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas_resumen_pago"
+            referencedColumns: ["cita_id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "ordenes_imagen_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "ordenes_imagen_paciente_id_fkey"
-            columns: ["paciente_id"]
+            foreignKeyName: "ordenes_imagen_paciente_id_tenant_coherente_fkey"
+            columns: ["paciente_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "pacientes"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "ordenes_imagen_tenant_id_fkey"
@@ -1614,32 +1642,39 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "ordenes_laboratorio_atencion_id_fkey"
-            columns: ["atencion_id"]
+            foreignKeyName: "ordenes_laboratorio_atencion_id_tenant_coherente_fkey"
+            columns: ["atencion_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "atenciones_medicas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "ordenes_laboratorio_cita_id_fkey"
-            columns: ["cita_id"]
+            foreignKeyName: "ordenes_laboratorio_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "citas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "ordenes_laboratorio_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "ordenes_laboratorio_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas_resumen_pago"
+            referencedColumns: ["cita_id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "ordenes_laboratorio_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "ordenes_laboratorio_paciente_id_fkey"
-            columns: ["paciente_id"]
+            foreignKeyName: "ordenes_laboratorio_paciente_id_tenant_coherente_fkey"
+            columns: ["paciente_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "pacientes"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "ordenes_laboratorio_tenant_id_fkey"
@@ -1722,14 +1757,88 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "pacientes_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "pacientes_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "pacientes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pagos_cita: {
+        Row: {
+          cita_id: string
+          concepto: string
+          created_at: string
+          culqi_charge_id: string | null
+          id: string
+          medico_id: string
+          metodo: string
+          moneda: string
+          monto: number
+          nota: string | null
+          registrado_por: string | null
+          tenant_id: string
+        }
+        Insert: {
+          cita_id: string
+          concepto: string
+          created_at?: string
+          culqi_charge_id?: string | null
+          id?: string
+          medico_id: string
+          metodo: string
+          moneda?: string
+          monto: number
+          nota?: string | null
+          registrado_por?: string | null
+          tenant_id: string
+        }
+        Update: {
+          cita_id?: string
+          concepto?: string
+          created_at?: string
+          culqi_charge_id?: string | null
+          id?: string
+          medico_id?: string
+          metodo?: string
+          moneda?: string
+          monto?: number
+          nota?: string | null
+          registrado_por?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagos_cita_cita_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "pagos_cita_cita_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas_resumen_pago"
+            referencedColumns: ["cita_id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "pagos_cita_medico_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "pagos_cita_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1927,11 +2036,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "receta_medicamentos_receta_id_fkey"
-            columns: ["receta_id"]
+            foreignKeyName: "receta_medicamentos_receta_id_tenant_coherente_fkey"
+            columns: ["receta_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "recetas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "receta_medicamentos_tenant_id_fkey"
@@ -2000,32 +2109,39 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "recetas_atencion_id_fkey"
-            columns: ["atencion_id"]
+            foreignKeyName: "recetas_atencion_id_tenant_coherente_fkey"
+            columns: ["atencion_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "atenciones_medicas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "recetas_cita_id_fkey"
-            columns: ["cita_id"]
+            foreignKeyName: "recetas_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "citas"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "recetas_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "recetas_cita_id_tenant_coherente_fkey"
+            columns: ["cita_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "citas_resumen_pago"
+            referencedColumns: ["cita_id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "recetas_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
-            foreignKeyName: "recetas_paciente_id_fkey"
-            columns: ["paciente_id"]
+            foreignKeyName: "recetas_paciente_id_tenant_coherente_fkey"
+            columns: ["paciente_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "pacientes"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "recetas_tenant_id_fkey"
@@ -2374,11 +2490,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "transacciones_suscripcion_suscripcion_id_fkey"
-            columns: ["suscripcion_id"]
+            foreignKeyName: "transacciones_suscripcion_susc_tenant_coherente_fkey"
+            columns: ["suscripcion_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "suscripciones"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "transacciones_suscripcion_tenant_id_fkey"
@@ -2475,11 +2591,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "whatsapp_integraciones_medico_id_fkey"
-            columns: ["medico_id"]
-            isOneToOne: true
+            foreignKeyName: "whatsapp_integraciones_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
+            isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "whatsapp_integraciones_tenant_id_fkey"
@@ -2529,11 +2645,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "whatsapp_webhook_events_medico_id_fkey"
-            columns: ["medico_id"]
+            foreignKeyName: "whatsapp_webhook_events_medico_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
             isOneToOne: false
             referencedRelation: "medicos"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "tenant_id"]
           },
           {
             foreignKeyName: "whatsapp_webhook_events_tenant_id_fkey"
@@ -2556,6 +2672,37 @@ export type Database = {
           presentacion: string | null
         }
         Relationships: []
+      }
+      citas_resumen_pago: {
+        Row: {
+          cita_id: string | null
+          estado_pago_reserva: string | null
+          fecha_hora: string | null
+          medico_id: string | null
+          monto_adelanto_esperado: number | null
+          monto_esperado: number | null
+          pago_obligatorio: boolean | null
+          saldo_pendiente: number | null
+          tenant_id: string | null
+          total_pagado: number | null
+          ultimo_pago_en: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citas_medico_id_tenant_coherente_fkey"
+            columns: ["medico_id", "tenant_id"]
+            isOneToOne: false
+            referencedRelation: "medicos"
+            referencedColumns: ["id", "tenant_id"]
+          },
+          {
+            foreignKeyName: "citas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       landing_publica: {
         Row: {
@@ -2744,8 +2891,16 @@ export type Database = {
         Returns: {
           duracion_minutos: number
           id: string
+          monto_adelanto: number
           nombre: string
+          porcentaje_adelanto: number
+          precio_consulta: number
+          requiere_pago_adelantado: boolean
         }[]
+      }
+      recalcular_estado_pago_cita: {
+        Args: { p_cita_id: string }
+        Returns: string
       }
       registrar_intento_reclamacion: {
         Args: { p_exitoso: boolean; p_ip_hash: string }
@@ -2754,6 +2909,22 @@ export type Database = {
       registrar_intento_reserva: {
         Args: { p_exitoso: boolean; p_ip_hash: string; p_tenant_id: string }
         Returns: undefined
+      }
+      registrar_pago_presencial_cita: {
+        Args: {
+          p_cita_id: string
+          p_concepto?: string
+          p_metodo: string
+          p_monto: number
+          p_nota?: string
+        }
+        Returns: {
+          error_codigo: string
+          error_mensaje: string
+          estado_pago: string
+          ok: boolean
+          pago_id: string
+        }[]
       }
       registrar_reclamacion_web: {
         Args: {

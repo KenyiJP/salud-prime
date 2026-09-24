@@ -58,6 +58,9 @@ export const crearTipoConsulta = createServerFn({ method: "POST" })
         tenant_id: tenantId,
         nombre: data.nombre,
         duracion_minutos: data.duracion_minutos,
+        precio_consulta: data.precio_consulta,
+        requiere_pago_adelantado: data.requiere_pago_adelantado,
+        porcentaje_adelanto: data.porcentaje_adelanto,
         activo: true,
       })
       .select("*")
@@ -74,7 +77,13 @@ export const actualizarTipoConsulta = createServerFn({ method: "POST" })
     const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("tipos_consulta")
-      .update({ nombre: data.nombre, duracion_minutos: data.duracion_minutos })
+      .update({
+        nombre: data.nombre,
+        duracion_minutos: data.duracion_minutos,
+        precio_consulta: data.precio_consulta,
+        requiere_pago_adelantado: data.requiere_pago_adelantado,
+        porcentaje_adelanto: data.porcentaje_adelanto,
+      })
       .eq("id", data.id)
       .eq("tenant_id", tenantId)
       .select("*")

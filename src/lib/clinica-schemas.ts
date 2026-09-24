@@ -2,9 +2,14 @@ import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type PacienteRow = Tables<"pacientes">;
+export type CitaResumenPagoRow = Tables<"citas_resumen_pago">;
+export type PagoCitaRow = Tables<"pagos_cita">;
 
 export type CitaRow = Tables<"citas"> & {
-  pacientes: Pick<Tables<"pacientes">, "id" | "nombres" | "apellidos" | "documento_identidad"> | null;
+  pacientes: Pick<
+    Tables<"pacientes">,
+    "id" | "nombres" | "apellidos" | "documento_identidad"
+  > | null;
   tipos_consulta: Pick<Tables<"tipos_consulta">, "id" | "nombre" | "duracion_minutos"> | null;
 };
 
@@ -13,6 +18,67 @@ export type CitaRow = Tables<"citas"> & {
 // app works with, so inserts always set `estado` explicitly.
 export const ESTADOS_CITA = ["pendiente", "confirmada", "atendida", "cancelada"] as const;
 export type EstadoCita = (typeof ESTADOS_CITA)[number];
+
+// Espejo del CHECK `citas_estado_pago_reserva_check` (Día 22A). No confundir
+// con `ESTADOS_CITA`: son dos máquinas de estado independientes (la cita en
+// sí, y el cobro de la reserva).
+export const ESTADOS_PAGO_RESERVA = [
+  "sin_pago",
+  "reportado",
+  "parcial",
+  "verificado",
+  "rechazado",
+] as const;
+export type EstadoPagoReserva = (typeof ESTADOS_PAGO_RESERVA)[number];
+
+// Espejo del CHECK `pagos_cita.metodo` — 'culqi_link' queda fuera porque solo
+// lo asienta el webhook de Culqi, nunca un cobro presencial manual.
+export const METODOS_PAGO_PRESENCIAL = ["efectivo", "pos", "transferencia", "yape_plin"] as const;
+export type MetodoPagoPresencial = (typeof METODOS_PAGO_PRESENCIAL)[number];
+
+export const CONCEPTOS_PAGO = ["adelanto", "saldo", "pago_completo", "reembolso"] as const;
+export type ConceptoPago = (typeof CONCEPTOS_PAGO)[number];
+
+export function etiquetaMetodoPago(metodo: string): string {
+  const etiquetas: Record<string, string> = {
+    efectivo: "Efectivo",
+    pos: "POS",
+    transferencia: "Transferencia",
+    yape_plin: "Yape / Plin",
+    culqi_link: "Link de pago",
+  };
+  return etiquetas[metodo] ?? metodo;
+}
+
+export function etiquetaConceptoPago(concepto: string): string {
+  const etiquetas: Record<string, string> = {
+    adelanto: "Adelanto",
+    saldo: "Saldo",
+    pago_completo: "Pago completo",
+    reembolso: "Reembolso",
+  };
+  return etiquetas[concepto] ?? concepto;
+}
+
+export function etiquetaEstadoPagoReserva(estado: string | null): string {
+  const etiquetas: Record<string, string> = {
+    sin_pago: "Sin pago",
+    reportado: "Reportado",
+    parcial: "Adelanto parcial",
+    verificado: "Pagado",
+    rechazado: "Rechazado",
+  };
+  return estado ? (etiquetas[estado] ?? estado) : "Sin pago";
+}
+
+/** Formatea un monto en Soles peruanos, ej. 100 -> "S/ 100.00". */
+export function formatearSoles(monto: number) {
+  return new Intl.NumberFormat("es-PE", {
+    style: "currency",
+    currency: "PEN",
+    minimumFractionDigits: 2,
+  }).format(monto);
+}
 
 const opcional = z.string().trim().optional().or(z.literal(""));
 
@@ -75,8 +141,24 @@ export type CambiarEstadoCitaInput = z.infer<typeof cambiarEstadoCitaSchema>;
 export const eliminarCitaSchema = z.object({ id: z.string().uuid() });
 export type EliminarCitaInput = z.infer<typeof eliminarCitaSchema>;
 
-export function nombrePaciente(
-  p?: { nombres: string; apellidos: string } | null,
-): string {
+// Espejo de los CHECK que valida `registrar_pago_presencial_cita` server-side
+// (metodo_invalido / concepto_invalido / monto_invalido): esta validación de
+// cliente es solo feedback inmediato, la fuente de verdad sigue siendo el RPC.
+export const registrarPagoPresencialSchema = z.object({
+  cita_id: z.string().uuid(),
+  monto: z.coerce
+    .number({ invalid_type_error: "Ingresa un importe válido." })
+    .gt(0, "El importe debe ser mayor a cero."),
+  metodo: z.enum(METODOS_PAGO_PRESENCIAL, {
+    errorMap: () => ({ message: "Selecciona un método de cobro." }),
+  }),
+  concepto: z.enum(CONCEPTOS_PAGO, {
+    errorMap: () => ({ message: "Selecciona un concepto." }),
+  }),
+  nota: z.string().trim().max(500, "Máximo 500 caracteres.").optional().or(z.literal("")),
+});
+export type RegistrarPagoPresencialInput = z.infer<typeof registrarPagoPresencialSchema>;
+
+export function nombrePaciente(p?: { nombres: string; apellidos: string } | null): string {
   return p ? `${p.nombres} ${p.apellidos}`.trim() : "—";
 }

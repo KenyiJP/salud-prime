@@ -1,4 +1,10 @@
-import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   actualizarCita,
@@ -6,17 +12,23 @@ import {
   crearCita,
   eliminarCita,
   getCitas,
+  getMovimientosPagoCita,
+  getResumenPagoCita,
+  registrarPagoPresencial,
 } from "./citas.functions";
 import type {
   ActualizarCitaInput,
   CambiarEstadoCitaInput,
+  CitaResumenPagoRow,
   CitaRow,
   EliminarCitaInput,
   EstadoCita,
   NuevaCitaInput,
+  PagoCitaRow,
+  RegistrarPagoPresencialInput,
 } from "./clinica-schemas";
 
-export type { CitaRow, EstadoCita };
+export type { CitaResumenPagoRow, CitaRow, EstadoCita, PagoCitaRow };
 
 export const citasQueryKey = ["citas-propias"] as const;
 
@@ -79,6 +91,60 @@ export function useEliminarCita() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "No se pudo eliminar la cita.");
+    },
+  });
+}
+
+// --- Cobro de citas (Día 22B) --------------------------------------------
+// Regla de oro: `total_pagado` / `saldo_pendiente` se leen tal cual de
+// `citas_resumen_pago`, nunca se recalculan sumando `pagos_cita` en cliente.
+
+export const resumenPagoCitaQueryKey = (citaId: string) => ["cita-resumen-pago", citaId] as const;
+
+export const resumenPagoCitaQuery = (citaId: string) =>
+  queryOptions({
+    queryKey: resumenPagoCitaQueryKey(citaId),
+    queryFn: () => getResumenPagoCita({ data: { citaId } }),
+    enabled: Boolean(citaId),
+  });
+
+export function useResumenPagoCita(citaId: string) {
+  return useQuery(resumenPagoCitaQuery(citaId));
+}
+
+export const movimientosPagoCitaQueryKey = (citaId: string) =>
+  ["cita-movimientos-pago", citaId] as const;
+
+export function useMovimientosPagoCita(citaId: string) {
+  return useQuery({
+    queryKey: movimientosPagoCitaQueryKey(citaId),
+    queryFn: () => getMovimientosPagoCita({ data: { citaId } }),
+    enabled: Boolean(citaId),
+  });
+}
+
+/**
+ * La RPC nunca lanza excepción de negocio: siempre resuelve con
+ * `{ ok, error_codigo, error_mensaje, pago_id, estado_pago }`. El llamador
+ * decide qué hacer con `ok === false` (mostrar `error_mensaje`); esta
+ * mutation solo propaga errores reales de red/infraestructura via onError.
+ */
+export function useRegistrarPagoPresencial(citaId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: RegistrarPagoPresencialInput) => registrarPagoPresencial({ data: input }),
+    onSuccess: (resultado) => {
+      if (!resultado.ok) {
+        toast.error(resultado.error_mensaje || "No se pudo registrar el cobro.");
+        return;
+      }
+      queryClient.invalidateQueries({ queryKey: resumenPagoCitaQueryKey(citaId) });
+      queryClient.invalidateQueries({ queryKey: movimientosPagoCitaQueryKey(citaId) });
+      queryClient.invalidateQueries({ queryKey: citasQueryKey });
+      toast.success("Cobro registrado correctamente.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "No se pudo registrar el cobro.");
     },
   });
 }

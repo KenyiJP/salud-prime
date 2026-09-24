@@ -67,19 +67,50 @@ export type NuevoBloqueoInput = z.infer<typeof nuevoBloqueoSchema>;
 export const eliminarBloqueoSchema = z.object({ id: z.string().uuid() });
 export type EliminarBloqueoInput = z.infer<typeof eliminarBloqueoSchema>;
 
-export const nuevoTipoConsultaSchema = z.object({
+// Base sin `.refine()` para poder `.extend()` (agregar `id` en el schema de
+// actualización) antes de aplicar las validaciones cruzadas — ZodEffects
+// (resultado de `.refine()`) no admite `.extend()`.
+const tipoConsultaCamposBase = z.object({
   nombre: z.string().trim().min(1, "Ponle un nombre, ej. Consulta general."),
   duracion_minutos: z.coerce
     .number()
     .int()
     .min(5, "La duración mínima es 5 minutos.")
     .max(480, "La duración máxima es 480 minutos."),
+  // Espejo de los CHECK de la migración Día 21C/22A: NULL es un estado de
+  // negocio válido ("sin tarifa publicada"), nunca un dato pendiente.
+  precio_consulta: z
+    .number({ invalid_type_error: "Ingresa un precio válido." })
+    .min(0, "El precio no puede ser negativo.")
+    .nullable(),
+  requiere_pago_adelantado: z.boolean(),
+  // Rango exclusivo-0 igual que `tipos_consulta_porcentaje_adelanto_rango_check`:
+  // 0% no es "sin adelanto" (para eso existe NULL), sería un adelanto de S/0.
+  porcentaje_adelanto: z
+    .number({ invalid_type_error: "Ingresa un porcentaje válido." })
+    .gt(0, "El porcentaje debe ser mayor a 0.")
+    .max(100, "El porcentaje no puede superar 100.")
+    .nullable(),
 });
+
+function conValidacionesCruzadasTipoConsulta<T extends z.ZodRawShape>(schema: z.ZodObject<T>) {
+  return schema
+    .refine((v) => !v.requiere_pago_adelantado || v.precio_consulta != null, {
+      message: "Para exigir pago adelantado, primero define un precio.",
+      path: ["requiere_pago_adelantado"],
+    })
+    .refine((v) => v.porcentaje_adelanto == null || v.precio_consulta != null, {
+      message: "Para definir un % de adelanto, primero define un precio.",
+      path: ["porcentaje_adelanto"],
+    });
+}
+
+export const nuevoTipoConsultaSchema = conValidacionesCruzadasTipoConsulta(tipoConsultaCamposBase);
 export type NuevoTipoConsultaInput = z.infer<typeof nuevoTipoConsultaSchema>;
 
-export const actualizarTipoConsultaSchema = nuevoTipoConsultaSchema.extend({
-  id: z.string().uuid(),
-});
+export const actualizarTipoConsultaSchema = conValidacionesCruzadasTipoConsulta(
+  tipoConsultaCamposBase.extend({ id: z.string().uuid() }),
+);
 export type ActualizarTipoConsultaInput = z.infer<typeof actualizarTipoConsultaSchema>;
 
 export const toggleTipoConsultaSchema = z.object({

@@ -4,7 +4,7 @@ import { format, getDay, parse, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { CitaDialog } from "@/components/cita-dialog";
-import { nombrePaciente } from "@/lib/clinica-schemas";
+import { etiquetaEstadoPagoReserva, nombrePaciente } from "@/lib/clinica-schemas";
 import { isoAInputLocal, useCitas, type CitaRow } from "@/lib/citas.queries";
 import { useBloqueos } from "@/lib/agenda.queries";
 
@@ -66,9 +66,15 @@ export function AgendaCalendario() {
     const deCitas = citas.map((c) => {
       const inicio = new Date(c.fecha_hora);
       const minutos = c.tipos_consulta?.duracion_minutos ?? DURACION_POR_DEFECTO_MIN;
+      const saldoPendiente =
+        c.pago_obligatorio &&
+        (c.estado_pago_reserva === "parcial" || c.estado_pago_reserva === "reportado");
+      const sufijoPago = saldoPendiente
+        ? ` · ⚠ ${etiquetaEstadoPagoReserva(c.estado_pago_reserva)}`
+        : "";
       return {
         id: c.id,
-        title: `${nombrePaciente(c.pacientes)}${c.tipos_consulta ? ` · ${c.tipos_consulta.nombre}` : ""}`,
+        title: `${nombrePaciente(c.pacientes)}${c.tipos_consulta ? ` · ${c.tipos_consulta.nombre}` : ""}${sufijoPago}`,
         start: inicio,
         end: new Date(inicio.getTime() + minutos * 60_000),
         cita: c,
@@ -86,10 +92,7 @@ export function AgendaCalendario() {
 
   const estaBloqueado = useCallback(
     (inicio: Date) =>
-      bloqueos.some(
-        (b) =>
-          inicio >= new Date(b.fecha_inicio) && inicio < new Date(b.fecha_fin),
-      ),
+      bloqueos.some((b) => inicio >= new Date(b.fecha_inicio) && inicio < new Date(b.fecha_fin)),
     [bloqueos],
   );
 
@@ -106,12 +109,16 @@ export function AgendaCalendario() {
     }
     const estado = evento.cita?.estado ?? "pendiente";
     const color = COLOR_ESTADO[estado] ?? COLOR_ESTADO.pendiente;
+    const pagoReserva = evento.cita?.estado_pago_reserva;
+    const saldoPendiente =
+      evento.cita?.pago_obligatorio && (pagoReserva === "parcial" || pagoReserva === "reportado");
     return {
       style: {
         backgroundColor: color.bg,
         color: color.fg,
         textDecoration: estado === "cancelada" ? "line-through" : undefined,
         opacity: estado === "cancelada" ? 0.75 : 1,
+        border: saldoPendiente ? "2px dashed #f5a623" : undefined,
       },
     };
   }, []);
