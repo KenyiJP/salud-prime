@@ -123,7 +123,61 @@ function PoliticaPrivacidadPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-foreground">4. Finalidad del tratamiento</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              4. Uso de WhatsApp Business API
+            </h2>
+            <p>
+              MediSuite ofrece a los pacientes de cada Médico un agente conversacional por
+              WhatsApp para orientarlos y ayudarles a agendar sus citas. Sobre este canal:
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>
+                <span className="text-foreground">Datos que recolectamos:</span> el número de
+                teléfono del paciente (en formato internacional) y el contenido de los mensajes
+                de texto que envía al agente dentro de la conversación de WhatsApp.
+              </li>
+              <li>
+                <span className="text-foreground">Cómo se usan:</span> (a) triaje orientativo —el
+                agente sugiere la especialidad o el tipo de atención más adecuado, sin emitir
+                diagnósticos definitivos ni prescribir tratamientos— y (b) agendamiento médico
+                —crear, confirmar o modificar una cita en la agenda del Médico correspondiente—,
+                incluyendo el envío de confirmaciones y recordatorios de citas ya agendadas.
+              </li>
+              <li>
+                Ante mensajes con señales de alarma médica (por ejemplo dolor torácico, dificultad
+                para respirar, pérdida de conciencia, hemorragia o síntomas de un posible ACV), el
+                agente deriva de inmediato a los servicios de emergencia (SAMU 106) en lugar de
+                continuar la conversación, y no ofrece diagnóstico ni tratamiento sobre esos
+                síntomas.
+              </li>
+              <li>
+                Cada conversación queda asociada exclusivamente al consultorio del Médico que el
+                paciente contactó (aislamiento multi-tenant, ver Términos y Condiciones): ningún
+                otro médico o consultorio registrado en MediSuite puede verla.
+              </li>
+              <li>
+                <span className="text-foreground">Retención:</span> el historial de la
+                conversación se conserva mientras la cuenta del Médico esté activa y hasta 24
+                meses después de la última interacción del paciente, salvo que forme parte de su
+                historia clínica —en cuyo caso sigue los plazos legales de conservación de la
+                historia clínica (NTS 139-MINSA)— o exista una obligación legal de conservarlo por
+                más tiempo.
+              </li>
+              <li>
+                MediSuite no comparte el número de teléfono ni el contenido de estos mensajes con
+                terceros ajenos a la atención médica, salvo obligación legal expresa.
+              </li>
+              <li>
+                El paciente puede ejercer sus derechos ARCO sobre esta conversación (acceso,
+                rectificación, cancelación u oposición, incluida la eliminación del historial
+                cuando no forme parte de una historia clínica vigente) dirigiéndose al Médico que
+                lo atendió o escribiendo al contacto indicado en la sección 8 de esta política.
+              </li>
+            </ul>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-foreground">5. Finalidad del tratamiento</h2>
             <p>
               Los datos se utilizan exclusivamente para prestar el servicio de gestión
               clínica y agenda contratado por el Médico: registro de historias clínicas,
@@ -133,7 +187,7 @@ function PoliticaPrivacidadPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-foreground">5. Derechos del titular</h2>
+            <h2 className="text-base font-semibold text-foreground">6. Derechos del titular</h2>
             <p>
               Conforme a la Ley N.° 29733, los titulares de datos personales pueden ejercer
               sus derechos de acceso, rectificación, cancelación y oposición (derechos ARCO)
@@ -150,7 +204,7 @@ function PoliticaPrivacidadPage() {
 
           <section className="space-y-2">
             <h2 className="text-base font-semibold text-foreground">
-              6. Banco de Datos Personales
+              7. Banco de Datos Personales
             </h2>
             <p>
               Los datos personales y de salud tratados por MediSuite en representación del
@@ -162,7 +216,7 @@ function PoliticaPrivacidadPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold text-foreground">7. Contacto</h2>
+            <h2 className="text-base font-semibold text-foreground">8. Contacto</h2>
             <p>
               Ante cualquier consulta sobre esta Política de Privacidad, puede escribir a{" "}
               <a
