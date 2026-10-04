@@ -89,6 +89,12 @@ export function fmtEntero(valor: number | null | undefined): string {
   return valor === null || valor === undefined ? "—" : valor.toLocaleString("es-PE");
 }
 
+/** Soles con formato es-PE (S/ 1 234,50). */
+export function fmtSoles(valor: number | null | undefined): string {
+  if (valor === null || valor === undefined || !Number.isFinite(valor)) return "—";
+  return `S/ ${valor.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 export function fmtSegundos(valor: number | null | undefined): string {
   if (valor === null || valor === undefined) return "—";
   if (valor < 60) return `${valor.toLocaleString("es-PE", { maximumFractionDigits: 1 })} s`;
@@ -110,16 +116,19 @@ export function KpiCard({
   titulo,
   valor,
   ayuda,
+  variacion,
 }: {
   titulo: string;
   valor: string;
   ayuda?: string;
+  variacion?: VariacionKpi;
 }) {
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardDescription>{titulo}</CardDescription>
         <CardTitle className="font-display text-3xl tabular-nums">{valor}</CardTitle>
+        {variacion ? <IndicadorVariacion variacion={variacion} /> : null}
       </CardHeader>
       {ayuda ? (
         <CardContent>
@@ -127,6 +136,76 @@ export function KpiCard({
         </CardContent>
       ) : null}
     </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Comparativo contra el período anterior
+// ---------------------------------------------------------------------------
+
+export type VariacionKpi =
+  | { tipo: "sin_previo" }
+  | {
+      tipo: "cambio";
+      direccion: "sube" | "baja" | "igual";
+      /** Cambio relativo en %, redondeado a 1 decimal (con signo). */
+      pct: number;
+      /** `null` = neutro (sin variación). */
+      bueno: boolean | null;
+    };
+
+/**
+ * Cambio relativo contra el período anterior.
+ *
+ * - Sin dato (`null`/`undefined`/no finito) en alguno de los lados, o anterior
+ *   = 0 → "sin dato previo": no se inventa tendencia ni se divide por cero.
+ * - `bajarEsBueno`: abandono y tiempo de respuesta, donde bajar es mejorar
+ *   (colores invertidos).
+ */
+export function calcularVariacion(
+  actual: number | null | undefined,
+  anterior: number | null | undefined,
+  opciones: { bajarEsBueno?: boolean } = {},
+): VariacionKpi {
+  if (
+    actual === null ||
+    actual === undefined ||
+    anterior === null ||
+    anterior === undefined ||
+    !Number.isFinite(actual) ||
+    !Number.isFinite(anterior) ||
+    anterior === 0
+  ) {
+    return { tipo: "sin_previo" };
+  }
+  const pct = Math.round(((actual - anterior) / Math.abs(anterior)) * 1000) / 10;
+  if (pct === 0) return { tipo: "cambio", direccion: "igual", pct: 0, bueno: null };
+  const sube = pct > 0;
+  const bueno = opciones.bajarEsBueno ? !sube : sube;
+  return { tipo: "cambio", direccion: sube ? "sube" : "baja", pct, bueno };
+}
+
+export function IndicadorVariacion({ variacion }: { variacion: VariacionKpi }) {
+  if (variacion.tipo === "sin_previo") {
+    return <p className="text-xs text-muted-foreground">sin dato previo</p>;
+  }
+  const { direccion, pct, bueno } = variacion;
+  const simbolo = direccion === "sube" ? "▲" : direccion === "baja" ? "▼" : "–";
+  const color =
+    bueno === null
+      ? "text-muted-foreground"
+      : bueno
+        ? "text-emerald-600 dark:text-emerald-400"
+        : "text-red-600 dark:text-red-400";
+  const texto =
+    direccion === "igual"
+      ? "sin cambio"
+      : `${Math.abs(pct).toLocaleString("es-PE", { maximumFractionDigits: 1 })} %`;
+  return (
+    <p className={`text-xs font-medium tabular-nums ${color}`}>
+      <span aria-hidden="true">{simbolo}</span> {texto}{" "}
+      <span className="font-normal text-muted-foreground">vs. período anterior</span>
+    </p>
   );
 }
 

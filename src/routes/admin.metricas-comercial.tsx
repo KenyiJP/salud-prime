@@ -8,6 +8,7 @@ import {
   RangoSelector,
   fmtEntero,
   fmtPorcentaje,
+  calcularVariacion,
   fmtSegundos,
   useRangoMetricas,
 } from "@/components/metricas-ui";
@@ -51,6 +52,7 @@ function MetricasComercialPage() {
   // No se consulta la RPC hasta confirmar que es admin: evita una llamada
   // que sabemos que será rechazada. La barrera real sigue siendo la RPC.
   const metricas = useMetricasComercialQuery(rango, admin.data === true);
+  const ant = metricas.data?.ok ? (metricas.data.periodo_anterior ?? null) : null;
 
   return (
     <DashboardShell>
@@ -88,20 +90,41 @@ function MetricasComercialPage() {
             {metricas.data?.ok ? (
               <>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  <KpiCard titulo="Chats iniciados" valor={fmtEntero(metricas.data.chats_iniciados)} />
+                  <KpiCard
+                    titulo="Chats iniciados"
+                    valor={fmtEntero(metricas.data.chats_iniciados)}
+                    variacion={calcularVariacion(
+                      metricas.data.chats_iniciados,
+                      ant?.chats_iniciados,
+                    )}
+                  />
                   <KpiCard
                     titulo="Demos agendadas"
                     valor={fmtEntero(metricas.data.demos_agendadas)}
+                    variacion={calcularVariacion(
+                      metricas.data.demos_agendadas,
+                      ant?.demos_agendadas,
+                    )}
                     ayuda={`${fmtPorcentaje(metricas.data.tasa_demo_pct)} de los chats`}
                   />
                   <KpiCard
                     titulo="Tasa de abandono"
                     valor={fmtPorcentaje(metricas.data.tasa_abandono_pct)}
+                    variacion={calcularVariacion(
+                      metricas.data.tasa_abandono_pct,
+                      ant?.tasa_abandono_pct,
+                      { bajarEsBueno: true },
+                    )}
                     ayuda="Chats sin demo y sin pasar a una persona."
                   />
                   <KpiCard
                     titulo="Tiempo de respuesta"
                     valor={fmtSegundos(metricas.data.tiempo_respuesta_promedio_seg)}
+                    variacion={calcularVariacion(
+                      metricas.data.tiempo_respuesta_promedio_seg,
+                      ant?.tiempo_respuesta_promedio_seg,
+                      { bajarEsBueno: true },
+                    )}
                     ayuda="Promedio entre el mensaje del prospecto y la respuesta del bot."
                   />
                   <KpiCard
