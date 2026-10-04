@@ -29,6 +29,35 @@ export interface PuntoSerieClinica {
   tiempo_respuesta_promedio_seg: number | null;
 }
 
+/**
+ * Ingresos atribuidos al agente (suma de tarifas de las citas confirmadas).
+ * `citas_sin_tarifa` es un estado válido: el médico no publicó precio para ese
+ * tipo de consulta, no es un error ni un dato pendiente.
+ */
+export interface IngresosAtribuidosClinico {
+  monto_pen: number;
+  citas_con_tarifa: number;
+  citas_sin_tarifa: number;
+}
+
+/** `pct = null` cuando no hay horarios configurados o chats que evaluar. */
+export interface FueraHorarioClinico {
+  chats_fuera_horario: number;
+  chats_evaluados: number;
+  pct: Porcentaje;
+}
+
+export interface PeriodoAnteriorClinico {
+  desde: string;
+  hasta: string;
+  chats_iniciados: number;
+  citas_confirmadas: number;
+  tasa_conversion_pct: Porcentaje;
+  tasa_abandono_pct: Porcentaje;
+  tiempo_respuesta_promedio_seg: number | null;
+  ingresos_monto_pen: number;
+}
+
 export interface MetricasAgenteClinico {
   desde: string;
   hasta: string;
@@ -43,12 +72,29 @@ export interface MetricasAgenteClinico {
   tasa_abandono_pct: Porcentaje;
   tiempo_respuesta_promedio_seg: number | null;
   serie_diaria: PuntoSerieClinica[];
+  // Día 25-B. Opcionales: el RPC remoto puede no devolverlos hasta aplicar la migración.
+  ingresos_atribuidos?: IngresosAtribuidosClinico | null;
+  fuera_horario?: FueraHorarioClinico | null;
+  periodo_anterior?: PeriodoAnteriorClinico | null;
 }
 
 export interface PuntoSerieComercial {
   dia: string;
   chats_iniciados: number;
   demos_agendadas: number;
+}
+
+export interface PeriodoAnteriorComercial {
+  desde: string;
+  hasta: string;
+  chats_iniciados: number;
+  demos_agendadas: number;
+  escaladas_humano?: number;
+  mensajes_lead?: number;
+  mensajes_ia?: number;
+  tasa_demo_pct: Porcentaje;
+  tasa_abandono_pct: Porcentaje;
+  tiempo_respuesta_promedio_seg: number | null;
 }
 
 export interface MetricasComercialOk {
@@ -65,6 +111,8 @@ export interface MetricasComercialOk {
   tiempo_respuesta_promedio_seg: number | null;
   funnel_leads: Record<string, number>;
   serie_diaria: PuntoSerieComercial[];
+  // Día 25-B. Opcional: ver nota en MetricasAgenteClinico.
+  periodo_anterior?: PeriodoAnteriorComercial | null;
 }
 
 export interface MetricasComercialRechazo {
