@@ -29,10 +29,12 @@ import { Route as RecetarioRouteImport } from './routes/recetario'
 import { Route as ReembolsoRouteImport } from './routes/reembolso'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as TerminosRouteImport } from './routes/terminos'
+import { Route as AdminMetricasComercialRouteImport } from './routes/admin.metricas-comercial'
 import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
 import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
 import { Route as ConfiguracionGoogleCalendarColaRouteImport } from './routes/configuracion.google-calendar-cola'
 import { Route as ConfiguracionGoogleCalendarLogRouteImport } from './routes/configuracion.google-calendar-log'
+import { Route as ConfiguracionMetricasAgenteRouteImport } from './routes/configuracion.metricas-agente'
 import { Route as ConfiguracionWhatsappRouteImport } from './routes/configuracion.whatsapp'
 import { Route as ConfiguracionWhatsappEventosRouteImport } from './routes/configuracion.whatsapp-eventos'
 import { Route as OrdenImagenOrdenIdRouteImport } from './routes/orden-imagen.$ordenId'
@@ -139,6 +141,11 @@ const TerminosRoute = TerminosRouteImport.update({
   path: '/terminos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminMetricasComercialRoute = AdminMetricasComercialRouteImport.update({
+  id: '/admin/metricas-comercial',
+  path: '/admin/metricas-comercial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AtencionAtencionIdRoute = AtencionAtencionIdRouteImport.update({
   id: '/atencion/$atencionId',
   path: '/atencion/$atencionId',
@@ -159,6 +166,12 @@ const ConfiguracionGoogleCalendarLogRoute =
   ConfiguracionGoogleCalendarLogRouteImport.update({
     id: '/configuracion/google-calendar-log',
     path: '/configuracion/google-calendar-log',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ConfiguracionMetricasAgenteRoute =
+  ConfiguracionMetricasAgenteRouteImport.update({
+    id: '/configuracion/metricas-agente',
+    path: '/configuracion/metricas-agente',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ConfiguracionWhatsappRoute = ConfiguracionWhatsappRouteImport.update({
@@ -209,10 +222,12 @@ export interface FileRoutesByFullPath {
   '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
   '/terminos': typeof TerminosRoute
+  '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
   '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
+  '/configuracion/metricas-agente': typeof ConfiguracionMetricasAgenteRoute
   '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
@@ -240,10 +255,12 @@ export interface FileRoutesByTo {
   '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
   '/terminos': typeof TerminosRoute
+  '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
   '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
+  '/configuracion/metricas-agente': typeof ConfiguracionMetricasAgenteRoute
   '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
@@ -272,10 +289,12 @@ export interface FileRoutesById {
   '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
   '/terminos': typeof TerminosRoute
+  '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
   '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
+  '/configuracion/metricas-agente': typeof ConfiguracionMetricasAgenteRoute
   '/configuracion/whatsapp': typeof ConfiguracionWhatsappRoute
   '/configuracion/whatsapp-eventos': typeof ConfiguracionWhatsappEventosRoute
   '/orden-imagen/$ordenId': typeof OrdenImagenOrdenIdRoute
@@ -305,10 +324,12 @@ export interface FileRouteTypes {
     | '/reembolso'
     | '/registro'
     | '/terminos'
+    | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
     | '/configuracion/google-calendar-cola'
     | '/configuracion/google-calendar-log'
+    | '/configuracion/metricas-agente'
     | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
@@ -336,10 +357,12 @@ export interface FileRouteTypes {
     | '/reembolso'
     | '/registro'
     | '/terminos'
+    | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
     | '/configuracion/google-calendar-cola'
     | '/configuracion/google-calendar-log'
+    | '/configuracion/metricas-agente'
     | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
@@ -367,10 +390,12 @@ export interface FileRouteTypes {
     | '/reembolso'
     | '/registro'
     | '/terminos'
+    | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
     | '/configuracion/google-calendar-cola'
     | '/configuracion/google-calendar-log'
+    | '/configuracion/metricas-agente'
     | '/configuracion/whatsapp'
     | '/configuracion/whatsapp-eventos'
     | '/orden-imagen/$ordenId'
@@ -399,10 +424,12 @@ export interface RootRouteChildren {
   ReembolsoRoute: typeof ReembolsoRoute
   RegistroRoute: typeof RegistroRoute
   TerminosRoute: typeof TerminosRoute
+  AdminMetricasComercialRoute: typeof AdminMetricasComercialRoute
   AtencionAtencionIdRoute: typeof AtencionAtencionIdRoute
   ConfiguracionCalendarioRoute: typeof ConfiguracionCalendarioRoute
   ConfiguracionGoogleCalendarColaRoute: typeof ConfiguracionGoogleCalendarColaRoute
   ConfiguracionGoogleCalendarLogRoute: typeof ConfiguracionGoogleCalendarLogRoute
+  ConfiguracionMetricasAgenteRoute: typeof ConfiguracionMetricasAgenteRoute
   ConfiguracionWhatsappRoute: typeof ConfiguracionWhatsappRoute
   ConfiguracionWhatsappEventosRoute: typeof ConfiguracionWhatsappEventosRoute
   OrdenImagenOrdenIdRoute: typeof OrdenImagenOrdenIdRoute
@@ -552,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TerminosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/metricas-comercial': {
+      id: '/admin/metricas-comercial'
+      path: '/admin/metricas-comercial'
+      fullPath: '/admin/metricas-comercial'
+      preLoaderRoute: typeof AdminMetricasComercialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/atencion/$atencionId': {
       id: '/atencion/$atencionId'
       path: '/atencion/$atencionId'
@@ -578,6 +612,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracion/google-calendar-log'
       fullPath: '/configuracion/google-calendar-log'
       preLoaderRoute: typeof ConfiguracionGoogleCalendarLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion/metricas-agente': {
+      id: '/configuracion/metricas-agente'
+      path: '/configuracion/metricas-agente'
+      fullPath: '/configuracion/metricas-agente'
+      preLoaderRoute: typeof ConfiguracionMetricasAgenteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracion/whatsapp': {
@@ -639,10 +680,12 @@ const rootRouteChildren: RootRouteChildren = {
   ReembolsoRoute: ReembolsoRoute,
   RegistroRoute: RegistroRoute,
   TerminosRoute: TerminosRoute,
+  AdminMetricasComercialRoute: AdminMetricasComercialRoute,
   AtencionAtencionIdRoute: AtencionAtencionIdRoute,
   ConfiguracionCalendarioRoute: ConfiguracionCalendarioRoute,
   ConfiguracionGoogleCalendarColaRoute: ConfiguracionGoogleCalendarColaRoute,
   ConfiguracionGoogleCalendarLogRoute: ConfiguracionGoogleCalendarLogRoute,
+  ConfiguracionMetricasAgenteRoute: ConfiguracionMetricasAgenteRoute,
   ConfiguracionWhatsappRoute: ConfiguracionWhatsappRoute,
   ConfiguracionWhatsappEventosRoute: ConfiguracionWhatsappEventosRoute,
   OrdenImagenOrdenIdRoute: OrdenImagenOrdenIdRoute,

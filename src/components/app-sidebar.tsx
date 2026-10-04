@@ -14,6 +14,8 @@ import {
   UserCog,
   LogOut,
   Palette,
+  BarChart3,
+  TrendingUp,
 } from "lucide-react";
 
 
@@ -31,6 +33,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
+import { useEsAdminPlataformaQuery } from "@/lib/metricas-conversacion.queries";
 
 const clinicalItems = [
   { title: "Dashboard Principal", url: "/", icon: LayoutDashboard },
@@ -48,6 +51,13 @@ const configurationItems = [
   { title: "Horarios y bloqueos", url: "/horarios", icon: CalendarClock },
   { title: "Google Calendar", url: "/configuracion/calendario", icon: CalendarSync },
   { title: "Mi perfil médico", url: "/perfil-medico", icon: UserCog },
+  { title: "Métricas del agente", url: "/configuracion/metricas-agente", icon: BarChart3 },
+] as const;
+
+// Solo administradores de plataforma (tabla `plataforma_administradores`). El
+// enlace es cosmético: la barrera real es la RPC `medisuite_obtener_metricas_comercial`.
+const adminItems = [
+  { title: "Métricas comerciales", url: "/admin/metricas-comercial", icon: TrendingUp },
 ] as const;
 
 // community_manager has no RLS access to clinical data, so these entries are
@@ -61,6 +71,7 @@ const SOLO_CLINICO: readonly string[] = [
   "/horarios",
   "/configuracion/calendario",
   "/perfil-medico",
+  "/configuracion/metricas-agente",
 ];
 
 
@@ -69,6 +80,7 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, rol, signOut } = useAuth();
   const navigate = useNavigate();
+  const esAdminPlataforma = useEsAdminPlataformaQuery().data === true;
   const clinicalVisible = clinicalItems.filter(
     (item) => rol !== "community_manager" || !SOLO_CLINICO.includes(item.url),
   );
@@ -149,6 +161,29 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                   );
                 })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
+        {esAdminPlataforma ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administración</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname.startsWith(item.url)}
+                      tooltip={item.title}
+                    >
+                      <Link to={item.url} className="flex items-center gap-3">
+                        <item.icon className="h-4 w-4" />
+                        <span className="truncate">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
