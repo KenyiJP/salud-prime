@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader } from "@/components/page-primitives";
+import { TriajeConfigCard } from "@/components/triaje-config-card";
 import { WhatsappIntegracionCard } from "@/components/whatsapp-integracion-card";
 import { requireSession } from "@/lib/auth-guard";
 
@@ -36,6 +37,7 @@ function ConfiguracionWhatsappPage() {
           description="Estado de la conexión de WhatsApp Business de tu consultorio."
         />
         <WhatsappIntegracionCard />
+        <TriajeConfigCard />
       </div>
     </DashboardShell>
   );

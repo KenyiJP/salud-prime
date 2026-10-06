@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { AtencionForm } from "@/components/atencion-form";
+import { TriajePrecitaCard } from "@/components/triaje-precita-card";
 import { nombrePaciente, pacientesQuery } from "@/lib/pacientes.queries";
 import {
   medicoEhrQuery,
@@ -193,6 +194,7 @@ function HistoriasPage() {
                 <Button variant="ghost" size="sm" onClick={() => setModo("historial")}>
                   ← Volver al historial
                 </Button>
+                <TriajePrecitaCard pacienteId={paciente.id} />
                 <AtencionForm
                   key={atencionId ?? "nueva"}
                   paciente={detalle.data?.paciente ?? paciente}
