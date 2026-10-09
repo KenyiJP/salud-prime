@@ -16,6 +16,7 @@ import {
   Palette,
   BarChart3,
   TrendingUp,
+  Star,
 } from "lucide-react";
 
 
@@ -52,6 +53,7 @@ const configurationItems = [
   { title: "Google Calendar", url: "/configuracion/calendario", icon: CalendarSync },
   { title: "Mi perfil médico", url: "/perfil-medico", icon: UserCog },
   { title: "Métricas del agente", url: "/configuracion/metricas-agente", icon: BarChart3 },
+  { title: "Reputación", url: "/reputacion", icon: Star },
 ] as const;
 
 // Solo administradores de plataforma (tabla `plataforma_administradores`). El
@@ -72,6 +74,7 @@ const SOLO_CLINICO: readonly string[] = [
   "/configuracion/calendario",
   "/perfil-medico",
   "/configuracion/metricas-agente",
+  "/reputacion",
 ];
 
 

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type RolUsuario = "founder" | "medico" | "community_manager" | "asistente";
@@ -54,6 +55,7 @@ type AuthState = {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [session, setSession] = useState<Session | null>(null);
   const [rol, setRol] = useState<RolUsuario | null>(null);
   const [loading, setLoading] = useState(true);
@@ -104,7 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setSession(null);
     setRol(null);
-  }, []);
+    // Evita que otra cuenta en el mismo navegador vea datos en caché de la sesión anterior.
+    queryClient.clear();
+  }, [queryClient]);
 
   const value = useMemo<AuthState>(
     () => ({ session, user: session?.user ?? null, rol, loading, refreshRol, signOut }),

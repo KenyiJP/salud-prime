@@ -28,6 +28,7 @@ import { Route as PrivacidadRouteImport } from './routes/privacidad'
 import { Route as RecetarioRouteImport } from './routes/recetario'
 import { Route as ReembolsoRouteImport } from './routes/reembolso'
 import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as ReputacionRouteImport } from './routes/reputacion'
 import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as AdminMetricasComercialRouteImport } from './routes/admin.metricas-comercial'
 import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
@@ -136,6 +137,11 @@ const RegistroRoute = RegistroRouteImport.update({
   path: '/registro',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReputacionRoute = ReputacionRouteImport.update({
+  id: '/reputacion',
+  path: '/reputacion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TerminosRoute = TerminosRouteImport.update({
   id: '/terminos',
   path: '/terminos',
@@ -221,6 +227,7 @@ export interface FileRoutesByFullPath {
   '/recetario': typeof RecetarioRoute
   '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
+  '/reputacion': typeof ReputacionRoute
   '/terminos': typeof TerminosRoute
   '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/recetario': typeof RecetarioRoute
   '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
+  '/reputacion': typeof ReputacionRoute
   '/terminos': typeof TerminosRoute
   '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
@@ -288,6 +296,7 @@ export interface FileRoutesById {
   '/recetario': typeof RecetarioRoute
   '/reembolso': typeof ReembolsoRoute
   '/registro': typeof RegistroRoute
+  '/reputacion': typeof ReputacionRoute
   '/terminos': typeof TerminosRoute
   '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
@@ -323,6 +332,7 @@ export interface FileRouteTypes {
     | '/recetario'
     | '/reembolso'
     | '/registro'
+    | '/reputacion'
     | '/terminos'
     | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
@@ -356,6 +366,7 @@ export interface FileRouteTypes {
     | '/recetario'
     | '/reembolso'
     | '/registro'
+    | '/reputacion'
     | '/terminos'
     | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
@@ -389,6 +400,7 @@ export interface FileRouteTypes {
     | '/recetario'
     | '/reembolso'
     | '/registro'
+    | '/reputacion'
     | '/terminos'
     | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
@@ -423,6 +435,7 @@ export interface RootRouteChildren {
   RecetarioRoute: typeof RecetarioRoute
   ReembolsoRoute: typeof ReembolsoRoute
   RegistroRoute: typeof RegistroRoute
+  ReputacionRoute: typeof ReputacionRoute
   TerminosRoute: typeof TerminosRoute
   AdminMetricasComercialRoute: typeof AdminMetricasComercialRoute
   AtencionAtencionIdRoute: typeof AtencionAtencionIdRoute
@@ -572,6 +585,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegistroRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reputacion': {
+      id: '/reputacion'
+      path: '/reputacion'
+      fullPath: '/reputacion'
+      preLoaderRoute: typeof ReputacionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terminos': {
       id: '/terminos'
       path: '/terminos'
@@ -679,6 +699,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecetarioRoute: RecetarioRoute,
   ReembolsoRoute: ReembolsoRoute,
   RegistroRoute: RegistroRoute,
+  ReputacionRoute: ReputacionRoute,
   TerminosRoute: TerminosRoute,
   AdminMetricasComercialRoute: AdminMetricasComercialRoute,
   AtencionAtencionIdRoute: AtencionAtencionIdRoute,
