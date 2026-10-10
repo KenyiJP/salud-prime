@@ -141,7 +141,7 @@ export function AudioConsentimientoDialog({
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Cargando texto…
                 </span>
               ) : vigente ? (
-                vigente.texto
+                <TextoConNegritas texto={vigente.texto} />
               ) : (
                 <span>
                   {codigoTexto
@@ -181,5 +181,20 @@ export function AudioConsentimientoDialog({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Muestra «**negrita**» del texto legal como negrita real, sin HTML (React escapa todo). */
+function TextoConNegritas({ texto }: { texto: string }) {
+  return (
+    <>
+      {texto.split(/(\*\*[^*]+\*\*)/g).map((trozo, i) =>
+        trozo.startsWith("**") && trozo.endsWith("**") && trozo.length > 4 ? (
+          <strong key={i}>{trozo.slice(2, -2)}</strong>
+        ) : (
+          <span key={i}>{trozo}</span>
+        ),
+      )}
+    </>
   );
 }
