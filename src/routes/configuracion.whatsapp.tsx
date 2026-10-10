@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader } from "@/components/page-primitives";
+import { AudioScribeConfigCard } from "@/components/audio-scribe-config-card";
 import { PerfilBotCard } from "@/components/perfil-bot-card";
 import { ResenasConfigCard } from "@/components/resenas-config-card";
 import { TriajeConfigCard } from "@/components/triaje-config-card";
@@ -41,6 +42,7 @@ function ConfiguracionWhatsappPage() {
         <WhatsappIntegracionCard />
         <PerfilBotCard />
         <TriajeConfigCard />
+        <AudioScribeConfigCard />
         <ResenasConfigCard />
       </div>
     </DashboardShell>

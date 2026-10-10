@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { AtencionForm } from "@/components/atencion-form";
 import { TriajePrecitaCard } from "@/components/triaje-precita-card";
+import { AudioScribePanel } from "@/components/audio-scribe-panel";
 import { nombrePaciente, pacientesQuery } from "@/lib/pacientes.queries";
 import {
   medicoEhrQuery,
@@ -168,6 +169,19 @@ function HistoriasPage() {
           </aside>
 
           <section className="min-w-0">
+            {/* Panel de audio FUERA del formulario con key: el formulario se remonta al guardar el borrador
+                (key=atencionId) y eso cortaría la grabación en curso. */}
+            {paciente && modo === "consulta" ? (
+              <div className="mb-4">
+                <AudioScribePanel
+                  key={paciente.id}
+                  pacienteId={paciente.id}
+                  citaId={detalle.data?.atencion?.cita_id ?? null}
+                  atencionId={atencionId}
+                  estadoAtencion={detalle.data?.atencion?.estado ?? "borrador"}
+                />
+              </div>
+            ) : null}
             {!paciente ? (
               <div className="rounded-xl border border-dashed border-border/70 bg-card/40 p-8 text-center">
                 <Stethoscope className="mx-auto h-8 w-8 text-primary" />
