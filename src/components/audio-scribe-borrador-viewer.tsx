@@ -1,1 +1,113 @@
-import { useState } from \"react\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport { supabase } from \"@/integrations/supabase/client\";\nimport { Button } from \"@/components/ui/button\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { Check, Sparkles, AlertTriangle, FileText } from \"lucide-react\";\n\ntype Props = {\n  atencionId: string;\n  onAplicarCampo: (campo: string, valor: any) => void;\n};\n\n/**\n * Visor del borrador SOAP generado por IA.\n * R4: Muestra explícitamente \"Generado por IA – pendiente de revisión\".\n * R1/R2: El médico aplica los campos uno por uno a la atención; la IA nunca escribe directo.\n */\nexport function AudioScribeBorradorViewer({ atencionId, onAplicarCampo }: Props) {\n  const [aplicados, setAplicados] = useState<Record<string, boolean>>({});\n\n  const { data: borradorData, isLoading, error } = useQuery({\n    queryKey: [\"scribe-borrador\", atencionId],\n    enabled: !!atencionId,\n    queryFn: async () => {\n      // Buscar trabajo listo para esta atención\n      const { data: trabajos, error: errT } = await supabase\n        .from(\"scribe_trabajos\")\n        .select(\"id, estado, creado_en\")\n        .eq(\"atencion_id\", atencionId)\n        .eq(\"estado\", \"listo\")\n        .order(\"creado_en\", { ascending: false })\n        .limit(1);\n\n      if (errT || !trabajos || trabajos.length === 0) return null;\n      const trabajoId = trabajos[0].id;\n\n      const { data: borrador, error: errB } = await supabase\n        .from(\"scribe_borradores\")\n        .select(\"*\")\n        .eq(\"trabajo_id\", trabajoId)\n        .maybeSingle();\n\n      if (errB || !borrador) return null;\n      return borrador;\n    },\n  });\n\n  if (isLoading) {\n    return <div className=\"text-sm text-muted-foreground p-4\">Buscando borrador de IA...</div>;\n  }\n\n  if (!borradorData) {\n    return (\n      <div className=\"p-4 border rounded-lg bg-card text-card-foreground text-center space-y-2\">\n        <FileText className=\"h-8 w-8 mx-auto text-muted-foreground\" />\n        <p className=\"text-sm font-medium\">Sin borrador de IA disponible para esta atención.</p>\n        <p className=\"text-xs text-muted-foreground\">Inicie una grabación y procese la consulta para generar el resumen SOAP.</p>\n      </div>\n    );\n  }\n\n  const camposSoap = [\n    { key: \"motivo_consulta\", label: \"Motivo de Consulta (S)\" },\n    { key: \"tiempo_enfermedad\", label: \"Tiempo de Enfermedad (S)\" },\n    { key: \"forma_inicio\", label: \"Forma de Inicio (S)\" },\n    { key: \"curso_enfermedad\", label: \"Curso de Enfermedad (S)\" },\n    { key: \"relato_cronologico\", label: \"Relato Cronológico (S)\" },\n    { key: \"antecedentes_patologicos\", label: \"Antecedentes Patológicos (S)\" },\n    { key: \"antecedentes_alergicos\", label: \"Antecedentes Alérgicos (S)\" },\n    { key: \"medicamentos_actuales\", label: \"Medicamentos Actuales (S)\" },\n    { key: \"presion_arterial\", label: \"Presión Arterial (O)\" },\n    { key: \"frecuencia_cardiaca\", label: \"Frecuencia Cardíaca (O)\" },\n    { key: \"frecuencia_respiratoria\", label: \"Frecuencia Respiratoria (O)\" },\n    { key: \"temperatura\", label: \"Temperatura (O)\" },\n    { key: \"saturacion_oxigeno\", label: \"Saturación de Oxígeno (O)\" },\n    { key: \"examen_fisico_regional\", label: \"Examen Físico (O)\" },\n    { key: \"diagnosticos\", label: \"Diagnósticos (A)\" },\n    { key: \"plan_trabajo\", label: \"Plan de Trabajo (A)\" },\n    { key: \"indicaciones_medicas\", label: \"Indicaciones Médicas (P)\" },\n    { key: \"proxima_cita\", label: \"Próxima Cita (P)\" },\n  ];\n\n  const handleAplicar = (key: string, valorObj: any) => {\n    const val = valorObj?.valor;\n    if (val !== undefined && val !== null) {\n      onAplicarCampo(key, val);\n      setAplicados((prev) => ({ ...prev, [key]: true }));\n    }\n  };\n\n  return (\n    <div className=\"space-y-4 p-4 border rounded-lg bg-card text-card-foreground shadow-sm\">\n      <div className=\"flex items-center justify-between border-b pb-3\">\n        <div className=\"flex items-center space-x-2\">\n          <Sparkles className=\"h-5 w-5 text-primary\" />\n          <h3 className=\"font-semibold text-base\">Borrador SOAP de Consulta</h3>\n        </div>\n        <Badge variant=\"outline\" className=\"bg-amber-500/10 text-amber-600 border-amber-200 text-xs font-medium\">\n          Generado por IA – pendiente de revisión\n        </Badge>\n      </div>\n\n      <div className=\"grid gap-3 max-h-[450px] overflow-y-auto pr-1\">\n        {camposSoap.map(({ key, label }) => {\n          const campoData = (borradorData as any)[key];\n          if (!campoData || campoData.estado === \"no_referido\") return null;\n\n          const isApplied = aplicados[key];\n          const necesitaVerificar = campoData.verificar;\n\n          return (\n            <div key={key} className=\"p-3 border rounded-md bg-background/50 space-y-1.5 text-sm\">\n              <div className=\"flex items-center justify-between\">\n                <span className=\"font-medium text-xs text-muted-foreground uppercase tracking-wider\">{label}</span>\n                <div className=\"flex items-center space-x-2\">\n                  {necesitaVerificar && (\n                    <span className=\"flex items-center text-xs text-amber-600 font-medium\" title=\"Requiere verificación estricta\">\n                      <AlertTriangle className=\"h-3.5 w-3.5 mr-1\" /> Verificar\n                    </span>\n                  )}\n                  <Button\n                    size=\"sm\"\n                    variant={isApplied ? \"outline\" : \"default\"}\n                    className=\"h-7 text-xs px-2.5\"\n                    onClick={() => handleAplicar(key, campoData)}\n                  >\n                    {isApplied ? <Check className=\"h-3.5 w-3.5 mr-1 text-green-600\" /> : null}\n                    {isApplied ? \"Aplicado\" : \"Aplicar a formulario\"}\n                  </Button>\n                </div>\n              </div>\n\n              <div className=\"text-foreground font-normal whitespace-pre-wrap\">\n                {typeof campoData.valor === \"object\" ? JSON.stringify(campoData.valor, null, 2) : String(campoData.valor)}\n              </div>\n\n              {campoData.cita && (\n                <div className=\"text-xs italic text-muted-foreground border-l-2 pl-2 border-primary/40\">\n                  \"{(campoData.cita as string)}\"\n                </div>\n              )}\n            </div>\n          );\n        })}\n      </div>\n    </div>\n  );\n}\n
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Check, Sparkles, AlertTriangle, FileText } from "lucide-react";
+
+type Props = {
+  atencionId: string;
+  onAplicarCampo: (campo: string, valor: any) => void;
+};
+
+export function AudioScribeBorradorViewer({ atencionId, onAplicarCampo }: Props) {
+  const [aplicados, setAplicados] = useState<Record<string, boolean>>({});
+
+  const { data: borradorData, isLoading } = useQuery({
+    queryKey: ["scribe-borrador", atencionId],
+    enabled: !!atencionId,
+    queryFn: async () => {
+      const { data: trabajos, error: errT } = await supabase
+        .from("scribe_trabajos")
+        .select("id, estado, creado_en")
+        .eq("atencion_id", atencionId)
+        .eq("estado", "listo")
+        .order("creado_en", { ascending: false })
+        .limit(1);
+
+      if (errT || !trabajos || trabajos.length === 0) return null;
+      const trabajoId = trabajos[0].id;
+
+      const { data: borrador, error: errB } = await supabase
+        .from("scribe_borradores")
+        .select("*")
+        .eq("trabajo_id", trabajoId)
+        .maybeSingle();
+
+      if (errB || !borrador) return null;
+      return borrador;
+    },
+  });
+
+  if (isLoading) {
+    return <div className="text-sm text-muted-foreground p-4">Buscando borrador de IA...</div>;
+  }
+
+  if (!borradorData) {
+    return (
+      <div className="p-4 border rounded-lg bg-card text-card-foreground text-center space-y-2">
+        <FileText className="w-8 h-8 mx-auto text-muted-foreground opacity-60" />
+        <p className="text-sm font-medium">No hay borrador SOAP generado por IA para esta atención aún.</p>
+        <p className="text-xs text-muted-foreground">
+          Grabe y finalice la sesión de voz para procesar el audio y obtener el borrador SOAP automático.
+        </p>
+      </div>
+    );
+  }
+
+  const soapFields = [
+    { key: "motivo_consulta", label: "Motivo de Consulta", valor: borradorData.motivo_consulta },
+    { key: "enfermedad_actual", label: "Anamnesis / Enfermedad Actual", valor: borradorData.enfermedad_actual },
+    { key: "examen_fisico", label: "Examen Físico", valor: borradorData.examen_fisico },
+    { key: "diagnosticos", label: "Diagnósticos CIE-10", valor: JSON.stringify(borradorData.diagnosticos, null, 2) },
+    { key: "plan_tratamiento", label: "Plan / Tratamiento", valor: borradorData.plan_tratamiento },
+  ];
+
+  const handleAplicar = (key: string, valor: any) => {
+    onAplicarCampo(key, valor);
+    setAplicados((prev) => ({ ...prev, [key]: true }));
+  };
+
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 space-y-4 shadow-sm">
+      <div className="flex items-center justify-between border-b pb-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-base">Borrador SOAP de Voz</h3>
+        </div>
+        <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 font-medium flex items-center gap-1.5 px-2.5 py-1">
+          <AlertTriangle className="w-3.5 h-3.5" />
+          Generado por IA – pendiente de revisión
+        </Badge>
+      </div>
+
+      <div className="space-y-3">
+        {soapFields.map((field) => {
+          if (!field.valor) return null;
+          const isApplied = aplicados[field.key];
+          return (
+            <div key={field.key} className="rounded-md border p-3 space-y-2 bg-muted/30">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {field.label}
+                </span>
+                <Button
+                  size="sm"
+                  variant={isApplied ? "outline" : "default"}
+                  className="h-7 text-xs gap-1"
+                  onClick={() => handleAplicar(field.key, field.valor)}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  {isApplied ? "Aplicado" : "Aplicar a consulta"}
+                </Button>
+              </div>
+              <p className="text-sm whitespace-pre-wrap text-foreground/90 bg-background p-2.5 rounded border">
+                {field.valor}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}

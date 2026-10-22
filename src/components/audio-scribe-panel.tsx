@@ -3,6 +3,7 @@ import { Loader2, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AudioConsentimientoDialog } from "@/components/audio-consentimiento-dialog";
+import { AudioScribeBorradorViewer } from "@/components/audio-scribe-borrador-viewer";
 import { useAudioScribeCaptura } from "@/lib/use-audio-scribe-captura";
 import {
   mensajeAudioError,
@@ -240,6 +241,17 @@ export function AudioScribePanel({ pacienteId, citaId, atencionId, estadoAtencio
           <p role="alert" className="text-sm text-destructive">
             {errorFijo ?? mensajeHook}
           </p>
+        ) : null}
+
+        {atencionId ? (
+          <div className="mt-4 border-t border-border/60 pt-4">
+            <AudioScribeBorradorViewer
+              atencionId={atencionId}
+              onAplicarCampo={(campo, valor) => {
+                console.log("Aplicar campo SOAP:", campo, valor);
+              }}
+            />
+          </div>
         ) : null}
       </section>
 
