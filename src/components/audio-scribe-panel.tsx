@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Mic } from "lucide-react";
+import { Loader2, Mic, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { AudioConsentimientoDialog } from "@/components/audio-consentimiento-dialog";
 import { AudioScribeBorradorViewer } from "@/components/audio-scribe-borrador-viewer";
 import { useAudioScribeCaptura } from "@/lib/use-audio-scribe-captura";
@@ -20,8 +21,6 @@ type Props = {
 };
 
 const MSG_FALLO_GENERICO = "No se pudo completar la acción. Puede intentarlo de nuevo.";
-const MSG_FALLO_VINCULO = "No se pudo asociar el audio a la atención. El audio se eliminará a los 7 días como máximo.";
-const SIETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000;
 
 function formatearCronometro(segundos: number): string {
   const total = Math.max(0, Math.floor(segundos));
@@ -32,13 +31,9 @@ function formatearCronometro(segundos: number): string {
 
 function formatearFecha(iso: string | Date): string {
   const d = typeof iso === "string" ? new Date(iso) : iso;
-  return d.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" });
+  return d.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-/**
- * Panel de Voice Scribe dentro de la consulta. No pide micrófono hasta que el
- * paciente toca «Acepto» en el diálogo de consentimiento.
- */
 export function AudioScribePanel({ pacienteId, citaId, atencionId, estadoAtencion }: Props) {
   const habilitado = useAudioScribeHabilitado();
   const hook = useAudioScribeCaptura({ atencionId });
@@ -47,57 +42,34 @@ export function AudioScribePanel({ pacienteId, citaId, atencionId, estadoAtencio
 
   const [dialogoAbierto, setDialogoAbierto] = useState(false);
   const [rechazado, setRechazado] = useState(false);
-  const [consentimientoId, setConsentimientoId] = useState<string | null>(null);
   const [errorFijo, setErrorFijo] = useState<string | null>(null);
-  const [conservar, setConservar] = useState(false);
-  const [conservarHasta, setConservarHasta] = useState<string | null>(null);
   const [aplicando, setAplicando] = useState(false);
+  const [conservar, setConservar] = useState(true);
+  const [conservarHasta, setConservarHasta] = useState<string | null>(null);
 
-  // Vinculación única: solo si la grabación empezó sin atención y esta aparece después.
-  const iniciadaSinAtencion = useRef(false);
-  const vinculada = useRef(false);
-  const inicioMs = useRef<number | null>(null);
+  if (habilitado.isLoading) {
+    return <div className="p-4 text-sm text-muted-foreground">Cargando Voice Scribe...</div>;
+  }
 
-  const { sesionId, estado, vincular } = hook;
-  useEffect(() => {
-    if (!iniciadaSinAtencion.current || vinculada.current) return;
-    if (!atencionId || !sesionId) return;
-    vinculada.current = true;
-    vincular(atencionId).catch(() => setErrorFijo(MSG_FALLO_VINCULO));
-  }, [atencionId, sesionId, vincular]);
+  if (habilitado.data !== true) {
+    return null;
+  }
 
-  if (habilitado.isLoading || !habilitado.data) return null;
+  const {
+    grabando,
+    finalizando,
+    sesionId,
+    consentimientoId,
+    mensajeError: mensajeHook,
+  } = hook.estado;
 
-  const cerrada = estadoAtencion === "firmada" || estadoAtencion === "anulada";
-  const grabando = estado === "grabando";
-  const finalizando = estado === "finalizando";
-  const finalizada = estado === "finalizada";
-  const solicitando = estado === "solicitando_permiso";
-  const puedeIniciar = (estado === "inactivo" || estado === "error") && !rechazado && !cerrada;
+  const cerrada = estadoAtencion === "firmada" || estadoAtencion === "cerrada";
+  const finalizada = !!sesionId && !grabando && !finalizando;
+  const puedeIniciar = !grabando && !finalizando && !sesionId && !rechazado && !cerrada;
 
-  // Con la nota cerrada y sin grabación en curso o resumen, el panel no aporta nada.
-  if (cerrada && estado === "inactivo" && !rechazado) return null;
-
-  const mensajeHook = hook.codigoError ? mensajeAudioError(hook.codigoError) : null;
-
-  const sesionRemota =
-    (sesiones.data && sesiones.data.ok && sesionId
-      ? sesiones.data.sesiones.find((s) => s.id === sesionId)
-      : null) ?? null;
-  const fechaEliminacion: string = conservar && conservarHasta
-    ? formatearFecha(conservarHasta)
-    : sesionRemota
-      ? formatearFecha(sesionRemota.purgar_despues_de)
-      : formatearFecha(new Date((inicioMs.current ?? Date.now()) + SIETE_DIAS_MS));
-
-  function alAceptar(id: string) {
-    setConsentimientoId(id);
+  function alAceptarConsentimiento(id: string) {
+    setDialogoAbierto(false);
     setErrorFijo(null);
-    setConservar(false);
-    setConservarHasta(null);
-    vinculada.current = false;
-    iniciadaSinAtencion.current = atencionId === null;
-    inicioMs.current = Date.now();
     void hook.iniciar(id).catch(() => setErrorFijo(MSG_FALLO_GENERICO));
   }
 
@@ -119,152 +91,133 @@ export function AudioScribePanel({ pacienteId, citaId, atencionId, estadoAtencio
       setConservarHasta(r.conservar_hasta);
       void sesiones.refetch();
     } catch {
-      // Mensaje fijo: nunca se muestra el error crudo del backend.
       setErrorFijo(MSG_FALLO_GENERICO);
     } finally {
       setAplicando(false);
     }
   }
 
-  async function retirar() {
-    if (!consentimientoId) return;
-    try {
-      await hook.retirarPermiso(consentimientoId);
-    } catch {
-      setErrorFijo(MSG_FALLO_GENERICO);
-    }
-  }
-
   return (
-    <>
+    <section className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-4" aria-label="Voice Scribe Panel">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <Mic className="h-4 w-4 text-primary" aria-hidden="true" /> Voice Scribe (Asistente de Voz IA)
+        </div>
+        {puedeIniciar || hook.estado.solicitando ? (
+          <Button
+            type="button"
+            disabled={hook.estado.solicitando}
+            onClick={() => {
+              setErrorFijo(null);
+              setDialogoAbierto(true);
+            }}
+          >
+            {hook.estado.solicitando ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : null}
+            {hook.estado.solicitando ? "Solicitando micrófono…" : "Iniciar consulta con voz"}
+          </Button>
+        ) : null}
+      </div>
+
       {grabando || finalizando ? (
-        <div className="fixed inset-x-0 top-0 z-[60] border-b-2 border-red-900 bg-red-600 text-white shadow-lg">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-            <span
-              aria-hidden="true"
-              className="inline-block h-4 w-4 shrink-0 animate-pulse rounded-full bg-white motion-reduce:animate-none"
-            />
-            <p role="status" aria-live="polite" className="text-base font-bold">
-              {finalizando ? "Finalizando la grabación…" : "Consulta en grabación"}
-            </p>
-            <span role="timer" className="font-mono text-lg tabular-nums">
+        <div className="rounded-lg border-2 border-red-600 bg-red-500/10 p-4 text-foreground space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="inline-block h-3 w-3 animate-pulse rounded-full bg-red-600" />
+              <span className="font-bold text-base">{finalizando ? "Finalizando grabación..." : "Grabando consulta en curso..."}</span>
+            </div>
+            <span className="font-mono text-lg font-bold tabular-nums">
               {formatearCronometro(hook.segundos)}
             </span>
-            {grabando ? (
-              <div className="ml-auto flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => void hook.detener().catch(() => setErrorFijo(MSG_FALLO_GENERICO))}
-                >
-                  Detener
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="border-white bg-transparent text-white hover:bg-white/15 hover:text-white"
-                  disabled={!consentimientoId}
-                  onClick={() => void retirar()}
-                >
-                  El paciente retira el permiso
-                </Button>
-              </div>
-            ) : null}
+          </div>
+          <div className="flex gap-2 justify-end">
+            {grabando && (
+              <Button variant="destructive" size="sm" onClick={() => void hook.detener()}>
+                Detener y procesar audio
+              </Button>
+            )}
           </div>
         </div>
       ) : null}
 
-      <section
-        aria-label="Voice Scribe: grabación de la consulta"
-        className="space-y-3 rounded-xl border border-border/60 bg-card p-4"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm font-semibold">
-            <Mic className="h-4 w-4 text-primary" aria-hidden="true" /> Voice Scribe
+      {rechazado ? (
+        <p className="text-sm text-muted-foreground">
+          La consulta continúa sin grabación de voz. Puede registrar la historia clínica de forma manual.
+        </p>
+      ) : null}
+
+      {/* Historial de sesiones de audio para esta atención */}
+      {sesiones.data && sesiones.data.ok && sesiones.data.sesiones.length > 0 ? (
+        <div className="rounded-md border bg-muted/20 p-3 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <History className="w-3.5 h-3.5" /> Sesiones de audio grabadas ({sesiones.data.sesiones.length})
           </div>
-          {puedeIniciar || solicitando ? (
-            <Button
-              type="button"
-              disabled={solicitando}
-              onClick={() => {
-                setErrorFijo(null);
-                setDialogoAbierto(true);
-              }}
-            >
-              {solicitando ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-              ) : null}
-              {solicitando ? "Solicitando micrófono…" : "Iniciar consulta"}
-            </Button>
+          <div className="space-y-2">
+            {sesiones.data.sesiones.map((s) => (
+              <div key={s.id} className="flex items-center justify-between text-xs bg-background p-2.5 rounded border">
+                <div>
+                  <span className="font-medium">Iniciada: {formatearFecha(s.iniciada_en)}</span>
+                  <span className="ml-3 text-muted-foreground capitalize">Estado: {s.estado}</span>
+                </div>
+                <Badge variant="outline" className="text-[10px]">
+                  {Math.round((s.duracion_ms || 0) / 1000)}s
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {finalizada ? (
+        <div className="space-y-3 text-sm rounded-md border p-3 bg-muted/10">
+          <p className="font-medium text-emerald-600 dark:text-emerald-400">
+            ¡Grabación finalizada con éxito ({formatearCronometro(hook.segundos)})! El audio quedó guardado de forma segura en el servidor.
+          </p>
+          {!cerrada ? (
+            <div className="space-y-2 rounded-md border border-border/60 p-3 bg-background">
+              <div className="flex items-center justify-between gap-4">
+                <label htmlFor="audio-conservar" className="font-medium text-xs">
+                  Conservar audio (máximo 30 días desde el inicio)
+                </label>
+                <Switch
+                  id="audio-conservar"
+                  checked={conservar}
+                  disabled={aplicando || !sesionId}
+                  onCheckedChange={(v) => void aplicarConservacion(v ? "conservar" : "quitar")}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                El audio se eliminará automáticamente al firmar la nota o al cumplirse el plazo.
+              </p>
+            </div>
           ) : null}
         </div>
+      ) : null}
 
-        {rechazado ? (
-          <p className="text-sm text-muted-foreground">
-            La consulta continúa sin grabación. Su atención no cambia. Registre la historia de forma manual.
-          </p>
-        ) : null}
+      {errorFijo || mensajeHook ? (
+        <p role="alert" className="text-sm text-destructive">
+          {errorFijo ?? mensajeHook}
+        </p>
+      ) : null}
 
-        {finalizada ? (
-          <div className="space-y-3 text-sm">
-            <p className="font-medium">
-              Grabación finalizada ({formatearCronometro(hook.segundos)}). El audio quedó guardado de forma segura.
-            </p>
-            {!cerrada ? (
-              <div className="space-y-2 rounded-md border border-border/60 p-3">
-                <div className="flex items-center justify-between gap-4">
-                  <label htmlFor="audio-conservar" className="font-medium">
-                    Conservar audio (máximo 30 días desde el inicio)
-                  </label>
-                  <Switch
-                    id="audio-conservar"
-                    checked={conservar}
-                    disabled={aplicando || !sesionId}
-                    onCheckedChange={(v) => void aplicarConservacion(v ? "conservar" : "quitar")}
-                  />
-                </div>
-                {conservar && conservarHasta ? (
-                  <p className="text-muted-foreground">
-                    Se eliminará automáticamente el {formatearFecha(conservarHasta)}.
-                  </p>
-                ) : (
-                  <p className="text-muted-foreground">
-                    El audio se eliminará automáticamente al firmar la nota o el {fechaEliminacion}.
-                  </p>
-                )}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
-
-        {errorFijo || mensajeHook ? (
-          <p role="alert" className="text-sm text-destructive">
-            {errorFijo ?? mensajeHook}
-          </p>
-        ) : null}
-
-        {atencionId ? (
-          <div className="mt-4 border-t border-border/60 pt-4">
-            <AudioScribeBorradorViewer
-              atencionId={atencionId}
-              onAplicarCampo={(campo, valor) => {
-                console.log("Aplicar campo SOAP:", campo, valor);
-              }}
-            />
-          </div>
-        ) : null}
-      </section>
+      {atencionId ? (
+        <div className="mt-4 border-t border-border/60 pt-4">
+          <AudioScribeBorradorViewer
+            atencionId={atencionId}
+            onAplicarCampo={(campo, valor) => {
+              console.log("Aplicar campo SOAP:", campo, valor);
+            }}
+          />
+        </div>
+      ) : null}
 
       <AudioConsentimientoDialog
-        abierto={dialogoAbierto}
-        onAbiertoChange={setDialogoAbierto}
-        pacienteId={pacienteId}
-        citaId={citaId}
-        atencionId={atencionId}
-        onAceptado={alAceptar}
-        onRechazado={alRechazar}
+        open={dialogoAbierto}
+        onOpenChange={setDialogoAbierto}
+        onAceptar={alAceptarConsentimiento}
+        onRechazar={alRechazar}
       />
-
-    </>
+    </section>
   );
 }
