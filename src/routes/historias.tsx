@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { AtencionForm } from "@/components/atencion-form";
 import { TriajePrecitaCard } from "@/components/triaje-precita-card";
 import { AudioScribePanel } from "@/components/audio-scribe-panel";
+import { SeguimientoCronicoCard } from "@/components/seguimiento-cronico-card";
 import { nombrePaciente, pacientesQuery } from "@/lib/pacientes.queries";
 import {
   medicoEhrQuery,
@@ -218,6 +219,17 @@ function HistoriasPage() {
                   adendas={detalle.data?.adendas ?? []}
                   onGuardado={(row) => setAtencionId(row.id)}
                 />
+                <SeguimientoCronicoCard
+                  pacienteId={paciente.id}
+                  condicionSugerida={
+                    detalle.data?.atencion
+                      ? (diagnosticosDe(detalle.data.atencion).find((d) => d.es_principal) ??
+                          diagnosticosDe(detalle.data.atencion)[0])?.descripcion ?? null
+                      : null
+                  }
+                  proximoControlSugerido={detalle.data?.atencion?.proximo_control ?? null}
+                  atencionOrigenId={detalle.data?.atencion?.id ?? null}
+                />
                 {detalle.data ? (
                   <OrdenesVinculadas
                     laboratorios={detalle.data.ordenesLaboratorio}
@@ -259,6 +271,18 @@ function Historial({
           {paciente.sexo ?? "Sexo no registrado"}
         </p>
       </div>
+
+      <SeguimientoCronicoCard
+        pacienteId={paciente.id}
+        condicionSugerida={
+          atenciones[0]
+            ? (diagnosticosDe(atenciones[0]).find((d) => d.es_principal) ??
+                diagnosticosDe(atenciones[0])[0])?.descripcion ?? null
+            : null
+        }
+        proximoControlSugerido={atenciones[0]?.proximo_control ?? null}
+        atencionOrigenId={atenciones[0]?.id ?? null}
+      />
 
       {cargando ? (
         <p className="text-sm text-muted-foreground">Cargando atenciones…</p>
