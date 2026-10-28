@@ -11,13 +11,31 @@ import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type RolUsuario = "founder" | "medico" | "community_manager" | "asistente";
+export type RolUsuario =
+  | "founder"
+  | "medico"
+  | "community_manager"
+  | "recepcion"
+  | "enfermeria"
+  | "facturacion"
+  // Retirado en el Día 29B: sin acceso clínico en la base (RLS por lista blanca).
+  | "asistente";
 
 // `src/integrations/supabase/types.ts` is stale (regenerated in a separate task),
 // so we read `roles_usuario` through an untyped view of the same client.
 const db = supabase as unknown as SupabaseClient<any>;
 
-export const ROLES_CLINICOS: RolUsuario[] = ["founder", "medico", "asistente"];
+// Lista blanca alineada con la RLS del Día 29B: solo el titular accede al panel
+// clínico completo. Recepción, enfermería y facturación tendrán vistas propias
+// (Etapa 3); mientras tanto ven "Tu rol no tiene acceso" en vez de pantallas rotas.
+export const ROLES_CLINICOS: RolUsuario[] = ["founder", "medico"];
+
+// Roles que ven el plan y la suscripción del consultorio (RLS de `suscripciones`).
+export const ROLES_SUSCRIPCION: RolUsuario[] = ["founder", "medico", "facturacion"];
+
+// Roles que administran marca, landing y reseñas (RLS de `resenas` y storage
+// `landing-media`, Día 29C).
+export const ROLES_MARCA: RolUsuario[] = ["founder", "medico", "community_manager"];
 
 export function rutaInicialPorRol(rol: RolUsuario | null): string {
   if (rol === "community_manager") return "/perfil-consultorio";
@@ -26,7 +44,15 @@ export function rutaInicialPorRol(rol: RolUsuario | null): string {
 
 // A founder can read other members of their own tenant, so we must scope the
 // role lookup to the authenticated user (never to tenant_id by hand).
-const PRIORIDAD_ROL: RolUsuario[] = ["founder", "medico", "asistente", "community_manager"];
+const PRIORIDAD_ROL: RolUsuario[] = [
+  "founder",
+  "medico",
+  "enfermeria",
+  "recepcion",
+  "facturacion",
+  "community_manager",
+  "asistente",
+];
 
 export async function fetchRolActual(): Promise<RolUsuario | null> {
   const { data: userData } = await supabase.auth.getUser();

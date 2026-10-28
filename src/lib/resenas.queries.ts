@@ -33,7 +33,12 @@ const KEYS = {
 async function getMedicoId(): Promise<string> {
   const { data: u, error: ue } = await supabase.auth.getUser();
   if (ue || !u.user) throw new ErrorUsuario("Tu sesión expiró. Vuelve a iniciar sesión.");
-  const { data, error } = await db.from("medicos").select("id").eq("user_id", u.user.id).limit(1);
+  // Titular: su propia ficha; CM del consultorio: la ficha del médico de su
+  // tenant (la RLS de `medicos` ya filtra por tenant_id del usuario).
+  let { data, error } = await db.from("medicos").select("id").eq("user_id", u.user.id).limit(1);
+  if (!error && (!data || data.length === 0)) {
+    ({ data, error } = await db.from("medicos").select("id").order("created_at", { ascending: true }).limit(1));
+  }
   if (error) {
     console.error("[reputacion] no se pudo leer el perfil médico", error);
     throw new ErrorUsuario("No se pudo cargar tu perfil médico. Inténtalo de nuevo.");

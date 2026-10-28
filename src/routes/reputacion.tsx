@@ -4,6 +4,7 @@ import { AlertCircle, Check, CheckCheck, Loader2, RefreshCw, Star, Undo2, X } fr
 import { toast } from "sonner";
 import { ConfirmarEliminar } from "@/components/confirmar-eliminar";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { RequireTenantAccess } from "@/components/require-tenant-access";
 import { KpiCard, KpiGridSkeleton, fmtEntero, fmtPorcentaje } from "@/components/metricas-ui";
 import { PageHeader } from "@/components/page-primitives";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -343,7 +344,7 @@ function ReputacionPage() {
     : null;
 
   return (
-    <DashboardShell>
+    <DashboardShell Guard={RequireTenantAccess}>
       <div className="space-y-8">
         <PageHeader
           eyebrow="Reputación"

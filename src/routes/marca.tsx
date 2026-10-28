@@ -12,6 +12,7 @@ import { MarcaSlugTab } from "@/components/marca/marca-slug-tab";
 import { MarcaSuscripcionTab } from "@/components/marca/marca-suscripcion-tab";
 import { MarcaPreview } from "@/components/marca/marca-preview";
 import { cn } from "@/lib/utils";
+import { ROLES_SUSCRIPCION, useAuth } from "@/lib/auth-context";
 import type { LandingConfigInput } from "@/lib/landing-marca-schemas";
 import {
   landingConfigQuery,
@@ -85,6 +86,11 @@ const TABS: { id: TabId; label: string }[] = [
 
 function MarcaPage() {
   const [tab, setTab] = useState<TabId>("identidad");
+  const { rol } = useAuth();
+  // Día 29B: el community manager no ve la suscripción (RLS); se oculta la pestaña.
+  const tabsVisibles = TABS.filter(
+    (t) => t.id !== "suscripcion" || (rol !== null && ROLES_SUSCRIPCION.includes(rol)),
+  );
   const [tenantId, setTenantId] = useState<string | null>(null);
   const [previewValores, setPreviewValores] = useState<LandingConfigInput | null>(null);
 
@@ -127,7 +133,7 @@ function MarcaPage() {
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-6">
             <div className="flex flex-wrap gap-2 border-b border-border/60 pb-3">
-              {TABS.map((t) => (
+              {tabsVisibles.map((t) => (
                 <button
                   key={t.id}
                   type="button"
@@ -166,7 +172,9 @@ function MarcaPage() {
                   {tab === "servicios" ? <MarcaServiciosTab /> : null}
                   {tab === "testimonios" ? <MarcaTestimoniosTab /> : null}
                   {tab === "slug" ? <MarcaSlugTab /> : null}
-                  {tab === "suscripcion" ? <MarcaSuscripcionTab /> : null}
+                  {tab === "suscripcion" && tabsVisibles.some((t) => t.id === "suscripcion") ? (
+                    <MarcaSuscripcionTab />
+                  ) : null}
                 </>
               )}
             </div>

@@ -16,7 +16,7 @@ function Pantalla({ children }: { children: ReactNode }) {
  * (community_manager has no RLS access to pacientes/citas).
  */
 export function RequireClinicalAccess({ children }: { children: ReactNode }) {
-  const { session, rol, loading } = useAuth();
+  const { session, rol, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
   const sinSesion = !loading && !session;
@@ -40,9 +40,16 @@ export function RequireClinicalAccess({ children }: { children: ReactNode }) {
   if (rol && !ROLES_CLINICOS.includes(rol)) {
     return (
       <Pantalla>
-        <p className="text-sm text-muted-foreground">
-          Tu rol no tiene acceso al panel clínico.
-        </p>
+        <div className="space-y-4 text-center">
+          <p className="text-sm text-muted-foreground">Tu rol no tiene acceso al panel clínico.</p>
+          <button
+            type="button"
+            onClick={async () => { await signOut(); navigate({ to: "/login", replace: true }); }}
+            className="rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-accent"
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </Pantalla>
     );
   }

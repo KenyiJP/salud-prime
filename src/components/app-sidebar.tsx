@@ -33,7 +33,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/auth-context";
+import { useAuth, ROLES_CLINICOS, ROLES_MARCA } from "@/lib/auth-context";
 import { useEsAdminPlataformaQuery } from "@/lib/metricas-conversacion.queries";
 
 const clinicalItems = [
@@ -74,7 +74,6 @@ const SOLO_CLINICO: readonly string[] = [
   "/configuracion/calendario",
   "/perfil-medico",
   "/configuracion/metricas-agente",
-  "/reputacion",
 ];
 
 
@@ -84,11 +83,15 @@ export function AppSidebar() {
   const { user, rol, signOut } = useAuth();
   const navigate = useNavigate();
   const esAdminPlataforma = useEsAdminPlataformaQuery().data === true;
-  const clinicalVisible = clinicalItems.filter(
-    (item) => rol !== "community_manager" || !SOLO_CLINICO.includes(item.url),
-  );
-  const configurationVisible = configurationItems.filter(
-    (item) => rol !== "community_manager" || !SOLO_CLINICO.includes(item.url),
+  // Día 29B: lista blanca. Solo el titular ve las entradas clínicas; el resto de
+  // roles (CM, recepción, enfermería, facturación) no las ve hasta tener vistas propias.
+  const esClinico = rol !== null && ROLES_CLINICOS.includes(rol);
+  const esMarca = rol !== null && ROLES_MARCA.includes(rol);
+  const clinicalVisible = esClinico ? [...clinicalItems] : [];
+  const configurationVisible = configurationItems.filter((item) =>
+    item.url === "/marca" || item.url === "/reputacion"
+      ? esMarca
+      : esClinico || !SOLO_CLINICO.includes(item.url),
   );
 
   async function handleSignOut() {
