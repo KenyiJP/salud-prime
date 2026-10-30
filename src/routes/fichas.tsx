@@ -10,6 +10,11 @@ import { Input } from "@/components/ui/input";
 import { PacienteDialog } from "@/components/paciente-dialog";
 import { ConfirmarEliminar } from "@/components/confirmar-eliminar";
 import { nombrePaciente, pacientesQuery, useEliminarPaciente } from "@/lib/pacientes.queries";
+import { guardPorRuta } from "@/components/require-ruta";
+import { useAuth, ROLES_CLINICOS } from "@/lib/auth-context";
+import { puedeVerRuta } from "@/lib/acceso-roles";
+
+const GuardFichas = guardPorRuta("/fichas");
 
 export const Route = createFileRoute("/fichas")({
   beforeLoad: () => requireSession(),
@@ -37,14 +42,14 @@ export const Route = createFileRoute("/fichas")({
   },
   component: FichasPage,
   errorComponent: ({ error }: { error: unknown }) => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardFichas}>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
         No se pudieron cargar los pacientes: {error instanceof Error ? error.message : String(error)}
       </div>
     </DashboardShell>
   ),
   notFoundComponent: () => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardFichas}>
       <p className="text-sm text-muted-foreground">Sin pacientes disponibles.</p>
     </DashboardShell>
   ),
@@ -53,6 +58,8 @@ export const Route = createFileRoute("/fichas")({
 function FichasPage() {
   const { data: pacientes } = useSuspenseQuery(pacientesQuery());
   const eliminar = useEliminarPaciente();
+  const { rol } = useAuth();
+  const esTitular = rol !== null && ROLES_CLINICOS.includes(rol);
   const [busqueda, setBusqueda] = useState("");
 
   const filtrados = useMemo(() => {
@@ -67,7 +74,7 @@ function FichasPage() {
   }, [pacientes, busqueda]);
 
   return (
-    <DashboardShell>
+    <DashboardShell Guard={GuardFichas}>
       <div className="space-y-8">
         <PageHeader
           eyebrow="Historia clínica"
@@ -120,6 +127,7 @@ function FichasPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      {puedeVerRuta(rol, "/laboratorios") ? (
                       <Button
                         asChild
                         variant="ghost"
@@ -133,6 +141,7 @@ function FichasPage() {
                           <FlaskConical className="h-4 w-4" />
                         </Link>
                       </Button>
+                      ) : null}
                       <PacienteDialog
                         paciente={p}
                         trigger={
@@ -141,6 +150,7 @@ function FichasPage() {
                           </Button>
                         }
                       />
+                      {esTitular ? (
                       <ConfirmarEliminar
                         title="¿Eliminar paciente?"
                         description={`Se eliminará ${nombrePaciente(p)} y todas sus citas. Esta acción no se puede deshacer.`}
@@ -157,6 +167,7 @@ function FichasPage() {
                           </Button>
                         }
                       />
+                      ) : null}
                     </div>
                   </td>
                 </tr>

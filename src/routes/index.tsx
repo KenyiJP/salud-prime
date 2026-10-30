@@ -3,9 +3,12 @@ import { requireSession } from "@/lib/auth-guard";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Activity, CalendarClock, FileHeart, Pill, TrendingUp, Users } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { guardPorRuta } from "@/components/require-ruta";
 import { PageHeader, PlaceholderCard } from "@/components/page-primitives";
 import { nombrePaciente, pacientesQuery } from "@/lib/pacientes.queries";
 import { citasQuery, fechaCorta, horaCorta } from "@/lib/citas.queries";
+
+const GuardInicio = guardPorRuta("/");
 
 export const Route = createFileRoute("/")({
   beforeLoad: () => requireSession(),
@@ -34,14 +37,14 @@ export const Route = createFileRoute("/")({
   },
   component: DashboardHome,
   errorComponent: ({ error }: { error: unknown }) => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardInicio}>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
         No se pudo cargar la información clínica: {error instanceof Error ? error.message : String(error)}
       </div>
     </DashboardShell>
   ),
   notFoundComponent: () => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardInicio}>
       <p className="text-sm text-muted-foreground">Sin datos disponibles.</p>
     </DashboardShell>
   ),
@@ -83,7 +86,7 @@ function DashboardHome() {
   ];
 
   return (
-    <DashboardShell>
+    <DashboardShell Guard={GuardInicio}>
       <div className="space-y-8">
         <PageHeader
           eyebrow="Panel principal"

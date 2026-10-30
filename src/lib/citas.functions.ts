@@ -18,8 +18,8 @@ const SELECT_CITA =
 export const getCitas = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("citas")
       .select(SELECT_CITA)
@@ -33,8 +33,8 @@ export const crearCita = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(nuevaCitaSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId, tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId, tenantId } = await resolveContextoConsultorio(context.supabase, context.userId);
 
     // RLS on `citas` only checks tenant membership, not that paciente_id
     // belongs to this médico — verify ownership here.
@@ -69,8 +69,8 @@ export const actualizarCita = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(actualizarCitaSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
 
     const { data: paciente, error: pacienteError } = await context.supabase
       .from("pacientes")
@@ -104,8 +104,8 @@ export const cambiarEstadoCita = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(cambiarEstadoCitaSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("citas")
       .update({ estado: data.estado })
@@ -121,14 +121,20 @@ export const eliminarCita = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(eliminarCitaSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
-    const { error } = await context.supabase
+    const { resolveMedicoTitular, citaTieneRegistros } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveMedicoTitular(context.supabase, context.userId);
+    // Borrar arrastraría pagos (CASCADE) y desvincularía la atención: se exige cancelar en su lugar.
+    if (await citaTieneRegistros(context.supabase, data.id)) {
+      throw new Error("Esta cita tiene pagos, atención u otros registros y no se puede eliminar. Cámbiala a «cancelada».");
+    }
+    const { data: borradas, error } = await context.supabase
       .from("citas")
       .delete()
       .eq("id", data.id)
-      .eq("medico_id", medicoId);
-    if (error) throw new Error(error.message);
+      .eq("medico_id", medicoId)
+      .select("id");
+    if (error) throw new Error("No se pudo eliminar la cita.");
+    if (!borradas || borradas.length === 0) throw new Error("No se encontró la cita o no tienes permiso para eliminarla.");
     return { id: data.id };
   });
 

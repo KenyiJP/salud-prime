@@ -20,8 +20,8 @@ import {
 export const getTiposConsultaAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("tipos_consulta")
       .select("*")
@@ -34,8 +34,8 @@ export const getTiposConsultaAdmin = createServerFn({ method: "GET" })
 export const getTiposConsulta = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("tipos_consulta")
       .select("*")
@@ -50,8 +50,8 @@ export const crearTipoConsulta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(nuevoTipoConsultaSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveMedicoTitular } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveMedicoTitular(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("tipos_consulta")
       .insert({
@@ -73,8 +73,8 @@ export const actualizarTipoConsulta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(actualizarTipoConsultaSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveMedicoTitular } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveMedicoTitular(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("tipos_consulta")
       .update({
@@ -99,8 +99,8 @@ export const toggleTipoConsulta = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(toggleTipoConsultaSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveMedicoTitular } = await import("./clinica-tenant.server");
+    const { tenantId } = await resolveMedicoTitular(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("tipos_consulta")
       .update({ activo: data.activo })
@@ -115,8 +115,8 @@ export const toggleTipoConsulta = createServerFn({ method: "POST" })
 export const getHorarios = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("horarios_atencion")
       .select("*")
@@ -131,8 +131,8 @@ export const crearHorario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(nuevoHorarioSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId, tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveMedicoTitular } = await import("./clinica-tenant.server");
+    const { medicoId, tenantId } = await resolveMedicoTitular(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("horarios_atencion")
       .insert({
@@ -154,8 +154,8 @@ export const toggleHorario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(toggleHorarioSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveMedicoTitular } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveMedicoTitular(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("horarios_atencion")
       .update({ activo: data.activo })
@@ -170,8 +170,8 @@ export const toggleHorario = createServerFn({ method: "POST" })
 export const getBloqueos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("bloqueos_horario")
       .select("*")
@@ -185,8 +185,8 @@ export const crearBloqueo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(nuevoBloqueoSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId, tenantId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId, tenantId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("bloqueos_horario")
       .insert({
@@ -206,8 +206,8 @@ export const eliminarBloqueo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(eliminarBloqueoSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { error } = await context.supabase
       .from("bloqueos_horario")
       .delete()

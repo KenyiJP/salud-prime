@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { leerInvitacionPendiente } from "@/lib/invitacion-pendiente";
 
 export const Route = createFileRoute("/pendiente-activacion")({
   ssr: false,
@@ -29,6 +31,11 @@ function PendienteActivacionPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
+  // Invitado que confirmó su correo en otra pestaña: llevarlo a canjear la invitación.
+  useEffect(() => {
+    if (leerInvitacionPendiente()) navigate({ to: "/unirse", replace: true });
+  }, [navigate]);
+
   async function handleSignOut() {
     await signOut();
     navigate({ to: "/login", replace: true });
@@ -42,7 +49,8 @@ function PendienteActivacionPage() {
         <p className="text-sm text-muted-foreground">
           {user?.email ? `La cuenta ${user.email} ` : "Tu cuenta "}
           existe pero todavía no tiene un rol asignado en ningún consultorio. Un administrador
-          debe activarla antes de que puedas acceder al panel.
+          debe activarla antes de que puedas acceder al panel. Si te enviaron un enlace de invitación,
+          vuelve a abrirlo para unirte al consultorio.
         </p>
         <Button variant="outline" className="w-full" onClick={handleSignOut}>
           Cerrar sesión

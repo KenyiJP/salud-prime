@@ -55,13 +55,11 @@ export function AudioScribePanel({ pacienteId, citaId, atencionId, estadoAtencio
     return null;
   }
 
-  const {
-    grabando,
-    finalizando,
-    sesionId,
-    consentimientoId,
-    mensajeError: mensajeHook,
-  } = hook.estado;
+  const grabando = hook.estado === "grabando";
+  const finalizando = hook.estado === "finalizando";
+  const solicitando = hook.estado === "solicitando_permiso";
+  const sesionId = hook.sesionId;
+  const mensajeHook = hook.codigoError ? mensajeAudioError(hook.codigoError) : null;
 
   const cerrada = estadoAtencion === "firmada" || estadoAtencion === "cerrada";
   const finalizada = !!sesionId && !grabando && !finalizando;
@@ -103,19 +101,19 @@ export function AudioScribePanel({ pacienteId, citaId, atencionId, estadoAtencio
         <div className="flex items-center gap-2 text-sm font-semibold">
           <Mic className="h-4 w-4 text-primary" aria-hidden="true" /> Voice Scribe (Asistente de Voz IA)
         </div>
-        {puedeIniciar || hook.estado.solicitando ? (
+        {puedeIniciar || solicitando ? (
           <Button
             type="button"
-            disabled={hook.estado.solicitando}
+            disabled={solicitando}
             onClick={() => {
               setErrorFijo(null);
               setDialogoAbierto(true);
             }}
           >
-            {hook.estado.solicitando ? (
+            {solicitando ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
             ) : null}
-            {hook.estado.solicitando ? "Solicitando micrófono…" : "Iniciar consulta con voz"}
+            {solicitando ? "Solicitando micrófono…" : "Iniciar consulta con voz"}
           </Button>
         ) : null}
       </div>
@@ -205,18 +203,21 @@ export function AudioScribePanel({ pacienteId, citaId, atencionId, estadoAtencio
         <div className="mt-4 border-t border-border/60 pt-4">
           <AudioScribeBorradorViewer
             atencionId={atencionId}
-            onAplicarCampo={(campo, valor) => {
-              console.log("Aplicar campo SOAP:", campo, valor);
-            }}
+            // PENDIENTE (Día 27B/29): conectar con el formulario de la atención. No se
+            // registra el contenido en consola: es información clínica (Ley 29733).
+            onAplicarCampo={() => undefined}
           />
         </div>
       ) : null}
 
       <AudioConsentimientoDialog
-        open={dialogoAbierto}
-        onOpenChange={setDialogoAbierto}
-        onAceptar={alAceptarConsentimiento}
-        onRechazar={alRechazar}
+        abierto={dialogoAbierto}
+        onAbiertoChange={setDialogoAbierto}
+        pacienteId={pacienteId}
+        citaId={citaId}
+        atencionId={atencionId}
+        onAceptado={alAceptarConsentimiento}
+        onRechazado={alRechazar}
       />
     </section>
   );

@@ -10,8 +10,8 @@ import {
 export const getPacientes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("pacientes")
       .select("*")
@@ -25,8 +25,8 @@ export const crearPaciente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(nuevoPacienteSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId, tenantId } = await resolveMedicoContext(
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId, tenantId } = await resolveContextoConsultorio(
       context.supabase,
       context.userId,
     );
@@ -57,8 +57,8 @@ export const actualizarPaciente = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     // Neither medico_id nor tenant_id are accepted from the client; RLS also
     // scopes the UPDATE to rows in the caller's tenant.
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveContextoConsultorio } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveContextoConsultorio(context.supabase, context.userId);
     const { id, ...fields } = data;
     const { data: row, error } = await context.supabase
       .from("pacientes")
@@ -82,8 +82,27 @@ export const eliminarPaciente = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(eliminarPacienteSchema.parse)
   .handler(async ({ context, data }) => {
-    const { resolveMedicoContext } = await import("./clinica-tenant.server");
-    const { medicoId } = await resolveMedicoContext(context.supabase, context.userId);
+    const { resolveMedicoTitular, pacienteTieneRegistros, citaTieneRegistros } = await import("./clinica-tenant.server");
+    const { medicoId } = await resolveMedicoTitular(context.supabase, context.userId);
+
+    // No se destruye historia clínica, recetas, órdenes ni audio (NTS 139, Ley 29733).
+    if (await pacienteTieneRegistros(context.supabase, data.id)) {
+      throw new Error(
+        "Este paciente tiene historia clínica, recetas, órdenes o audio registrados y no se puede eliminar. Si ya no lo atiendes, déjalo sin citas futuras.",
+      );
+    }
+
+    const { data: citasPac, error: citasLeer } = await context.supabase
+      .from("citas")
+      .select("id")
+      .eq("paciente_id", data.id)
+      .eq("medico_id", medicoId);
+    if (citasLeer) throw new Error("No se pudo verificar las citas del paciente.");
+    for (const c of citasPac ?? []) {
+      if (await citaTieneRegistros(context.supabase, c.id)) {
+        throw new Error("El paciente tiene citas con pagos o atención registrados y no se puede eliminar.");
+      }
+    }
 
     // Citas reference the paciente, so remove them first (no cascade in DB).
     const { error: citasError } = await context.supabase
@@ -91,13 +110,17 @@ export const eliminarPaciente = createServerFn({ method: "POST" })
       .delete()
       .eq("paciente_id", data.id)
       .eq("medico_id", medicoId);
-    if (citasError) throw new Error(citasError.message);
+    if (citasError) throw new Error("No se pudieron eliminar las citas del paciente.");
 
-    const { error } = await context.supabase
+    const { data: borrados, error } = await context.supabase
       .from("pacientes")
       .delete()
       .eq("id", data.id)
-      .eq("medico_id", medicoId);
-    if (error) throw new Error(error.message);
+      .eq("medico_id", medicoId)
+      .select("id");
+    if (error) throw new Error("No se pudo eliminar el paciente.");
+    if (!borrados || borrados.length === 0) {
+      throw new Error("No se encontró el paciente o no tienes permiso para eliminarlo.");
+    }
     return { id: data.id };
   });

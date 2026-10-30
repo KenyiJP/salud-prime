@@ -17,6 +17,9 @@ import {
   BarChart3,
   TrendingUp,
   Star,
+  Users,
+  HeartPulse,
+  Wallet,
 } from "lucide-react";
 
 
@@ -33,7 +36,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { useAuth, ROLES_CLINICOS, ROLES_MARCA } from "@/lib/auth-context";
+import { useAuth, ROLES_CLINICOS } from "@/lib/auth-context";
+import { puedeVerRuta } from "@/lib/acceso-roles";
 import { useEsAdminPlataformaQuery } from "@/lib/metricas-conversacion.queries";
 
 const clinicalItems = [
@@ -47,6 +51,14 @@ const clinicalItems = [
   { title: "Facturación", url: "/facturacion", icon: Receipt },
 ] as const;
 
+// Pantallas propias de los roles operativos (Día 29, Etapa 3).
+const operativeItems = [
+  { title: "Agenda de citas", url: "/calendario", icon: CalendarDays },
+  { title: "Pacientes (filiación)", url: "/fichas", icon: FileHeart },
+  { title: "Enfermería", url: "/enfermeria", icon: HeartPulse },
+  { title: "Cobranza", url: "/cobranza", icon: Wallet },
+] as const;
+
 const configurationItems = [
   { title: "Identidad y landing", url: "/marca", icon: Palette },
   { title: "Horarios y bloqueos", url: "/horarios", icon: CalendarClock },
@@ -54,6 +66,7 @@ const configurationItems = [
   { title: "Mi perfil médico", url: "/perfil-medico", icon: UserCog },
   { title: "Métricas del agente", url: "/configuracion/metricas-agente", icon: BarChart3 },
   { title: "Reputación", url: "/reputacion", icon: Star },
+  { title: "Equipo y accesos", url: "/configuracion/equipo", icon: Users },
 ] as const;
 
 // Solo administradores de plataforma (tabla `plataforma_administradores`). El
@@ -61,22 +74,6 @@ const configurationItems = [
 const adminItems = [
   { title: "Métricas comerciales", url: "/admin/metricas-comercial", icon: TrendingUp },
 ] as const;
-
-// community_manager has no RLS access to clinical data, so these entries are
-// hidden for that role instead of showing a broken page.
-const SOLO_CLINICO: readonly string[] = [
-  "/laboratorios",
-  "/historias",
-  "/imagenologia",
-  "/fichas",
-  "/calendario",
-  "/horarios",
-  "/configuracion/calendario",
-  "/perfil-medico",
-  "/configuracion/metricas-agente",
-];
-
-
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -86,12 +83,11 @@ export function AppSidebar() {
   // Día 29B: lista blanca. Solo el titular ve las entradas clínicas; el resto de
   // roles (CM, recepción, enfermería, facturación) no las ve hasta tener vistas propias.
   const esClinico = rol !== null && ROLES_CLINICOS.includes(rol);
-  const esMarca = rol !== null && ROLES_MARCA.includes(rol);
   const clinicalVisible = esClinico ? [...clinicalItems] : [];
+  // Roles operativos: solo las pantallas de su lista blanca (`acceso-roles.ts`).
+  const operativeVisible = esClinico ? [] : operativeItems.filter((i) => puedeVerRuta(rol, i.url));
   const configurationVisible = configurationItems.filter((item) =>
-    item.url === "/marca" || item.url === "/reputacion"
-      ? esMarca
-      : esClinico || !SOLO_CLINICO.includes(item.url),
+    esClinico ? true : puedeVerRuta(rol, item.url),
   );
 
   async function handleSignOut() {
@@ -118,6 +114,26 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {operativeVisible.length > 0 ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>Mi trabajo</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {operativeVisible.map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.url)} tooltip={item.title}>
+                      <Link to={item.url} className="flex items-center gap-3">
+                        <item.icon className="h-4 w-4" />
+                        <span className="truncate">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
+        {clinicalVisible.length > 0 ? (
         <SidebarGroup>
           <SidebarGroupLabel>Clínica</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -145,6 +161,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        ) : null}
         {configurationVisible.length > 0 ? (
           <SidebarGroup>
             <SidebarGroupLabel>Configuración</SidebarGroupLabel>

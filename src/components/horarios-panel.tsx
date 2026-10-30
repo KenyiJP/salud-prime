@@ -53,8 +53,26 @@ import {
   useToggleHorario,
   useToggleTipoConsulta,
 } from "@/lib/agenda.queries";
+import { useAuth, ROLES_CLINICOS } from "@/lib/auth-context";
 
 export function HorariosPanel() {
+  const { rol } = useAuth();
+  // La RLS reserva tipos de consulta y turnos semanales al titular; recepción
+  // solo gestiona bloqueos de agenda (Día 29B).
+  const esTitular = rol !== null && ROLES_CLINICOS.includes(rol);
+
+  if (!esTitular) {
+    return (
+      <div className="space-y-6">
+        <p className="rounded-lg border border-border/60 bg-card p-4 text-sm text-muted-foreground">
+          Los tipos de consulta y los turnos semanales los configura el médico titular. Aquí puedes
+          bloquear fechas u horas en la agenda.
+        </p>
+        <BloqueosAgenda />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <TiposConsulta />

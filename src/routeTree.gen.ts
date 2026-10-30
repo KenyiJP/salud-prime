@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CalendarioRouteImport } from './routes/calendario'
+import { Route as CobranzaRouteImport } from './routes/cobranza'
 import { Route as DrChar123slugChar125RouteImport } from './routes/dr-{$slug}'
+import { Route as EnfermeriaRouteImport } from './routes/enfermeria'
 import { Route as FacturacionRouteImport } from './routes/facturacion'
 import { Route as FichasRouteImport } from './routes/fichas'
 import { Route as HistoriasRouteImport } from './routes/historias'
@@ -30,9 +32,11 @@ import { Route as ReembolsoRouteImport } from './routes/reembolso'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as ReputacionRouteImport } from './routes/reputacion'
 import { Route as TerminosRouteImport } from './routes/terminos'
+import { Route as UnirseRouteImport } from './routes/unirse'
 import { Route as AdminMetricasComercialRouteImport } from './routes/admin.metricas-comercial'
 import { Route as AtencionAtencionIdRouteImport } from './routes/atencion.$atencionId'
 import { Route as ConfiguracionCalendarioRouteImport } from './routes/configuracion.calendario'
+import { Route as ConfiguracionEquipoRouteImport } from './routes/configuracion.equipo'
 import { Route as ConfiguracionGoogleCalendarColaRouteImport } from './routes/configuracion.google-calendar-cola'
 import { Route as ConfiguracionGoogleCalendarLogRouteImport } from './routes/configuracion.google-calendar-log'
 import { Route as ConfiguracionMetricasAgenteRouteImport } from './routes/configuracion.metricas-agente'
@@ -52,9 +56,19 @@ const CalendarioRoute = CalendarioRouteImport.update({
   path: '/calendario',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CobranzaRoute = CobranzaRouteImport.update({
+  id: '/cobranza',
+  path: '/cobranza',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DrChar123slugChar125Route = DrChar123slugChar125RouteImport.update({
   id: '/dr-{$slug}',
   path: '/dr-{$slug}',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnfermeriaRoute = EnfermeriaRouteImport.update({
+  id: '/enfermeria',
+  path: '/enfermeria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FacturacionRoute = FacturacionRouteImport.update({
@@ -147,6 +161,11 @@ const TerminosRoute = TerminosRouteImport.update({
   path: '/terminos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UnirseRoute = UnirseRouteImport.update({
+  id: '/unirse',
+  path: '/unirse',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminMetricasComercialRoute = AdminMetricasComercialRouteImport.update({
   id: '/admin/metricas-comercial',
   path: '/admin/metricas-comercial',
@@ -160,6 +179,11 @@ const AtencionAtencionIdRoute = AtencionAtencionIdRouteImport.update({
 const ConfiguracionCalendarioRoute = ConfiguracionCalendarioRouteImport.update({
   id: '/configuracion/calendario',
   path: '/configuracion/calendario',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracionEquipoRoute = ConfiguracionEquipoRouteImport.update({
+  id: '/configuracion/equipo',
+  path: '/configuracion/equipo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracionGoogleCalendarColaRoute =
@@ -210,7 +234,9 @@ const RecetaRecetaIdRoute = RecetaRecetaIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
+  '/cobranza': typeof CobranzaRoute
   '/dr-{$slug}': typeof DrChar123slugChar125Route
+  '/enfermeria': typeof EnfermeriaRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/historias': typeof HistoriasRoute
@@ -229,9 +255,11 @@ export interface FileRoutesByFullPath {
   '/registro': typeof RegistroRoute
   '/reputacion': typeof ReputacionRoute
   '/terminos': typeof TerminosRoute
+  '/unirse': typeof UnirseRoute
   '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
+  '/configuracion/equipo': typeof ConfiguracionEquipoRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
   '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
   '/configuracion/metricas-agente': typeof ConfiguracionMetricasAgenteRoute
@@ -244,7 +272,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
+  '/cobranza': typeof CobranzaRoute
   '/dr-{$slug}': typeof DrChar123slugChar125Route
+  '/enfermeria': typeof EnfermeriaRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/historias': typeof HistoriasRoute
@@ -263,9 +293,11 @@ export interface FileRoutesByTo {
   '/registro': typeof RegistroRoute
   '/reputacion': typeof ReputacionRoute
   '/terminos': typeof TerminosRoute
+  '/unirse': typeof UnirseRoute
   '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
+  '/configuracion/equipo': typeof ConfiguracionEquipoRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
   '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
   '/configuracion/metricas-agente': typeof ConfiguracionMetricasAgenteRoute
@@ -279,7 +311,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calendario': typeof CalendarioRoute
+  '/cobranza': typeof CobranzaRoute
   '/dr-{$slug}': typeof DrChar123slugChar125Route
+  '/enfermeria': typeof EnfermeriaRoute
   '/facturacion': typeof FacturacionRoute
   '/fichas': typeof FichasRoute
   '/historias': typeof HistoriasRoute
@@ -298,9 +332,11 @@ export interface FileRoutesById {
   '/registro': typeof RegistroRoute
   '/reputacion': typeof ReputacionRoute
   '/terminos': typeof TerminosRoute
+  '/unirse': typeof UnirseRoute
   '/admin/metricas-comercial': typeof AdminMetricasComercialRoute
   '/atencion/$atencionId': typeof AtencionAtencionIdRoute
   '/configuracion/calendario': typeof ConfiguracionCalendarioRoute
+  '/configuracion/equipo': typeof ConfiguracionEquipoRoute
   '/configuracion/google-calendar-cola': typeof ConfiguracionGoogleCalendarColaRoute
   '/configuracion/google-calendar-log': typeof ConfiguracionGoogleCalendarLogRoute
   '/configuracion/metricas-agente': typeof ConfiguracionMetricasAgenteRoute
@@ -315,7 +351,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/calendario'
+    | '/cobranza'
     | '/dr-{$slug}'
+    | '/enfermeria'
     | '/facturacion'
     | '/fichas'
     | '/historias'
@@ -334,9 +372,11 @@ export interface FileRouteTypes {
     | '/registro'
     | '/reputacion'
     | '/terminos'
+    | '/unirse'
     | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
+    | '/configuracion/equipo'
     | '/configuracion/google-calendar-cola'
     | '/configuracion/google-calendar-log'
     | '/configuracion/metricas-agente'
@@ -349,7 +389,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/calendario'
+    | '/cobranza'
     | '/dr-{$slug}'
+    | '/enfermeria'
     | '/facturacion'
     | '/fichas'
     | '/historias'
@@ -368,9 +410,11 @@ export interface FileRouteTypes {
     | '/registro'
     | '/reputacion'
     | '/terminos'
+    | '/unirse'
     | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
+    | '/configuracion/equipo'
     | '/configuracion/google-calendar-cola'
     | '/configuracion/google-calendar-log'
     | '/configuracion/metricas-agente'
@@ -383,7 +427,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/calendario'
+    | '/cobranza'
     | '/dr-{$slug}'
+    | '/enfermeria'
     | '/facturacion'
     | '/fichas'
     | '/historias'
@@ -402,9 +448,11 @@ export interface FileRouteTypes {
     | '/registro'
     | '/reputacion'
     | '/terminos'
+    | '/unirse'
     | '/admin/metricas-comercial'
     | '/atencion/$atencionId'
     | '/configuracion/calendario'
+    | '/configuracion/equipo'
     | '/configuracion/google-calendar-cola'
     | '/configuracion/google-calendar-log'
     | '/configuracion/metricas-agente'
@@ -418,7 +466,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarioRoute: typeof CalendarioRoute
+  CobranzaRoute: typeof CobranzaRoute
   DrChar123slugChar125Route: typeof DrChar123slugChar125Route
+  EnfermeriaRoute: typeof EnfermeriaRoute
   FacturacionRoute: typeof FacturacionRoute
   FichasRoute: typeof FichasRoute
   HistoriasRoute: typeof HistoriasRoute
@@ -437,9 +487,11 @@ export interface RootRouteChildren {
   RegistroRoute: typeof RegistroRoute
   ReputacionRoute: typeof ReputacionRoute
   TerminosRoute: typeof TerminosRoute
+  UnirseRoute: typeof UnirseRoute
   AdminMetricasComercialRoute: typeof AdminMetricasComercialRoute
   AtencionAtencionIdRoute: typeof AtencionAtencionIdRoute
   ConfiguracionCalendarioRoute: typeof ConfiguracionCalendarioRoute
+  ConfiguracionEquipoRoute: typeof ConfiguracionEquipoRoute
   ConfiguracionGoogleCalendarColaRoute: typeof ConfiguracionGoogleCalendarColaRoute
   ConfiguracionGoogleCalendarLogRoute: typeof ConfiguracionGoogleCalendarLogRoute
   ConfiguracionMetricasAgenteRoute: typeof ConfiguracionMetricasAgenteRoute
@@ -466,11 +518,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cobranza': {
+      id: '/cobranza'
+      path: '/cobranza'
+      fullPath: '/cobranza'
+      preLoaderRoute: typeof CobranzaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dr-{$slug}': {
       id: '/dr-{$slug}'
       path: '/dr-{$slug}'
       fullPath: '/dr-{$slug}'
       preLoaderRoute: typeof DrChar123slugChar125RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enfermeria': {
+      id: '/enfermeria'
+      path: '/enfermeria'
+      fullPath: '/enfermeria'
+      preLoaderRoute: typeof EnfermeriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/facturacion': {
@@ -599,6 +665,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TerminosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/unirse': {
+      id: '/unirse'
+      path: '/unirse'
+      fullPath: '/unirse'
+      preLoaderRoute: typeof UnirseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/metricas-comercial': {
       id: '/admin/metricas-comercial'
       path: '/admin/metricas-comercial'
@@ -618,6 +691,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracion/calendario'
       fullPath: '/configuracion/calendario'
       preLoaderRoute: typeof ConfiguracionCalendarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion/equipo': {
+      id: '/configuracion/equipo'
+      path: '/configuracion/equipo'
+      fullPath: '/configuracion/equipo'
+      preLoaderRoute: typeof ConfiguracionEquipoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracion/google-calendar-cola': {
@@ -682,7 +762,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarioRoute: CalendarioRoute,
+  CobranzaRoute: CobranzaRoute,
   DrChar123slugChar125Route: DrChar123slugChar125Route,
+  EnfermeriaRoute: EnfermeriaRoute,
   FacturacionRoute: FacturacionRoute,
   FichasRoute: FichasRoute,
   HistoriasRoute: HistoriasRoute,
@@ -701,9 +783,11 @@ const rootRouteChildren: RootRouteChildren = {
   RegistroRoute: RegistroRoute,
   ReputacionRoute: ReputacionRoute,
   TerminosRoute: TerminosRoute,
+  UnirseRoute: UnirseRoute,
   AdminMetricasComercialRoute: AdminMetricasComercialRoute,
   AtencionAtencionIdRoute: AtencionAtencionIdRoute,
   ConfiguracionCalendarioRoute: ConfiguracionCalendarioRoute,
+  ConfiguracionEquipoRoute: ConfiguracionEquipoRoute,
   ConfiguracionGoogleCalendarColaRoute: ConfiguracionGoogleCalendarColaRoute,
   ConfiguracionGoogleCalendarLogRoute: ConfiguracionGoogleCalendarLogRoute,
   ConfiguracionMetricasAgenteRoute: ConfiguracionMetricasAgenteRoute,

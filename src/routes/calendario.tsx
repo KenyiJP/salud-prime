@@ -21,6 +21,10 @@ import {
   type CitaRow,
   type EstadoCita,
 } from "@/lib/citas.queries";
+import { guardPorRuta } from "@/components/require-ruta";
+import { useAuth, ROLES_CLINICOS } from "@/lib/auth-context";
+
+const GuardCalendario = guardPorRuta("/calendario");
 
 export const Route = createFileRoute("/calendario")({
   beforeLoad: () => requireSession(),
@@ -51,14 +55,14 @@ export const Route = createFileRoute("/calendario")({
   },
   component: CalendarioPage,
   errorComponent: ({ error }: { error: unknown }) => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardCalendario}>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
         No se pudieron cargar las citas: {error instanceof Error ? error.message : String(error)}
       </div>
     </DashboardShell>
   ),
   notFoundComponent: () => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardCalendario}>
       <p className="text-sm text-muted-foreground">Sin citas disponibles.</p>
     </DashboardShell>
   ),
@@ -67,9 +71,11 @@ export const Route = createFileRoute("/calendario")({
 function CalendarioPage() {
   const { data: citas } = useSuspenseQuery(citasQuery());
   const eliminar = useEliminarCita();
+  const { rol } = useAuth();
+  const esTitular = rol !== null && ROLES_CLINICOS.includes(rol);
 
   return (
-    <DashboardShell>
+    <DashboardShell Guard={GuardCalendario}>
       <div className="space-y-8">
         <PageHeader
           eyebrow="Agenda"
@@ -130,6 +136,7 @@ function CalendarioPage() {
                           </Button>
                         }
                       />
+                      {esTitular ? (
                       <ConfirmarEliminar
                         title="¿Eliminar cita?"
                         description={`Se eliminará la cita de ${nombrePaciente(c.pacientes)} del ${fechaCorta(c.fecha_hora)} a las ${horaCorta(c.fecha_hora)}.`}
@@ -146,6 +153,7 @@ function CalendarioPage() {
                           </Button>
                         }
                       />
+                      ) : null}
                     </div>
                   </td>
                 </tr>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fetchRolActual, rutaInicialPorRol } from "@/lib/auth-context";
+import { leerInvitacionPendiente } from "@/lib/invitacion-pendiente";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -48,6 +49,12 @@ function LoginPage() {
     if (signInError) {
       setLoading(false);
       setError("Credenciales inválidas. Verifica tu correo y contraseña.");
+      return;
+    }
+
+    // Invitación en curso: volver a /unirse para canjearla, aunque aún no tenga rol.
+    if (leerInvitacionPendiente()) {
+      navigate({ to: "/unirse", replace: true });
       return;
     }
 

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { leerInvitacionPendiente } from "@/lib/invitacion-pendiente";
 
 export const Route = createFileRoute("/registro")({
   ssr: false,
@@ -34,6 +35,7 @@ function RegistroPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [creada, setCreada] = useState(false);
+  const tieneInvitacion = typeof window !== "undefined" && leerInvitacionPendiente() !== null;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -43,7 +45,10 @@ function RegistroPage() {
     const { error: signUpError } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { emailRedirectTo: `${window.location.origin}/login` },
+      options: {
+        // Con invitación pendiente, la confirmación del correo debe volver a /unirse.
+        emailRedirectTo: `${window.location.origin}${leerInvitacionPendiente() ? "/unirse" : "/login"}`,
+      },
     });
 
     setLoading(false);
@@ -78,8 +83,9 @@ function RegistroPage() {
               <CheckCircle2 className="mx-auto h-9 w-9 text-primary" />
               <h1 className="font-display text-xl font-semibold">Cuenta creada</h1>
               <p className="text-sm text-muted-foreground">
-                Tu cuenta fue creada. Un administrador debe activarla antes de que puedas
-                acceder al panel.
+                {tieneInvitacion
+                  ? "Tu cuenta fue creada. Confirma tu correo y luego inicia sesión desde el mismo navegador: te llevaremos a aceptar la invitación."
+                  : "Tu cuenta fue creada. Un administrador debe activarla antes de que puedas acceder al panel."}
               </p>
               <Button asChild variant="outline" className="w-full">
                 <Link to="/login">Volver a iniciar sesión</Link>

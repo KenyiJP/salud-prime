@@ -4,6 +4,9 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { PageHeader } from "@/components/page-primitives";
 import { HorariosPanel } from "@/components/horarios-panel";
 import { bloqueosQuery, horariosQuery, tiposConsultaAdminQuery } from "@/lib/agenda.queries";
+import { guardPorRuta } from "@/components/require-ruta";
+
+const GuardHorarios = guardPorRuta("/horarios");
 
 export const Route = createFileRoute("/horarios")({
   beforeLoad: () => requireSession(),
@@ -32,7 +35,7 @@ export const Route = createFileRoute("/horarios")({
   },
   component: HorariosPage,
   errorComponent: ({ error }: { error: unknown }) => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardHorarios}>
       <div role="alert" className="rounded-xl border border-destructive/40 bg-card p-6 text-sm">
         No se pudo cargar la configuración de horarios:{" "}
         {error instanceof Error ? error.message : String(error)}
@@ -40,7 +43,7 @@ export const Route = createFileRoute("/horarios")({
     </DashboardShell>
   ),
   notFoundComponent: () => (
-    <DashboardShell>
+    <DashboardShell Guard={GuardHorarios}>
       <p className="text-sm text-muted-foreground">Sin horarios disponibles.</p>
     </DashboardShell>
   ),
@@ -48,7 +51,7 @@ export const Route = createFileRoute("/horarios")({
 
 function HorariosPage() {
   return (
-    <DashboardShell>
+    <DashboardShell Guard={GuardHorarios}>
       <div className="space-y-8">
         <PageHeader
           eyebrow="Configuración"

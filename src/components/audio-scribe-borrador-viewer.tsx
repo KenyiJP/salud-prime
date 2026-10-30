@@ -5,6 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Sparkles, AlertTriangle, FileText } from "lucide-react";
 
+type CampoSoap = { valor: unknown; estado?: string; verificar?: boolean };
+type BorradorFila = { trabajo_id: string; borrador: Record<string, CampoSoap | undefined> | null; generado_en: string };
+type ConsultaScribe = {
+  select: (c: string) => ConsultaScribe;
+  eq: (c: string, v: string) => ConsultaScribe;
+  is: (c: string, v: null) => ConsultaScribe;
+  order: (c: string, o: { ascending: boolean }) => ConsultaScribe;
+  limit: (n: number) => PromiseLike<{ data: unknown[] | null; error: unknown }>;
+};
+type ClienteTablas = { from: (t: string) => ConsultaScribe };
+
+function textoDe(c: CampoSoap | undefined): string | null {
+  const v = c?.valor;
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "string") return v;
+  return JSON.stringify(v, null, 2);
+}
+
 type Props = {
   atencionId: string;
   onAplicarCampo: (campo: string, valor: any) => void;
@@ -17,25 +35,17 @@ export function AudioScribeBorradorViewer({ atencionId, onAplicarCampo }: Props)
     queryKey: ["scribe-borrador", atencionId],
     enabled: !!atencionId,
     queryFn: async () => {
-      const { data: trabajos, error: errT } = await supabase
-        .from("scribe_trabajos")
-        .select("id, estado, creado_en")
-        .eq("atencion_id", atencionId)
-        .eq("estado", "listo")
-        .order("creado_en", { ascending: false })
-        .limit(1);
-
-      if (errT || !trabajos || trabajos.length === 0) return null;
-      const trabajoId = trabajos[0].id;
-
-      const { data: borrador, error: errB } = await supabase
+      // Los tipos generados aún no incluyen scribe_*: único cast permitido.
+      const { data, error } = await (supabase as unknown as ClienteTablas)
         .from("scribe_borradores")
-        .select("*")
-        .eq("trabajo_id", trabajoId)
-        .maybeSingle();
-
-      if (errB || !borrador) return null;
-      return borrador;
+        .select("trabajo_id, borrador, generado_en")
+        .eq("atencion_id", atencionId)
+        .is("descartado_en", null)
+        .is("purgado_en", null)
+        .order("generado_en", { ascending: false })
+        .limit(1);
+      if (error || !data || data.length === 0) return null;
+      return data[0] as BorradorFila;
     },
   });
 
@@ -55,13 +65,25 @@ export function AudioScribeBorradorViewer({ atencionId, onAplicarCampo }: Props)
     );
   }
 
-  const soapFields = [
-    { key: "motivo_consulta", label: "Motivo de Consulta", valor: borradorData.motivo_consulta },
-    { key: "enfermedad_actual", label: "Anamnesis / Enfermedad Actual", valor: borradorData.enfermedad_actual },
-    { key: "examen_fisico", label: "Examen Físico", valor: borradorData.examen_fisico },
-    { key: "diagnosticos", label: "Diagnósticos CIE-10", valor: JSON.stringify(borradorData.diagnosticos, null, 2) },
-    { key: "plan_tratamiento", label: "Plan / Tratamiento", valor: borradorData.plan_tratamiento },
+  const b = borradorData.borrador ?? {};
+  const ETIQUETAS: Array<[string, string]> = [
+    ["motivo_consulta", "Motivo de Consulta"],
+    ["relato_cronologico", "Anamnesis / Enfermedad Actual"],
+    ["antecedentes_alergicos", "Alergias"],
+    ["medicacion_habitual", "Medicación habitual"],
+    ["examen_general", "Examen Físico"],
+    ["diagnosticos", "Diagnósticos"],
+    ["plan_trabajo", "Plan de trabajo"],
+    ["tratamiento", "Tratamiento"],
+    ["indicaciones_generales", "Indicaciones"],
+    ["proximo_control", "Próximo control"],
   ];
+  const soapFields = ETIQUETAS.map(([key, label]) => ({
+    key,
+    label,
+    valor: textoDe(b[key]),
+    verificar: b[key]?.verificar === true,
+  }));
 
   const handleAplicar = (key: string, valor: any) => {
     onAplicarCampo(key, valor);
@@ -90,6 +112,9 @@ export function AudioScribeBorradorViewer({ atencionId, onAplicarCampo }: Props)
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {field.label}
+                  {field.verificar ? (
+                    <span className="ml-2 normal-case text-amber-600 dark:text-amber-400">· verificar con el paciente</span>
+                  ) : null}
                 </span>
                 <Button
                   size="sm"

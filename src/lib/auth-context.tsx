@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -11,23 +12,18 @@ import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type RolUsuario =
-  | "founder"
-  | "medico"
-  | "community_manager"
-  | "recepcion"
-  | "enfermeria"
-  | "facturacion"
-  // Retirado en el Día 29B: sin acceso clínico en la base (RLS por lista blanca).
-  | "asistente";
+import type { Rol } from "./acceso-roles";
+export { rutaInicialPorRol } from "./acceso-roles";
+
+export type RolUsuario = Rol;
 
 // `src/integrations/supabase/types.ts` is stale (regenerated in a separate task),
 // so we read `roles_usuario` through an untyped view of the same client.
 const db = supabase as unknown as SupabaseClient<any>;
 
 // Lista blanca alineada con la RLS del Día 29B: solo el titular accede al panel
-// clínico completo. Recepción, enfermería y facturación tendrán vistas propias
-// (Etapa 3); mientras tanto ven "Tu rol no tiene acceso" en vez de pantallas rotas.
+// clínico completo. Recepción, enfermería y facturación tienen vistas propias
+// (ver `acceso-roles.ts`, única tabla de acceso por ruta).
 export const ROLES_CLINICOS: RolUsuario[] = ["founder", "medico"];
 
 // Roles que ven el plan y la suscripción del consultorio (RLS de `suscripciones`).
@@ -36,11 +32,6 @@ export const ROLES_SUSCRIPCION: RolUsuario[] = ["founder", "medico", "facturacio
 // Roles que administran marca, landing y reseñas (RLS de `resenas` y storage
 // `landing-media`, Día 29C).
 export const ROLES_MARCA: RolUsuario[] = ["founder", "medico", "community_manager"];
-
-export function rutaInicialPorRol(rol: RolUsuario | null): string {
-  if (rol === "community_manager") return "/perfil-consultorio";
-  return "/";
-}
 
 // A founder can read other members of their own tenant, so we must scope the
 // role lookup to the authenticated user (never to tenant_id by hand).
@@ -85,16 +76,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [rol, setRol] = useState<RolUsuario | null>(null);
   const [loading, setLoading] = useState(true);
+  const pedidoRolRef = useRef(0);
+  const userIdRef = useRef<string | null>(null);
 
   const loadRol = useCallback(async (activeSession: Session | null) => {
     if (!activeSession) {
       setRol(null);
       return;
     }
+    const pedido = ++pedidoRolRef.current;
     try {
-      setRol(await fetchRolActual());
+      const nuevo = await fetchRolActual();
+      if (pedido === pedidoRolRef.current) setRol(nuevo);
     } catch {
-      setRol(null);
+      // Error de red/5xx: se conserva el rol anterior en vez de simular «sin rol».
+      if (pedido === pedidoRolRef.current && !userIdRef.current) setRol(null);
     }
   }, []);
 
@@ -103,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;
+      userIdRef.current = data.session?.user.id ?? null;
       setSession(data.session);
       await loadRol(data.session);
       if (active) setLoading(false);
@@ -113,6 +110,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(nextSession);
         return;
       }
+      // SIGNED_IN, USER_UPDATED, INITIAL_SESSION… se re-emiten con la misma cuenta:
+      // no hay que volver a cargar el rol ni desmontar la pantalla (se perdería lo tecleado).
+      if (event !== "SIGNED_OUT" && nextSession?.user.id && nextSession.user.id === userIdRef.current) {
+        setSession(nextSession);
+        return;
+      }
+      userIdRef.current = nextSession?.user.id ?? null;
+      setRol(null); // otra cuenta (o cierre de sesión): jamás heredar el rol anterior
       setSession(nextSession);
       setLoading(true);
       void loadRol(nextSession).then(() => setLoading(false));
