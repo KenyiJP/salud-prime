@@ -95,16 +95,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Cargas de rol en vuelo. `loading` solo baja cuando termina la ÚLTIMA: la carga inicial
+  // (getSession) y la que dispara INITIAL_SESSION corren a la vez, y la primera en terminar
+  // dejaba `loading=false` con `rol=null` (la segunda aún no publicaba) → el guard mandaba
+  // a «pendiente de activación» a una cuenta que sí tiene rol (≈1 de cada 14 cargas en frío).
+  const cargasEnVueloRef = useRef(0);
+
   useEffect(() => {
     let active = true;
+
+    const cargarRolConEstado = async (activeSession: Session | null) => {
+      cargasEnVueloRef.current += 1;
+      try {
+        await loadRol(activeSession);
+      } finally {
+        cargasEnVueloRef.current -= 1;
+        if (active && cargasEnVueloRef.current === 0) setLoading(false);
+      }
+    };
 
     supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;
       userIdRef.current = data.session?.user.id ?? null;
       fijarUsuarioActivo(userIdRef.current);
       setSession(data.session);
-      await loadRol(data.session);
-      if (active) setLoading(false);
+      await cargarRolConEstado(data.session);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, nextSession) => {
@@ -134,7 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setRol(null); // otra cuenta (o cierre de sesión): jamás heredar el rol anterior
       setSession(nextSession);
       setLoading(true);
-      void loadRol(nextSession).then(() => setLoading(false));
+      void cargarRolConEstado(nextSession);
     });
 
     return () => {
