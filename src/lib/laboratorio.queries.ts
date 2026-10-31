@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -52,10 +53,10 @@ export function useBuscarExamenes(termino: string) {
 }
 
 export const medicoActualQuery = () =>
-  queryOptions({ queryKey: ["medico-actual"], queryFn: () => getMedicoActual() });
+  queryOptions({ queryKey: claveActiva("medico-actual"), queryFn: () => getMedicoActual() });
 
 export const ordenesPacienteKey = (pacienteId: string) =>
-  ["ordenes-laboratorio", pacienteId] as const;
+  claveActiva("ordenes-laboratorio", pacienteId);
 
 export function useOrdenesPaciente(pacienteId: string | null) {
   return useQuery({
@@ -67,7 +68,7 @@ export function useOrdenesPaciente(pacienteId: string | null) {
 
 export function useOrdenParaImprimir(ordenId: string, token?: string) {
   return useQuery({
-    queryKey: ["orden-laboratorio-imprimir", ordenId, token ?? "sesion"],
+    queryKey: claveActiva("orden-laboratorio-imprimir", ordenId, token ?? "sesion"),
     retry: false,
     // El fallo esperado (sin sesión o con token vencido) se convierte en un
     // mensaje mostrable, para que la página nunca quede en blanco.

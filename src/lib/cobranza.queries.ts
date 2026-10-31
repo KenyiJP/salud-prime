@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -42,7 +43,7 @@ const db = supabase as unknown as Cliente;
 
 export function useCobrosCitasQuery() {
   return useQuery({
-    queryKey: ["cobranza", "cobros"],
+    queryKey: claveActiva("cobranza", "cobros"),
     queryFn: async (): Promise<CobroCita[]> => {
       const { data, error } = await db
         .from("citas_resumen_pago")
@@ -59,7 +60,7 @@ export function useCobrosCitasQuery() {
 
 export function usePacientesFacturacionQuery() {
   return useQuery({
-    queryKey: ["cobranza", "pacientes"],
+    queryKey: claveActiva("cobranza", "pacientes"),
     queryFn: async (): Promise<PacienteFacturacion[]> => {
       const { data, error } = await db
         .from("pacientes_facturacion")

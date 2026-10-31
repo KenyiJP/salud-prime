@@ -8,6 +8,7 @@ import {
   estadoInvitacion,
   mensajeEquipo,
   mensajeInvitacion,
+  normalizarCorreo,
   tokenValido,
   tokenDeHash,
   normalizarTelefono,
@@ -83,6 +84,25 @@ t("esCorreo acepta un solo destinatario y rechaza inyección de cabeceras", () =
   assert.equal(esCorreo("<a@b.com>"), false);
   assert.equal(esCorreo("a@b.com\nbcc:x@y.com"), false);
   assert.equal(esCorreo("sin-arroba.com"), false);
+});
+
+t("mensajeEquipo: códigos de correo atado a la invitación (29D)", () => {
+  assert.match(mensajeEquipo("correo_requerido"), /correo/i);
+  assert.match(mensajeEquipo("correo_invalido"), /no es válido/);
+  assert.match(mensajeEquipo("ya_invitado"), /invitación vigente/);
+  assert.match(mensajeEquipo("demasiadas_invitaciones"), /demasiadas invitaciones/i);
+  assert.match(mensajeEquipo("correo_no_verificado"), /confirmar tu correo/);
+  assert.match(mensajeEquipo("correo_no_coincide"), /Cierra sesión/);
+  assert.match(mensajeEquipo("demasiados_intentos"), /Demasiados intentos/);
+  for (const k of ["correo_requerido", "correo_invalido", "ya_invitado", "correo_no_verificado", "correo_no_coincide", "demasiados_intentos"]) {
+    assert.notEqual(mensajeEquipo(k), mensajeEquipo("loquesea"));
+  }
+});
+
+t("normalizarCorreo recorta y pasa a minúsculas", () => {
+  assert.equal(normalizarCorreo("  Ana@Correo.COM "), "ana@correo.com");
+  assert.equal(esCorreo(normalizarCorreo("  Ana@Correo.COM ")), true);
+  assert.equal(esCorreo(normalizarCorreo("   ")), false);
 });
 
 t("tokenDeHash lee solo tokens válidos del fragmento", () => {

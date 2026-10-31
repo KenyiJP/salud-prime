@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 
-const queryKey = ["medico-triaje-habilitado"] as const;
+const queryKey = () => claveActiva("medico-triaje-habilitado");
 
 // `medicos.triaje_habilitado` (Día 26B) aún no está en types.ts generado por Lovable.
 // Se tipa localmente hasta la próxima regeneración.
@@ -26,7 +27,7 @@ async function getConfig(): Promise<FilaTriaje> {
 
 export function TriajeConfigCard() {
   const qc = useQueryClient();
-  const cfg = useQuery({ queryKey, queryFn: getConfig });
+  const cfg = useQuery({ queryKey: queryKey(), queryFn: getConfig });
   const guardar = useMutation({
     mutationFn: async (valor: boolean) => {
       if (!cfg.data) throw new Error("Configuración no cargada.");
@@ -37,8 +38,10 @@ export function TriajeConfigCard() {
       if (error) throw new Error(error.message);
       return valor;
     },
-    onSuccess: (valor) => {
-      qc.setQueryData<FilaTriaje>(queryKey, (prev) => (prev ? { ...prev, triaje_habilitado: valor } : prev));
+    // H-1: clave fijada al iniciar la mutación (no se recalcula con la cuenta que esté activa al terminar).
+    onMutate: () => ({ clave: queryKey() }),
+    onSuccess: (valor, _vars, ctx) => {
+      qc.setQueryData<FilaTriaje>(ctx?.clave ?? queryKey(), (prev) => (prev ? { ...prev, triaje_habilitado: valor } : prev));
       toast.success(valor ? "Triaje previo activado" : "Triaje previo desactivado");
     },
     onError: (e: Error) => toast.error(e.message),

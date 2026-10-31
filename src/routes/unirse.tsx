@@ -30,6 +30,7 @@ function UnirsePage() {
   const [listo, setListo] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [codigoError, setCodigoError] = useState<string | null>(null);
 
   // 1) Capturar el token del fragmento y sacarlo de la URL de inmediato. También
   //    reacciona si se pega otro enlace en la misma pestaña (cambia solo el hash).
@@ -53,6 +54,7 @@ function UnirsePage() {
     if (!token || enviando) return;
     setEnviando(true);
     setError(null);
+    setCodigoError(null);
     try {
       const r = await aceptarInvitacion(token);
       if (!r.ok) {
@@ -63,6 +65,7 @@ function UnirsePage() {
           setToken(null);
         }
         setError(mensajeEquipo(r.codigo));
+        setCodigoError(r.codigo);
         return;
       }
       borrarInvitacionPendiente();
@@ -151,8 +154,21 @@ function UnirsePage() {
                   </Link>
                 </Button>
               ) : null}
-              <Button variant="ghost" className="w-full" onClick={usarOtraCuenta} disabled={enviando}>
-                No soy yo / usar otra cuenta
+              {codigoError === "correo_no_verificado" ? (
+                <p className="text-xs text-muted-foreground">
+                  Abre el mensaje de confirmación que te enviamos al registrarte, confirma tu correo y vuelve a esta
+                  página para aceptar la invitación.
+                </p>
+              ) : null}
+              <Button
+                variant={codigoError === "correo_no_coincide" ? "default" : "ghost"}
+                className="w-full"
+                onClick={usarOtraCuenta}
+                disabled={enviando}
+              >
+                {codigoError === "correo_no_coincide"
+                  ? "Cerrar sesión e iniciar con el correo invitado"
+                  : "No soy yo / usar otra cuenta"}
               </Button>
             </>
           )}

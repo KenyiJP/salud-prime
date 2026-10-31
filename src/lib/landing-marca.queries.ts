@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
 import {
   actualizarLandingConfig,
@@ -26,16 +27,17 @@ import type {
 } from "./landing-marca-schemas";
 
 const KEYS = {
-  config: ["landing-config"] as const,
-  servicios: ["landing-servicios"] as const,
-  testimonios: ["landing-testimonios"] as const,
-  slug: ["tenant-slug"] as const,
-  planes: ["planes-suscripcion"] as const,
-  suscripcion: ["suscripcion-actual"] as const,
+  config: () => claveActiva("landing-config"),
+  servicios: () => claveActiva("landing-servicios"),
+  testimonios: () => claveActiva("landing-testimonios"),
+  slug: () => claveActiva("tenant-slug"),
+  // Catálogo global de planes: igual para todas las cuentas, sin alcance por usuario.
+  planes: () => ["planes-suscripcion"] as const,
+  suscripcion: () => claveActiva("suscripcion-actual"),
 };
 
 export function landingConfigQuery() {
-  return { queryKey: KEYS.config, queryFn: () => getLandingConfig() };
+  return { queryKey: KEYS.config(), queryFn: () => getLandingConfig() };
 }
 export function useLandingConfigQuery() {
   return useQuery(landingConfigQuery());
@@ -45,8 +47,11 @@ export function useActualizarLandingConfig() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: LandingConfigInput) => actualizarLandingConfig({ data: input }),
-    onSuccess: (data) => {
-      queryClient.setQueryData(KEYS.config, data);
+    // H-1: la clave se fija al INICIAR la mutación; si la cuenta cambia mientras está en vuelo,
+    // el resultado no se escribe en la caché de la cuenta nueva.
+    onMutate: () => ({ clave: KEYS.config() }),
+    onSuccess: (data, _vars, ctx) => {
+      queryClient.setQueryData(ctx?.clave ?? KEYS.config(), data);
       toast.success("Cambios guardados.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo guardar."),
@@ -54,7 +59,7 @@ export function useActualizarLandingConfig() {
 }
 
 export function landingServiciosQuery() {
-  return { queryKey: KEYS.servicios, queryFn: () => getLandingServicios() };
+  return { queryKey: KEYS.servicios(), queryFn: () => getLandingServicios() };
 }
 export function useLandingServiciosQuery() {
   return useQuery(landingServiciosQuery());
@@ -65,7 +70,7 @@ export function useCrearLandingServicio() {
   return useMutation({
     mutationFn: (input: LandingServicioInput) => crearLandingServicio({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.servicios });
+      queryClient.invalidateQueries({ queryKey: KEYS.servicios() });
       toast.success("Servicio agregado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo crear el servicio."),
@@ -78,7 +83,7 @@ export function useActualizarLandingServicio() {
     mutationFn: (input: { id: string; cambios: Partial<LandingServicioInput> }) =>
       actualizarLandingServicio({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.servicios });
+      queryClient.invalidateQueries({ queryKey: KEYS.servicios() });
     },
     onError: (error: Error) =>
       toast.error(error.message || "No se pudo actualizar el servicio."),
@@ -90,7 +95,7 @@ export function useEliminarLandingServicio() {
   return useMutation({
     mutationFn: (id: string) => eliminarLandingServicio({ data: { id } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.servicios });
+      queryClient.invalidateQueries({ queryKey: KEYS.servicios() });
       toast.success("Servicio eliminado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo eliminar."),
@@ -102,14 +107,14 @@ export function useReordenarLandingServicios() {
   return useMutation({
     mutationFn: (ids: string[]) => reordenarLandingServicios({ data: { ids } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.servicios });
+      queryClient.invalidateQueries({ queryKey: KEYS.servicios() });
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo reordenar."),
   });
 }
 
 export function landingTestimoniosQuery() {
-  return { queryKey: KEYS.testimonios, queryFn: () => getLandingTestimonios() };
+  return { queryKey: KEYS.testimonios(), queryFn: () => getLandingTestimonios() };
 }
 export function useLandingTestimoniosQuery() {
   return useQuery(landingTestimoniosQuery());
@@ -120,7 +125,7 @@ export function useCrearLandingTestimonio() {
   return useMutation({
     mutationFn: (input: LandingTestimonioInput) => crearLandingTestimonio({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.testimonios });
+      queryClient.invalidateQueries({ queryKey: KEYS.testimonios() });
       toast.success("Testimonio agregado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo crear el testimonio."),
@@ -133,7 +138,7 @@ export function useActualizarLandingTestimonio() {
     mutationFn: (input: { id: string; cambios: Partial<LandingTestimonioInput> }) =>
       actualizarLandingTestimonio({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.testimonios });
+      queryClient.invalidateQueries({ queryKey: KEYS.testimonios() });
     },
     onError: (error: Error) =>
       toast.error(error.message || "No se pudo actualizar el testimonio."),
@@ -145,7 +150,7 @@ export function useEliminarLandingTestimonio() {
   return useMutation({
     mutationFn: (id: string) => eliminarLandingTestimonio({ data: { id } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.testimonios });
+      queryClient.invalidateQueries({ queryKey: KEYS.testimonios() });
       toast.success("Testimonio eliminado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo eliminar."),
@@ -157,14 +162,14 @@ export function useReordenarLandingTestimonios() {
   return useMutation({
     mutationFn: (ids: string[]) => reordenarLandingTestimonios({ data: { ids } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.testimonios });
+      queryClient.invalidateQueries({ queryKey: KEYS.testimonios() });
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo reordenar."),
   });
 }
 
 export function tenantSlugQuery() {
-  return { queryKey: KEYS.slug, queryFn: () => getTenantSlug() };
+  return { queryKey: KEYS.slug(), queryFn: () => getTenantSlug() };
 }
 export function useTenantSlugQuery() {
   return useQuery(tenantSlugQuery());
@@ -181,7 +186,7 @@ export function useActualizarTenantSlug() {
   return useMutation({
     mutationFn: (slug: string) => actualizarTenantSlug({ data: { slug } }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.slug });
+      queryClient.invalidateQueries({ queryKey: KEYS.slug() });
       toast.success("Slug actualizado. Tu web pública usará esta dirección.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo actualizar el slug."),
@@ -193,14 +198,14 @@ export function useActualizarTenantSlug() {
 // ---------------------------------------------------------------------------
 
 export function planesSuscripcionQuery() {
-  return { queryKey: KEYS.planes, queryFn: () => getPlanesSuscripcion() };
+  return { queryKey: KEYS.planes(), queryFn: () => getPlanesSuscripcion() };
 }
 export function usePlanesSuscripcionQuery() {
   return useQuery(planesSuscripcionQuery());
 }
 
 export function suscripcionActualQuery() {
-  return { queryKey: KEYS.suscripcion, queryFn: () => getSuscripcionActual() };
+  return { queryKey: KEYS.suscripcion(), queryFn: () => getSuscripcionActual() };
 }
 export function useSuscripcionActualQuery() {
   return useQuery(suscripcionActualQuery());

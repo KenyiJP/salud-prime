@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { claveActiva } from "@/lib/query-scope";
 import type { CampoSigno } from "./signos-vitales";
 
 type Respuesta = { ok: true; atencion_id?: string } | { ok: false; codigo: string };
@@ -30,7 +31,7 @@ export function useRegistrarSignosVitales() {
     mutationFn: (v: { citaId: string; datos: Partial<Record<CampoSigno, number>> }) =>
       registrarSignosVitales(v.citaId, v.datos),
     onSuccess: (r) => {
-      if (r.ok) void qc.invalidateQueries({ queryKey: ["atenciones"] });
+      if (r.ok) void qc.invalidateQueries({ queryKey: claveActiva("atenciones") });
     },
   });
 }

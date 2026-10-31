@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,7 +51,7 @@ const TONOS: Array<{ id: Tono; titulo: string; ejemplo: string }> = [
   { id: "breve", titulo: "Breve", ejemplo: "“¿Qué día prefieres?”" },
 ];
 
-const queryKey = ["medico-perfil-bot"] as const;
+const queryKey = () => claveActiva("medico-perfil-bot");
 
 async function getPerfil(): Promise<Perfil> {
   const { data: u, error: ue } = await supabase.auth.getUser();
@@ -89,7 +90,7 @@ function normalizarTelefono(raw: string): string {
 
 export function PerfilBotCard() {
   const qc = useQueryClient();
-  const q = useQuery({ queryKey, queryFn: getPerfil });
+  const q = useQuery({ queryKey: queryKey(), queryFn: getPerfil });
   const [f, setF] = useState<Perfil | null>(null);
 
   useEffect(() => {
@@ -123,7 +124,7 @@ export function PerfilBotCard() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey });
+      void qc.invalidateQueries({ queryKey: queryKey() });
       toast.success("Perfil del asistente guardado");
     },
     onError: (e: Error) => toast.error(e.message),

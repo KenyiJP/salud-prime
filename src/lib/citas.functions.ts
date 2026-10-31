@@ -170,8 +170,9 @@ export const getMovimientosPagoCita = createServerFn({ method: "GET" })
 // La RPC es SECURITY DEFINER y nunca lanza RAISE: siempre responde
 // `{ ok, error_codigo, error_mensaje, pago_id, estado_pago }`. Un `ok: false`
 // NO es una excepción de red — es una regla de negocio rechazada
-// (método/concepto/monto inválido, cita ajena) que se muestra tal cual al
-// usuario vía `error_mensaje`.
+// (método/concepto/monto inválido, cita ajena) que la UI traduce a un mensaje
+// fijo según `error_codigo` (ver `pago-presencial.ts`); `error_mensaje` crudo
+// solo viaja como respaldo y no se muestra si el código es conocido.
 export const registrarPagoPresencial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(registrarPagoPresencialSchema.parse)
@@ -183,8 +184,8 @@ export const registrarPagoPresencial = createServerFn({ method: "POST" })
       p_concepto: data.concepto,
       p_nota: data.nota || undefined,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw new Error("No se pudo registrar el cobro. Inténtalo de nuevo.");
     const resultado = rows?.[0];
-    if (!resultado) throw new Error("La función de cobro no devolvió resultado.");
+    if (!resultado) throw new Error("No se pudo registrar el cobro. Inténtalo de nuevo.");
     return resultado;
   });

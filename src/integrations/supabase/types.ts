@@ -2704,6 +2704,16 @@ export type Database = {
           },
         ]
       }
+      medicos_equipo_basico: {
+        Row: {
+          apellidos: string | null
+          especialidad: string | null
+          id: string | null
+          nombres: string | null
+          tenant_id: string | null
+        }
+        Relationships: []
+      }
       landing_publica: {
         Row: {
           animaciones_activas: boolean | null

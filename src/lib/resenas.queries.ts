@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { claveActiva, claveConAlcance } from "@/lib/query-scope";
 import {
   COLUMNAS_RESENA,
   ESTADO_POR_PESTANA,
@@ -24,10 +25,10 @@ const db = supabase as unknown as DbSinTipos;
 
 const KEYS = {
   // La key incluye el user.id: otra cuenta en el mismo navegador nunca reutiliza el médico en caché.
-  medico: (userId: string | undefined) => ["reputacion-medico-id", userId] as const,
-  resumen: (medicoId: string | undefined) => ["reputacion-resumen", medicoId] as const,
+  medico: (userId: string | undefined) => claveConAlcance(userId, "reputacion-medico-id"),
+  resumen: (medicoId: string | undefined) => claveActiva("reputacion-resumen", medicoId),
   lista: (medicoId: string | undefined, p: PestanaResena) =>
-    ["reputacion-lista", medicoId, p] as const,
+    claveActiva("reputacion-lista", medicoId, p),
 };
 
 async function getMedicoId(): Promise<string> {
@@ -132,8 +133,8 @@ export function useModerarResenaMutation() {
     },
     onSettled: () => {
       // También tras un rechazo de negocio: el estado de la reseña pudo cambiar en otro lado.
-      void qc.invalidateQueries({ queryKey: ["reputacion-lista"] });
-      void qc.invalidateQueries({ queryKey: ["reputacion-resumen"] });
+      void qc.invalidateQueries({ queryKey: claveActiva("reputacion-lista") });
+      void qc.invalidateQueries({ queryKey: claveActiva("reputacion-resumen") });
     },
   });
 }
@@ -163,8 +164,8 @@ export function useMarcarLeidaMutation() {
       return { leida: r.leida ?? leida };
     },
     onSettled: () => {
-      void qc.invalidateQueries({ queryKey: ["reputacion-lista"] });
-      void qc.invalidateQueries({ queryKey: ["reputacion-resumen"] });
+      void qc.invalidateQueries({ queryKey: claveActiva("reputacion-lista") });
+      void qc.invalidateQueries({ queryKey: claveActiva("reputacion-resumen") });
     },
   });
 }

@@ -37,6 +37,12 @@ export const MENSAJE_EQUIPO: Record<string, string> = {
   no_puede_modificarse: "El titular no se puede modificar desde aquí.",
   sin_cambios: "El miembro ya tiene ese rol.",
   ya_usada: "La invitación ya fue usada.",
+  correo_requerido: "Escribe el correo de la persona a invitar.",
+  correo_invalido: "El correo no es válido. Revísalo e inténtalo de nuevo.",
+  ya_invitado: "Ya hay una invitación vigente para ese correo. Revócala para crear otra.",
+  correo_no_verificado: "Debes confirmar tu correo antes de aceptar la invitación. Revisa tu bandeja de entrada y vuelve a abrir el enlace.",
+  correo_no_coincide: "Esta invitación es para otro correo. Cierra sesión e inicia con el correo al que fue enviada.",
+  demasiados_intentos: "Demasiados intentos. Espera un rato e inténtalo de nuevo.",
 };
 
 export function mensajeEquipo(codigo: string | undefined | null): string {
@@ -99,6 +105,11 @@ export function enlaceWhatsapp(mensaje: string, telefono?: string | null): strin
   const num = normalizarTelefono(telefono);
   const base = num ? `https://wa.me/${num}` : "https://wa.me/";
   return `${base}?text=${encodeURIComponent(mensaje)}`;
+}
+
+/** Correo normalizado como lo espera el backend: recortado y en minúsculas. */
+export function normalizarCorreo(valor: string): string {
+  return valor.trim().toLowerCase();
 }
 
 export function esCorreo(valor: string): boolean {

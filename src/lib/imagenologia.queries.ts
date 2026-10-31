@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -52,7 +53,7 @@ export function useBuscarEstudios(termino: string, modalidad: string | null) {
 }
 
 export const ordenesImagenKey = (pacienteId: string) =>
-  ["ordenes-imagen", pacienteId] as const;
+  claveActiva("ordenes-imagen", pacienteId);
 
 export function useOrdenesImagenPaciente(pacienteId: string | null) {
   return useQuery({
@@ -64,7 +65,7 @@ export function useOrdenesImagenPaciente(pacienteId: string | null) {
 
 export function useOrdenImagenImpresion(ordenId: string, token?: string) {
   return useQuery({
-    queryKey: ["orden-imagen-imprimir", ordenId, token ?? "sesion"],
+    queryKey: claveActiva("orden-imagen-imprimir", ordenId, token ?? "sesion"),
     retry: false,
     // El fallo esperado (sin sesión o con token vencido/manipulado) se convierte
     // en un mensaje mostrable, para que la página nunca quede en blanco.
@@ -88,7 +89,7 @@ export function useOrdenImagenImpresion(ordenId: string, token?: string) {
 
 
 export function useMedicoImpresion() {
-  return useQuery({ queryKey: ["medico-impresion"], queryFn: () => getMedicoImpresion() });
+  return useQuery({ queryKey: claveActiva("medico-impresion"), queryFn: () => getMedicoImpresion() });
 }
 
 export function useCrearOrdenImagen() {
@@ -138,7 +139,7 @@ export function useSubirFirma() {
       return guardarFirmaMedico();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["medico-impresion"] });
+      queryClient.invalidateQueries({ queryKey: claveActiva("medico-impresion") });
       toast.success("Firma guardada. Aparecerá en tus órdenes impresas.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo guardar la firma."),

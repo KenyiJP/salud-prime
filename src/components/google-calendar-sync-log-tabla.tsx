@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { CalendarClock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -15,7 +16,7 @@ import {
 
 type GoogleCalendarSyncLog = Tables<"google_calendar_sync_log">;
 
-const syncLogQueryKey = ["google-calendar-sync-log"] as const;
+const syncLogQueryKey = () => claveActiva("google-calendar-sync-log");
 
 async function getGoogleCalendarSyncLog(): Promise<GoogleCalendarSyncLog[]> {
   const { data, error } = await supabase
@@ -61,7 +62,7 @@ function formatearFecha(valor: string) {
 
 export function GoogleCalendarSyncLogTabla() {
   const syncLog = useQuery({
-    queryKey: syncLogQueryKey,
+    queryKey: syncLogQueryKey(),
     queryFn: getGoogleCalendarSyncLog,
   });
 

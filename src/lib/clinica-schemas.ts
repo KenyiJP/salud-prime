@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
+import { MONTO_PAGO_MAX, MONTO_PAGO_MIN, montoPagoValido } from "./pago-presencial.ts";
 
 export type PacienteRow = Tables<"pacientes">;
 export type CitaResumenPagoRow = Tables<"citas_resumen_pago">;
@@ -148,7 +149,10 @@ export const registrarPagoPresencialSchema = z.object({
   cita_id: z.string().uuid(),
   monto: z.coerce
     .number({ invalid_type_error: "Ingresa un importe válido." })
-    .gt(0, "El importe debe ser mayor a cero."),
+    .finite("Ingresa un importe válido.")
+    .gte(MONTO_PAGO_MIN, "El importe mínimo es S/ 0,01.")
+    .lte(MONTO_PAGO_MAX, "El importe máximo es S/ 99 999 999,99.")
+    .refine(montoPagoValido, "Usa como máximo 2 decimales."),
   metodo: z.enum(METODOS_PAGO_PRESENCIAL, {
     errorMap: () => ({ message: "Selecciona un método de cobro." }),
   }),

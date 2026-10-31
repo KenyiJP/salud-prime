@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { CalendarCheck, ExternalLink, Loader2, Unplug } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 type IntegracionGoogle = Tables<"google_calendar_integraciones">;
 
-const integrationQueryKey = ["google-calendar-integracion"] as const;
+const integrationQueryKey = () => claveActiva("google-calendar-integracion");
 const OAUTH_START_URL =
   "https://qtdhpvzvkzochawsdhxl.supabase.co/functions/v1/google-calendar-oauth-start";
 
@@ -89,7 +90,7 @@ export function GoogleCalendarCard() {
   const queryClient = useQueryClient();
   const [confirmacionAbierta, setConfirmacionAbierta] = useState(false);
   const integracion = useQuery({
-    queryKey: integrationQueryKey,
+    queryKey: integrationQueryKey(),
     queryFn: getIntegracionGoogle,
   });
 
@@ -101,7 +102,7 @@ export function GoogleCalendarCard() {
     if (estado === "conectado") {
       const email = params.get("email");
       toast.success(email ? `Google Calendar conectado con ${email}.` : "Google Calendar conectado.");
-      void queryClient.invalidateQueries({ queryKey: integrationQueryKey });
+      void queryClient.invalidateQueries({ queryKey: integrationQueryKey() });
     } else if (estado === "cancelado") {
       toast.info("Cancelaste la conexión con Google Calendar.");
     } else if (estado === "error") {
@@ -122,7 +123,7 @@ export function GoogleCalendarCard() {
     mutationFn: (id: string) => revocarIntegracion(id),
     onSuccess: async () => {
       setConfirmacionAbierta(false);
-      await queryClient.invalidateQueries({ queryKey: integrationQueryKey });
+      await queryClient.invalidateQueries({ queryKey: integrationQueryKey() });
       toast.success("Google Calendar fue desconectado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo desconectar Google Calendar."),

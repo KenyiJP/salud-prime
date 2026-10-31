@@ -4,6 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -20,7 +21,7 @@ import {
 import type { AnularAtencionInput, AtencionInput, NuevaAdendaInput } from "./ehr-schemas";
 
 export const medicoEhrQuery = () =>
-  queryOptions({ queryKey: ["medico-ehr"], queryFn: () => getMedicoEhr() });
+  queryOptions({ queryKey: claveActiva("medico-ehr"), queryFn: () => getMedicoEhr() });
 
 export const plantillasQuery = () =>
   queryOptions({
@@ -30,7 +31,7 @@ export const plantillasQuery = () =>
   });
 
 export const atencionesPacienteKey = (pacienteId: string) =>
-  ["atenciones", pacienteId] as const;
+  claveActiva("atenciones", pacienteId);
 
 export function useAtencionesPaciente(pacienteId: string | null) {
   return useQuery({
@@ -40,7 +41,7 @@ export function useAtencionesPaciente(pacienteId: string | null) {
   });
 }
 
-export const atencionKey = (id: string) => ["atencion", id] as const;
+export const atencionKey = (id: string) => claveActiva("atencion", id);
 
 export function useAtencion(id: string | null) {
   return useQuery({
@@ -53,7 +54,7 @@ export function useAtencion(id: string | null) {
 
 export function useAtencionImpresion(id: string, token?: string) {
   return useQuery({
-    queryKey: ["atencion-imprimir", id, token ?? "sesion"],
+    queryKey: claveActiva("atencion-imprimir", id, token ?? "sesion"),
     retry: false,
     queryFn: async () => {
       try {
@@ -160,7 +161,7 @@ export type TriajePrecita = {
 };
 
 export const triajePacienteKey = (pacienteId: string) =>
-  ["triaje-precita", pacienteId] as const;
+  claveActiva("triaje-precita", pacienteId);
 
 export function useTriajePaciente(pacienteId: string | null) {
   return useQuery({

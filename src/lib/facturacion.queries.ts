@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
 import {
   getHistorialTransacciones,
@@ -8,12 +9,12 @@ import {
 import type { GuardarPasarelaConfigInput } from "./facturacion-schemas";
 
 const KEYS = {
-  pasarela: ["pasarela-config"] as const,
-  historial: ["historial-transacciones"] as const,
+  pasarela: () => claveActiva("pasarela-config"),
+  historial: () => claveActiva("historial-transacciones"),
 };
 
 export function pasarelaConfigQuery() {
-  return { queryKey: KEYS.pasarela, queryFn: () => getPasarelaConfig() };
+  return { queryKey: KEYS.pasarela(), queryFn: () => getPasarelaConfig() };
 }
 export function usePasarelaConfigQuery() {
   return useQuery(pasarelaConfigQuery());
@@ -24,7 +25,7 @@ export function useGuardarPasarelaConfig() {
   return useMutation({
     mutationFn: (input: GuardarPasarelaConfigInput) => guardarPasarelaConfig({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: KEYS.pasarela });
+      queryClient.invalidateQueries({ queryKey: KEYS.pasarela() });
       toast.success("Pasarela de pagos guardada. Ya puedes cobrar tus citas con Culqi.");
     },
     onError: (error: Error) =>
@@ -33,7 +34,7 @@ export function useGuardarPasarelaConfig() {
 }
 
 export function historialTransaccionesQuery() {
-  return { queryKey: KEYS.historial, queryFn: () => getHistorialTransacciones() };
+  return { queryKey: KEYS.historial(), queryFn: () => getHistorialTransacciones() };
 }
 export function useHistorialTransaccionesQuery() {
   return useQuery(historialTransaccionesQuery());

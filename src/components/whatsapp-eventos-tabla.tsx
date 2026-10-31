@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { Loader2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -15,7 +16,7 @@ import {
 
 type WhatsappWebhookEvent = Tables<"whatsapp_webhook_events">;
 
-const eventosQueryKey = ["whatsapp-webhook-eventos"] as const;
+const eventosQueryKey = () => claveActiva("whatsapp-webhook-eventos");
 
 async function getWhatsappWebhookEventos(): Promise<WhatsappWebhookEvent[]> {
   const { data, error } = await supabase
@@ -56,7 +57,7 @@ function formatearFecha(valor: string) {
 
 export function WhatsappEventosTabla() {
   const eventos = useQuery({
-    queryKey: eventosQueryKey,
+    queryKey: eventosQueryKey(),
     queryFn: getWhatsappWebhookEventos,
   });
 

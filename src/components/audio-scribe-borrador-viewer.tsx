@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +33,7 @@ export function AudioScribeBorradorViewer({ atencionId, onAplicarCampo }: Props)
   const [aplicados, setAplicados] = useState<Record<string, boolean>>({});
 
   const { data: borradorData, isLoading } = useQuery({
-    queryKey: ["scribe-borrador", atencionId],
+    queryKey: claveActiva("scribe-borrador", atencionId),
     enabled: !!atencionId,
     queryFn: async () => {
       // Los tipos generados aún no incluyen scribe_*: único cast permitido.

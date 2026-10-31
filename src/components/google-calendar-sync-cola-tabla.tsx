@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { CalendarClock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -15,7 +16,7 @@ import {
 
 type GoogleCalendarSyncCola = Tables<"google_calendar_sync_cola">;
 
-const colaQueryKey = ["google-calendar-sync-cola"] as const;
+const colaQueryKey = () => claveActiva("google-calendar-sync-cola");
 
 async function getGoogleCalendarSyncCola(): Promise<GoogleCalendarSyncCola[]> {
   const { data, error } = await supabase
@@ -68,7 +69,7 @@ function formatearFecha(valor: string) {
 
 export function GoogleCalendarSyncColaTabla() {
   const cola = useQuery({
-    queryKey: colaQueryKey,
+    queryKey: colaQueryKey(),
     queryFn: getGoogleCalendarSyncCola,
   });
 

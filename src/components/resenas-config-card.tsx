@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveConAlcance } from "@/lib/query-scope";
 import { CheckCircle2, ExternalLink, Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +16,7 @@ import { ErrorUsuario, mensajeParaUsuario } from "@/lib/resenas-schemas";
 // Ayuda oficial de Google Maps para compartir un lugar (Compartir → Copiar enlace).
 const URL_AYUDA_GOOGLE_MAPS = "https://support.google.com/maps/answer/7101463?hl=es";
 
-const queryKey = ["medico-resenas-config"] as const;
+const queryKey = (userId: string) => claveConAlcance(userId, "medico-resenas-config");
 
 // `medicos.resenas_habilitadas` y `medicos.google_resenas_url` (Día 26C) aún no están en el
 // types.ts generado por Lovable. Se tipan localmente hasta la próxima regeneración.
@@ -47,7 +48,7 @@ export function ResenasConfigCard() {
   const userId = user?.id ?? "";
   // La key incluye el user.id: otra cuenta en el mismo navegador nunca reutiliza la caché.
   const cfg = useQuery({
-    queryKey: [...queryKey, userId],
+    queryKey: queryKey(userId),
     queryFn: () => getConfig(userId),
     enabled: !!userId,
   });
@@ -86,7 +87,7 @@ export function ResenasConfigCard() {
       return cambios;
     },
     onSuccess: (cambios) => {
-      qc.setQueryData<FilaResenas>([...queryKey, userId], (prev) =>
+      qc.setQueryData<FilaResenas>(queryKey(userId), (prev) =>
         prev ? { ...prev, ...cambios } : prev,
       );
       if ("resenas_habilitadas" in cambios) {

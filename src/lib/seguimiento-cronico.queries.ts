@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -50,7 +51,7 @@ type ClienteRpc = {
 };
 
 export const seguimientosPacienteKey = (pacienteId: string) =>
-  ["seguimientos-paciente", pacienteId] as const;
+  claveActiva("seguimientos-paciente", pacienteId);
 
 export function useSeguimientosPaciente(pacienteId: string | null | undefined) {
   return useQuery({
@@ -84,7 +85,7 @@ export function useSeguimientosPaciente(pacienteId: string | null | undefined) {
 
 export function useTiposConsultaSeguimiento() {
   return useQuery({
-    queryKey: ["tipos-consulta-seguimiento"],
+    queryKey: claveActiva("tipos-consulta-seguimiento"),
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -144,7 +145,7 @@ export function useCrearSeguimientoPlan() {
     },
     onSuccess: (_res, vars) => {
       queryClient.invalidateQueries({ queryKey: seguimientosPacienteKey(vars.paciente_id) });
-      queryClient.invalidateQueries({ queryKey: ["citas"] });
+      queryClient.invalidateQueries({ queryKey: claveActiva("citas-propias") });
       toast.success("Plan de seguimiento crónico y cita de control programados.");
     },
   });
@@ -202,7 +203,7 @@ export function useActualizarHitoSeguimiento(pacienteId: string) {
     },
     onSuccess: (res, vars) => {
       queryClient.invalidateQueries({ queryKey: seguimientosPacienteKey(pacienteId) });
-      queryClient.invalidateQueries({ queryKey: ["citas"] });
+      queryClient.invalidateQueries({ queryKey: claveActiva("citas-propias") });
       if (vars.nuevoEstado === "completado") {
         toast.success(
           res?.siguiente_hito_id

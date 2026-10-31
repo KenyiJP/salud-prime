@@ -1,4 +1,5 @@
 import { queryOptions, useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
 import {
   actualizarTipoConsulta,
@@ -23,22 +24,22 @@ import type {
   ToggleTipoConsultaInput,
 } from "./agenda-schemas";
 
-export const tiposConsultaQueryKey = ["tipos-consulta"] as const;
-export const tiposConsultaAdminQueryKey = ["tipos-consulta", "admin"] as const;
-export const horariosQueryKey = ["horarios-atencion"] as const;
-export const bloqueosQueryKey = ["bloqueos-horario"] as const;
+export const tiposConsultaQueryKey = () => claveActiva("tipos-consulta");
+export const tiposConsultaAdminQueryKey = () => claveActiva("tipos-consulta", "admin");
+export const horariosQueryKey = () => claveActiva("horarios-atencion");
+export const bloqueosQueryKey = () => claveActiva("bloqueos-horario");
 
 export const tiposConsultaQuery = () =>
-  queryOptions({ queryKey: tiposConsultaQueryKey, queryFn: () => getTiposConsulta() });
+  queryOptions({ queryKey: tiposConsultaQueryKey(), queryFn: () => getTiposConsulta() });
 
 export const tiposConsultaAdminQuery = () =>
-  queryOptions({ queryKey: tiposConsultaAdminQueryKey, queryFn: () => getTiposConsultaAdmin() });
+  queryOptions({ queryKey: tiposConsultaAdminQueryKey(), queryFn: () => getTiposConsultaAdmin() });
 
 export const horariosQuery = () =>
-  queryOptions({ queryKey: horariosQueryKey, queryFn: () => getHorarios() });
+  queryOptions({ queryKey: horariosQueryKey(), queryFn: () => getHorarios() });
 
 export const bloqueosQuery = () =>
-  queryOptions({ queryKey: bloqueosQueryKey, queryFn: () => getBloqueos() });
+  queryOptions({ queryKey: bloqueosQueryKey(), queryFn: () => getBloqueos() });
 
 export function useTiposConsulta() {
   return useSuspenseQuery(tiposConsultaQuery());
@@ -57,8 +58,8 @@ export function useBloqueos() {
 }
 
 function invalidateTiposConsulta(queryClient: ReturnType<typeof useQueryClient>) {
-  queryClient.invalidateQueries({ queryKey: tiposConsultaQueryKey });
-  queryClient.invalidateQueries({ queryKey: tiposConsultaAdminQueryKey });
+  queryClient.invalidateQueries({ queryKey: tiposConsultaQueryKey() });
+  queryClient.invalidateQueries({ queryKey: tiposConsultaAdminQueryKey() });
 }
 
 export function useCrearTipoConsulta() {
@@ -105,7 +106,7 @@ export function useCrearHorario() {
   return useMutation({
     mutationFn: (input: NuevoHorarioInput) => crearHorario({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: horariosQueryKey });
+      queryClient.invalidateQueries({ queryKey: horariosQueryKey() });
       toast.success("Turno agregado a tu horario semanal.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo agregar el turno."),
@@ -117,7 +118,7 @@ export function useToggleHorario() {
   return useMutation({
     mutationFn: (input: ToggleHorarioInput) => toggleHorario({ data: input }),
     onSuccess: (row) => {
-      queryClient.invalidateQueries({ queryKey: horariosQueryKey });
+      queryClient.invalidateQueries({ queryKey: horariosQueryKey() });
       toast.success(row.activo ? "Turno activado." : "Turno desactivado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo actualizar el turno."),
@@ -129,7 +130,7 @@ export function useCrearBloqueo() {
   return useMutation({
     mutationFn: (input: NuevoBloqueoInput) => crearBloqueo({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bloqueosQueryKey });
+      queryClient.invalidateQueries({ queryKey: bloqueosQueryKey() });
       toast.success("Bloqueo registrado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo registrar el bloqueo."),
@@ -141,7 +142,7 @@ export function useEliminarBloqueo() {
   return useMutation({
     mutationFn: (input: EliminarBloqueoInput) => eliminarBloqueo({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bloqueosQueryKey });
+      queryClient.invalidateQueries({ queryKey: bloqueosQueryKey() });
       toast.success("Bloqueo eliminado.");
     },
     onError: (error: Error) => toast.error(error.message || "No se pudo eliminar el bloqueo."),

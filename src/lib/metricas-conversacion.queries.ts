@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import {
   getEsAdminPlataforma,
   getMetricasAgenteClinico,
@@ -7,9 +8,9 @@ import {
 import type { RangoMetricas } from "./metricas-conversacion-schemas";
 
 const KEYS = {
-  clinico: (r: RangoMetricas) => ["metricas-agente-clinico", r.desde, r.hasta] as const,
-  comercial: (r: RangoMetricas) => ["metricas-comercial", r.desde, r.hasta] as const,
-  adminPlataforma: ["es-admin-plataforma"] as const,
+  clinico: (r: RangoMetricas) => claveActiva("metricas-agente-clinico", r.desde, r.hasta),
+  comercial: (r: RangoMetricas) => claveActiva("metricas-comercial", r.desde, r.hasta),
+  adminPlataforma: () => claveActiva("es-admin-plataforma"),
 };
 
 export function useMetricasAgenteClinicoQuery(rango: RangoMetricas) {
@@ -31,7 +32,7 @@ export function useMetricasComercialQuery(rango: RangoMetricas, habilitado: bool
 
 export function useEsAdminPlataformaQuery() {
   return useQuery({
-    queryKey: KEYS.adminPlataforma,
+    queryKey: KEYS.adminPlataforma(),
     queryFn: () => getEsAdminPlataforma(),
     staleTime: 10 * 60_000,
   });

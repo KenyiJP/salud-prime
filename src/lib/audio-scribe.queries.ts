@@ -3,6 +3,7 @@
 // transporte se mapea a un código del contrato. Los RPC devuelven siempre un dato
 // `{ok, codigo?}`, nunca lanzan.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { supabase } from "@/integrations/supabase/client";
 import {
   MENSAJE_ERROR,
@@ -133,14 +134,14 @@ export const useConservarSesion = () => {
   >({
     mutationFn: (v) => audioConservarSesion(v.sesionId, v.accion),
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["audio-sesiones"] });
+      void qc.invalidateQueries({ queryKey: claveActiva("audio-sesiones") });
     },
   });
 };
 
 export const useSesionesAtencion = (atencionId: string | null) =>
   useQuery<RespuestaListarSesiones>({
-    queryKey: ["audio-sesiones", atencionId],
+    queryKey: claveActiva("audio-sesiones", atencionId),
     enabled: !!atencionId,
     queryFn: () => {
       if (!atencionId) return Promise.resolve({ ok: false, codigo: "parametro_invalido" } as const);
@@ -149,7 +150,7 @@ export const useSesionesAtencion = (atencionId: string | null) =>
   });
 
 // medicos.audio_scribe_habilitado: aún no está en types.ts generado (patrón triaje-config-card.tsx).
-const CLAVE_HABILITADO = ["medico-audio-scribe-habilitado"] as const;
+const claveHabilitado = () => claveActiva("medico-audio-scribe-habilitado");
 type FilaAudioCfg = { id: string; audio_scribe_habilitado: boolean };
 
 async function leerConfigMedico(): Promise<FilaAudioCfg | null> {
@@ -167,7 +168,7 @@ async function leerConfigMedico(): Promise<FilaAudioCfg | null> {
 /** `true` solo si el médico activó la función. Ante cualquier fallo: `false` (apagado seguro). */
 export const useAudioScribeHabilitado = () =>
   useQuery<boolean>({
-    queryKey: CLAVE_HABILITADO,
+    queryKey: claveHabilitado(),
     queryFn: async () => (await leerConfigMedico())?.audio_scribe_habilitado === true,
   });
 
@@ -185,7 +186,7 @@ export const useSetAudioScribeHabilitado = () => {
       return !error;
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: CLAVE_HABILITADO });
+      void qc.invalidateQueries({ queryKey: claveHabilitado() });
     },
   });
 };

@@ -5,7 +5,9 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { toast } from "sonner";
+import { MENSAJE_PAGO_GENERICO, mensajePagoPresencial } from "@/lib/pago-presencial";
 import {
   actualizarCita,
   cambiarEstadoCita,
@@ -30,10 +32,10 @@ import type {
 
 export type { CitaResumenPagoRow, CitaRow, EstadoCita, PagoCitaRow };
 
-export const citasQueryKey = ["citas-propias"] as const;
+export const citasQueryKey = () => claveActiva("citas-propias");
 
 export const citasQuery = () =>
-  queryOptions({ queryKey: citasQueryKey, queryFn: () => getCitas() });
+  queryOptions({ queryKey: citasQueryKey(), queryFn: () => getCitas() });
 
 export function useCitas() {
   return useSuspenseQuery(citasQuery());
@@ -44,7 +46,7 @@ export function useCrearCita() {
   return useMutation({
     mutationFn: (input: NuevaCitaInput) => crearCita({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: citasQueryKey });
+      queryClient.invalidateQueries({ queryKey: citasQueryKey() });
       toast.success("Cita agendada correctamente.");
     },
     onError: (error: Error) => {
@@ -58,7 +60,7 @@ export function useActualizarCita() {
   return useMutation({
     mutationFn: (input: ActualizarCitaInput) => actualizarCita({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: citasQueryKey });
+      queryClient.invalidateQueries({ queryKey: citasQueryKey() });
       toast.success("Cita actualizada correctamente.");
     },
     onError: (error: Error) => {
@@ -72,7 +74,7 @@ export function useCambiarEstadoCita() {
   return useMutation({
     mutationFn: (input: CambiarEstadoCitaInput) => cambiarEstadoCita({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: citasQueryKey });
+      queryClient.invalidateQueries({ queryKey: citasQueryKey() });
       toast.success("Estado de la cita actualizado.");
     },
     onError: (error: Error) => {
@@ -86,7 +88,7 @@ export function useEliminarCita() {
   return useMutation({
     mutationFn: (input: EliminarCitaInput) => eliminarCita({ data: input }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: citasQueryKey });
+      queryClient.invalidateQueries({ queryKey: citasQueryKey() });
       toast.success("Cita eliminada.");
     },
     onError: (error: Error) => {
@@ -99,7 +101,7 @@ export function useEliminarCita() {
 // Regla de oro: `total_pagado` / `saldo_pendiente` se leen tal cual de
 // `citas_resumen_pago`, nunca se recalculan sumando `pagos_cita` en cliente.
 
-export const resumenPagoCitaQueryKey = (citaId: string) => ["cita-resumen-pago", citaId] as const;
+export const resumenPagoCitaQueryKey = (citaId: string) => claveActiva("cita-resumen-pago", citaId);
 
 export const resumenPagoCitaQuery = (citaId: string) =>
   queryOptions({
@@ -113,7 +115,7 @@ export function useResumenPagoCita(citaId: string) {
 }
 
 export const movimientosPagoCitaQueryKey = (citaId: string) =>
-  ["cita-movimientos-pago", citaId] as const;
+  claveActiva("cita-movimientos-pago", citaId);
 
 export function useMovimientosPagoCita(citaId: string) {
   return useQuery({
@@ -126,7 +128,7 @@ export function useMovimientosPagoCita(citaId: string) {
 /**
  * La RPC nunca lanza excepción de negocio: siempre resuelve con
  * `{ ok, error_codigo, error_mensaje, pago_id, estado_pago }`. El llamador
- * decide qué hacer con `ok === false` (mostrar `error_mensaje`); esta
+ * decide qué hacer con `ok === false` (mostrar el mensaje fijo de `error_codigo`); esta
  * mutation solo propaga errores reales de red/infraestructura via onError.
  */
 export function useRegistrarPagoPresencial(citaId: string) {
@@ -135,16 +137,18 @@ export function useRegistrarPagoPresencial(citaId: string) {
     mutationFn: (input: RegistrarPagoPresencialInput) => registrarPagoPresencial({ data: input }),
     onSuccess: (resultado) => {
       if (!resultado.ok) {
-        toast.error(resultado.error_mensaje || "No se pudo registrar el cobro.");
+        // Texto fijo por código (R6): nunca se muestra `error_mensaje` crudo.
+        toast.error(mensajePagoPresencial(resultado.error_codigo));
         return;
       }
       queryClient.invalidateQueries({ queryKey: resumenPagoCitaQueryKey(citaId) });
       queryClient.invalidateQueries({ queryKey: movimientosPagoCitaQueryKey(citaId) });
-      queryClient.invalidateQueries({ queryKey: citasQueryKey });
+      queryClient.invalidateQueries({ queryKey: citasQueryKey() });
       toast.success("Cobro registrado correctamente.");
     },
     onError: (error: Error) => {
-      toast.error(error.message || "No se pudo registrar el cobro.");
+      // El servidor ya lanza un texto fijo; no se hace eco de otros errores.
+      toast.error(MENSAJE_PAGO_GENERICO);
     },
   });
 }

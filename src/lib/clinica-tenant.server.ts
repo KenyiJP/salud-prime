@@ -60,15 +60,17 @@ export async function resolveContextoConsultorio(
       "No existe un perfil de médico vinculado a esta cuenta. Completa el registro médico primero.",
     );
   }
+  // Día 29D: recepción/enfermería/facturación ya no pueden leer `medicos`
+  // (firma, CMP, contacto, bot). Solo necesitan el id: vista `medicos_equipo_basico`.
   const { data: medico, error: errMed } = await supabase
-    .from("medicos")
+    .from("medicos_equipo_basico")
     .select("id, tenant_id")
     .eq("tenant_id", fila.tenant_id)
-    .order("created_at", { ascending: true })
+    .order("id", { ascending: true }) // la vista no expone created_at; orden estable por id
     .limit(1)
     .maybeSingle();
-  if (errMed) throw new Error(errMed.message);
-  if (!medico) throw new Error("El consultorio no tiene un médico titular configurado.");
+  if (errMed) throw new Error("No se pudo cargar el consultorio. Inténtalo de nuevo.");
+  if (!medico?.id || !medico.tenant_id) throw new Error("El consultorio no tiene un médico titular configurado.");
   return { medicoId: medico.id, tenantId: medico.tenant_id };
 }
 

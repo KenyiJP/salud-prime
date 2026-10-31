@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { Loader2, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -7,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 type IntegracionWhatsapp = Tables<"whatsapp_integraciones">;
 
-const integrationQueryKey = ["whatsapp-integracion"] as const;
+const integrationQueryKey = () => claveActiva("whatsapp-integracion");
 
 const MENSAJE_SIN_CONECTAR =
   "WhatsApp Business aún no está conectado. La activación se habilitará cuando se complete la verificación de negocio en Meta.";
@@ -35,7 +36,7 @@ async function getIntegracionWhatsapp(): Promise<IntegracionWhatsapp | null> {
 
 export function WhatsappIntegracionCard() {
   const integracion = useQuery({
-    queryKey: integrationQueryKey,
+    queryKey: integrationQueryKey(),
     queryFn: getIntegracionWhatsapp,
   });
 

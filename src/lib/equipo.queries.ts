@@ -2,7 +2,9 @@
 // `equipo_*` (SECURITY DEFINER, rechazos como dato `{ok:false, codigo}`).
 // Ningún texto de error del backend llega a la UI: solo códigos mapeados.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { claveActiva } from "@/lib/query-scope";
 import { supabase } from "@/integrations/supabase/client";
+import { esCorreo, normalizarCorreo } from "@/lib/equipo-utils";
 
 type Rpc = (
   nombre: string,
@@ -52,13 +54,14 @@ export type Invitacion = {
 };
 
 export const equipoKeys = {
-  miembros: ["equipo", "miembros"] as const,
-  invitaciones: ["equipo", "invitaciones"] as const,
+  todo: () => claveActiva("equipo"),
+  miembros: () => claveActiva("equipo", "miembros"),
+  invitaciones: () => claveActiva("equipo", "invitaciones"),
 };
 
 export function useMiembrosQuery() {
   return useQuery({
-    queryKey: equipoKeys.miembros,
+    queryKey: equipoKeys.miembros(),
     queryFn: () => llamar<{ miembros: Miembro[] }>("equipo_listar_miembros"),
   });
 }
@@ -66,7 +69,7 @@ export function useMiembrosQuery() {
 /** Solo el titular las ve (RLS `equipo_invitaciones_select_titular`); nunca incluye el token. */
 export function useInvitacionesQuery(habilitado: boolean) {
   return useQuery({
-    queryKey: equipoKeys.invitaciones,
+    queryKey: equipoKeys.invitaciones(),
     enabled: habilitado,
     queryFn: async (): Promise<Invitacion[]> => {
       const { data, error } = await db
@@ -80,22 +83,36 @@ export function useInvitacionesQuery(habilitado: boolean) {
   });
 }
 
-function useMutacionEquipo<TIn, TOut>(fn: (v: TIn) => Promise<ResultadoEquipo<TOut>>) {
+function useMutacionEquipo<TIn, TOut>(
+  fn: (v: TIn) => Promise<ResultadoEquipo<TOut>>,
+  opciones: { gcTime?: number } = {},
+) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: fn,
+    gcTime: opciones.gcTime,
     onSuccess: (r) => {
-      if (r.ok) void qc.invalidateQueries({ queryKey: ["equipo"] });
+      if (r.ok) void qc.invalidateQueries({ queryKey: equipoKeys.todo() });
     },
   });
 }
 
 export const useCrearInvitacion = () =>
-  useMutacionEquipo((v: { rol: string; nombre: string }) =>
-    llamar<{ invitacion_id: string; token: string; expira_en: string }>("equipo_crear_invitacion", {
-      p_rol: v.rol,
-      p_nombre_referencia: v.nombre.trim() || null,
-    }),
+  useMutacionEquipo(
+    async (v: { rol: string; nombre: string; correo: string }) => {
+      // El backend exige el correo: la invitación queda atada a esa cuenta verificada.
+      const correo = normalizarCorreo(v.correo);
+      if (!esCorreo(correo)) {
+        return { ok: false, codigo: correo ? "correo_invalido" : "correo_requerido" } as ResultadoEquipo<never>;
+      }
+      return llamar<{ invitacion_id: string; token: string; expira_en: string }>("equipo_crear_invitacion", {
+        p_rol: v.rol,
+        p_nombre_referencia: v.nombre.trim() || null,
+        p_email_destino: correo,
+      });
+    },
+    // F2: el resultado incluye el token en claro; no se retiene en el MutationCache (gcTime 0).
+    { gcTime: 0 },
   );
 
 export const useCambiarRol = () =>

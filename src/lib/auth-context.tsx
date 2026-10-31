@@ -11,6 +11,7 @@ import {
 import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { fijarUsuarioActivo, usuarioActivoId } from "@/lib/query-scope";
 
 import type { Rol } from "./acceso-roles";
 export { rutaInicialPorRol } from "./acceso-roles";
@@ -100,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;
       userIdRef.current = data.session?.user.id ?? null;
+      fijarUsuarioActivo(userIdRef.current);
       setSession(data.session);
       await loadRol(data.session);
       if (active) setLoading(false);
@@ -116,7 +118,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(nextSession);
         return;
       }
+      // F1: cambio de identidad (otra cuenta, sesión vencida o cierre de sesión). Se vacía la caché
+      // ANTES de publicar la nueva sesión y el rol, y se cancelan las consultas en vuelo para que
+      // ninguna respuesta de la cuenta anterior se escriba después de la limpieza.
+      // Primera emisión tras la carga: la identidad previa es la que fijó el guard de ruta (no se
+      // vacía la caché de la propia cuenta, que ya pudo precargar datos).
+      const idNuevo = nextSession?.user.id ?? null;
+      const idPrevio = userIdRef.current ?? usuarioActivoId();
+      if (idPrevio !== idNuevo) {
+        void queryClient.cancelQueries();
+        queryClient.clear();
+      }
       userIdRef.current = nextSession?.user.id ?? null;
+      fijarUsuarioActivo(userIdRef.current);
       setRol(null); // otra cuenta (o cierre de sesión): jamás heredar el rol anterior
       setSession(nextSession);
       setLoading(true);
@@ -127,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       active = false;
       sub.subscription.unsubscribe();
     };
-  }, [loadRol]);
+  }, [loadRol, queryClient]);
 
   const refreshRol = useCallback(async () => {
     await loadRol(session);
@@ -135,10 +149,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
+    // Evita que otra cuenta en el mismo navegador vea datos en caché de la sesión anterior.
+    void queryClient.cancelQueries();
+    queryClient.clear();
+    userIdRef.current = null;
+    fijarUsuarioActivo(null);
     setSession(null);
     setRol(null);
-    // Evita que otra cuenta en el mismo navegador vea datos en caché de la sesión anterior.
-    queryClient.clear();
   }, [queryClient]);
 
   const value = useMemo<AuthState>(

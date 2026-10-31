@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Copy, Mail, MessageCircle, UserPlus, Ban } from "lucide-react";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import {
   etiquetaRol,
   mensajeEquipo,
   mensajeInvitacion,
+  normalizarCorreo,
   ROLES_INVITABLES,
 } from "@/lib/equipo-utils";
 import {
@@ -54,7 +55,7 @@ export const Route = createFileRoute("/configuracion/equipo")({
 // un correo oficial de MediSuite queda pendiente hasta tener dominio propio y
 // SMTP (ver docs/semana-05.md, "Pendientes de Etapa 3").
 
-type Generada = { token: string; rol: string; nombre: string; expira_en: string };
+type Generada = { token: string; rol: string; nombre: string; correo: string; expira_en: string };
 
 function EquipoPage() {
   const { rol: miRol } = useAuth();
@@ -62,6 +63,23 @@ function EquipoPage() {
   const esTitular = miRol === "founder" || miRol === "medico";
   const invitaciones = useInvitacionesQuery(esTitular);
   const [generada, setGenerada] = useState<Generada | null>(null);
+  // F2: la mutación vive aquí (no en InvitarCard) para poder resetearla al ocultar el enlace.
+  const crear = useCrearInvitacion();
+  const { reset: resetCrear } = crear;
+
+  // F2: el token no debe sobrevivir a esta pantalla. Al salir de la ruta (o cambiar de cuenta,
+  // que desmonta el panel) se descarta el estado local y el resultado de la mutación.
+  useEffect(() => {
+    return () => {
+      setGenerada(null);
+      resetCrear();
+    };
+  }, [resetCrear]);
+
+  function ocultarEnlace() {
+    setGenerada(null);
+    resetCrear(); // TanStack conserva `data` (con el token) en el MutationCache hasta `gcTime`
+  }
 
   const lista = miembros.data && miembros.data.ok ? miembros.data.miembros : [];
   const errorLista = miembros.data && !miembros.data.ok ? mensajeEquipo(miembros.data.codigo) : null;
@@ -75,8 +93,8 @@ function EquipoPage() {
           description="Invita a recepción, enfermería, facturación o community manager. Cada rol ve solo lo que necesita."
         />
 
-        <InvitarCard onGenerada={setGenerada} />
-        {generada ? <EnlaceCard generada={generada} onCerrar={() => setGenerada(null)} /> : null}
+        <InvitarCard crear={crear} onGenerada={setGenerada} />
+        {generada ? <EnlaceCard generada={generada} onCerrar={ocultarEnlace} /> : null}
 
         <Card className="border-border/60 shadow-none">
           <CardHeader>
@@ -100,8 +118,8 @@ function EquipoPage() {
           <CardHeader>
             <CardTitle>Invitaciones</CardTitle>
             <CardDescription>
-              Cada enlace vale 72 horas y se usa una sola vez. Cualquier persona con el enlace puede unirse con el
-              rol indicado: envíalo solo a quien corresponde. Por seguridad no se puede volver a ver; si lo
+              Cada enlace vale 72 horas y se usa una sola vez. Solo puede usarlo quien inicie sesión con el
+              correo invitado, ya verificado. Por seguridad no se puede volver a ver; si lo
               perdiste, revoca la invitación y crea otra.
             </CardDescription>
           </CardHeader>
@@ -120,22 +138,31 @@ function EquipoPage() {
   );
 }
 
-function InvitarCard({ onGenerada }: { onGenerada: (g: Generada) => void }) {
+function InvitarCard({
+  crear,
+  onGenerada,
+}: {
+  crear: ReturnType<typeof useCrearInvitacion>;
+  onGenerada: (g: Generada) => void;
+}) {
   const [rol, setRol] = useState<string>("recepcion");
   const [nombre, setNombre] = useState("");
-  const crear = useCrearInvitacion();
+  const [correo, setCorreo] = useState("");
+  const correoValido = esCorreo(normalizarCorreo(correo));
   const ayuda = ROLES_INVITABLES.find((r) => r.valor === rol)?.ayuda;
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
-    const r = await crear.mutateAsync({ rol, nombre });
+    if (!correoValido) return;
+    const r = await crear.mutateAsync({ rol, nombre, correo });
     if (!r.ok) {
       toast.error(mensajeEquipo(r.codigo));
       return;
     }
-    onGenerada({ token: r.token, rol, nombre: nombre.trim(), expira_en: r.expira_en });
+    onGenerada({ token: r.token, rol, nombre: nombre.trim(), correo: normalizarCorreo(correo), expira_en: r.expira_en });
     crear.reset(); // el token en claro no debe quedar en el caché de mutaciones
     setNombre("");
+    setCorreo("");
     toast.success("Invitación creada. Copia o envía el enlace.");
   }
 
@@ -147,7 +174,7 @@ function InvitarCard({ onGenerada }: { onGenerada: (g: Generada) => void }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={enviar} className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+        <form onSubmit={enviar} className="grid gap-4 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
           <div className="space-y-1.5">
             <Label htmlFor="inv-nombre">Nombre (opcional)</Label>
             <Input
@@ -156,6 +183,20 @@ function InvitarCard({ onGenerada }: { onGenerada: (g: Generada) => void }) {
               maxLength={80}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej. Ana"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="inv-correo">Correo de la persona</Label>
+            <Input
+              id="inv-correo"
+              type="email"
+              required
+              autoComplete="off"
+              maxLength={254}
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="persona@correo.com"
+              aria-invalid={correo.trim() !== "" && !correoValido}
             />
           </div>
           <div className="space-y-1.5">
@@ -173,10 +214,13 @@ function InvitarCard({ onGenerada }: { onGenerada: (g: Generada) => void }) {
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" disabled={crear.isPending}>
-            {crear.isPending ? "Creando…" : "Crear invitación"}
+          <Button type="submit" disabled={crear.isPending || !correoValido}>
+            {crear.isPending ? "Generando…" : "Generar invitación"}
           </Button>
-          {ayuda ? <p className="text-xs text-muted-foreground sm:col-span-3">{ayuda}</p> : null}
+          <p className="text-xs text-muted-foreground sm:col-span-4">
+            Solo podrá usar el enlace quien inicie sesión con este correo ya verificado.
+          </p>
+          {ayuda ? <p className="text-xs text-muted-foreground sm:col-span-4">{ayuda}</p> : null}
         </form>
       </CardContent>
     </Card>
@@ -184,7 +228,7 @@ function InvitarCard({ onGenerada }: { onGenerada: (g: Generada) => void }) {
 }
 
 function EnlaceCard({ generada, onCerrar }: { generada: Generada; onCerrar: () => void }) {
-  const [correo, setCorreo] = useState("");
+  const correo = generada.correo;
   const [telefono, setTelefono] = useState("");
   const enlace = enlaceInvitacion(window.location.origin, generada.token);
   const mensaje = mensajeInvitacion({ enlace, rol: generada.rol, nombre: generada.nombre });
@@ -227,24 +271,18 @@ function EnlaceCard({ generada, onCerrar }: { generada: Generada; onCerrar: () =
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="inv-mail">Correo de la persona</Label>
-            <div className="flex gap-2">
-              <Input id="inv-mail" type="email" placeholder="persona@correo.com" value={correo} onChange={(e) => setCorreo(e.target.value)} />
-              <Button type="button" variant="outline" asChild={esCorreo(correo)} disabled={!esCorreo(correo)}>
-                {esCorreo(correo) ? (
-                  <a href={enlaceMailto({ para: correo, asunto: "Invitación a MediSuite", cuerpo: mensaje })}>
-                    <Mail className="mr-2 h-4 w-4" /> Enviar invitación por correo
-                  </a>
-                ) : (
-                  <span>
-                    <Mail className="mr-2 inline h-4 w-4" /> Enviar invitación por correo
-                  </span>
-                )}
+            <Label>Correo de la persona</Label>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="truncate text-sm font-medium">{correo}</span>
+              <Button type="button" variant="outline" asChild>
+                <a href={enlaceMailto({ para: correo, asunto: "Invitación a MediSuite", cuerpo: mensaje })}>
+                  <Mail className="mr-2 h-4 w-4" /> Enviar por correo
+                </a>
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Se abre tu programa de correo con el mensaje listo; sale desde tu propia cuenta. El envío
-              automático desde MediSuite se activará cuando exista el correo oficial.
+              Se abre tu programa de correo con el mensaje listo; sale desde tu propia cuenta. Solo podrá usar el
+              enlace quien inicie sesión con este correo ya verificado.
             </p>
           </div>
         </div>
